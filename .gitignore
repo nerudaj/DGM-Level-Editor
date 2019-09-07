@@ -1,0 +1,14 @@
+## Ignore 3rd party libraries
+3rdParty/SFML
+3rdParty/DGM
+3rdParty/TGUI
+
+## Include solution file
+vsbuild
+
+## Ignore release folders
+RELEASE
+
+## Ignore auxiliary files
+*.ini
+*.lvd
