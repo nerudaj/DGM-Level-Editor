@@ -3,9 +3,9 @@ call /tools/doomsh.cmd
 
 rem Set these variables to your liking
 set BUILDDIR=vsbuild
-set SOLUTION=template.sln
+set SOLUTION=dgm-level-editor.sln
 set RELDIR=RELEASE
-set PROJECT_NAME=Template
+set PROJECT_NAME=DGM-Level-Editor
 
 @echo off
 
