@@ -1,0 +1,14 @@
+DGM Level Editor v0.1.0
+ * Initial version
+ * Save/Load works
+ * Tile/Item placement works
+
+Known limitations/bugs:
+ * Uses DGM Template skeleton (will be removed in the next version)
+ * Configuration is hardcoded
+ * New level option does not work
+ * Play level does not work
+ * Item export uses LevelD version 0 (will be fixed in the next version)
+ * Cannot remove objects/tiles with right click
+ * Brush history is shorter than it should be
+ * Cannot resize window
