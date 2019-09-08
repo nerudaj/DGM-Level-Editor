@@ -28,11 +28,13 @@ private:
 	void buildLayout();
 	void buildSidebar();
 	void buildSelectionModal();
+	void buildNewLevelModal();
 
 	// Maintenance
 	void switchEditorMode(EditorMode mode);
 	void drawOnLayer();
 	void playLevel();
+	void newLevel();
 
 	// Misc
 	void log(const std::string& message);

@@ -23,14 +23,19 @@ void Editor::setMode(EditorMode mode) {
 	}
 }
 
-void Editor::init(unsigned width, unsigned height, const dgm::ResourceManager& resmgr) {
+void Editor::init(unsigned width, unsigned height, const std::string &configPath, const dgm::ResourceManager& resmgr) {
+	// TODO: instantiate your own ResourceManager and load it using rootDir in configPath
+
 	tileSize = { 16, 16 }; // TODO: setup of this
+
+	tileHistory.clear();
+	itemHistory.clear();
 
 	tileHistory.addItem(0);
 	itemHistory.addItem(0);
 
-	tileTool.init("TODO", resmgr);
-	itemTool.init("TODO", resmgr);
+	tileTool.init(configPath, resmgr);
+	itemTool.init(configPath, resmgr);
 
 	tileLayer.init(width, height, tileSize, tileTool);
 	itemLayer.init(width, height, tileSize, itemTool);

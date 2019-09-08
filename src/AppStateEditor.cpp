@@ -56,12 +56,9 @@ bool AppStateEditor::init() {
 	sf::Font& font = resmgr.get<sf::Font>("cruft.ttf");
 
 	// Setup member variables
-	levelWidth = 20;
-	levelHeight = 10;
 	zoomLevel = 1.f;
 	drawing = false;
 	lastMouseButtonPressed = sf::Mouse::Left;
-	editor.init(levelWidth, levelHeight, resmgr);
 
 	// Gui setup
 	theme.load(rootDir + "/graphics/gui/TransparentGrey.txt");
@@ -92,6 +89,9 @@ void AppStateEditor::buildLayout() {
 	menu->setSize("100%", 22.f);
 	menu->addMenu("File");
 	menu->addMenuItem("New");
+	menu->connectMenuItem("File", "New", [this]() {
+		buildNewLevelModal();
+	});
 	menu->addMenuItem("Load");
 	menu->connectMenuItem("File", "Load", [this]() {
 		try {
@@ -251,6 +251,76 @@ void AppStateEditor::buildSelectionModal() {
 	}
 }
 
+void AppStateEditor::buildNewLevelModal() {
+	auto modal = tgui::ChildWindow::create("New level");
+	modal->setSize("30%", "50%");
+	modal->setPosition("35%", "25%");
+	gui.add(modal, "ModalNewLevel");
+
+	const auto ROW_HEIGHT = "6%";
+	const auto ROW_Y_OFFSET = 2;
+
+	// Labels
+	std::vector<std::string> labels = {
+		"Level width:",
+		"Level height:",
+		"Config file:"
+	};
+
+	for (unsigned i = 0; i < labels.size(); i++) {
+		auto label = tgui::Label::create(labels[i]);
+		label->setSize("26%", ROW_HEIGHT);
+		label->setPosition("2%", std::to_string(i * 10 + ROW_Y_OFFSET) + "%");
+		label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
+		modal->add(label);
+	}
+
+	// Textboxes
+	std::vector<std::vector<std::string>> boxes = {
+		{"66%", "10", "InputLevelWidth"},
+		{"66%", "20", "InputLevelHeight"},
+		{"58%", "Select a file...", "InputLevelConfig"},
+	};
+
+	for (unsigned i = 0; i < boxes.size(); i++) {
+		auto box = tgui::EditBox::create();
+		box->setSize(boxes[i][0], ROW_HEIGHT);
+		box->setPosition("32%", std::to_string(i * 10 + ROW_Y_OFFSET) + "%");
+		box->setDefaultText(boxes[i][1]);
+		modal->add(box, boxes[i][2]);
+	}
+
+	// ## Buttons
+	// Selection of config file
+	auto btn = tgui::Button::create("...");
+	btn->setSize("8%", "6%");
+	btn->setPosition("90%", "22%");
+	btn->connect("clicked", [this]() {
+		try {
+			auto str = FileApi::getOpenFileName();
+			auto box = gui.get<tgui::EditBox>("InputLevelConfig");
+			box->setText(str);
+		}
+		catch (...) {}
+	});
+	modal->add(btn);
+
+	btn = tgui::Button::create("Ok");
+	btn->setSize("20%", "8%");
+	btn->setPosition("56%", "90%");
+	btn->connect("clicked", [this]() { newLevel(); });
+	modal->add(btn);
+
+	btn = tgui::Button::create("Cancel");
+	btn->setSize("20%", "8%");
+	btn->setPosition("78%", "90%");
+	btn->connect("clicked", [this]() {
+		auto modal = gui.get<tgui::ChildWindow>("ModalNewLevel");
+		modal->close();
+	});
+	modal->add(btn);
+}
+
 void AppStateEditor::switchEditorMode(EditorMode mode) {
 	editor.setMode(mode);
 
@@ -279,6 +349,21 @@ void AppStateEditor::playLevel() {
 	// TODO: Bootstrap what you need
 
 	app->pushState(new AppStateIngame(resmgr));
+}
+
+void AppStateEditor::newLevel() {
+	// Get settings from modal
+	// TODO: error catching
+	levelWidth = std::stoul(gui.get<tgui::EditBox>("InputLevelWidth")->getText().toAnsiString());
+	levelHeight = std::stoul(gui.get<tgui::EditBox>("InputLevelHeight")->getText().toAnsiString());
+	std::string configPath = gui.get<tgui::EditBox>("InputLevelConfig")->getText().toAnsiString();
+
+	// Close modal
+	auto modal = gui.get<tgui::ChildWindow>("ModalNewLevel");
+	modal->close();
+
+	editor.init(levelWidth, levelHeight, configPath, resmgr);
+	buildSidebar();
 }
 
 void AppStateEditor::log(const std::string& message) {

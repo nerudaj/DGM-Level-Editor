@@ -63,11 +63,14 @@ public:
 
 	void setMode(EditorMode mode);
 
-	void init(unsigned width, unsigned height, const dgm::ResourceManager& resmgr);
+	void init(unsigned width, unsigned height, const std::string &configPath, const dgm::ResourceManager& resmgr);
 
 	void saveToFile(const std::string& filename);
 
 	void loadFromFile(const std::string& filename);
 
-	Editor() : activeHistory(tileHistory), activeTool(tileTool), activeLayer(tileLayer) {}
+	Editor() : activeHistory(tileHistory), activeTool(tileTool), activeLayer(tileLayer) {
+		tileHistory.clear();
+		itemHistory.clear();
+	}
 };
