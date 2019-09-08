@@ -73,9 +73,10 @@ public:
 				if (map[i] == -1) continue;
 
 				lvd.items.push_back({
-					uint32_t(x * tileSize.x), 
-					uint32_t(y * tileSize.y), 
-					uint16_t(items[map[i]].id) 
+					uint32_t(items[map[i]].id),
+					uint32_t(x * tileSize.x),
+					uint32_t(y * tileSize.y),
+					uint16_t(0)
 				});
 			}
 		}
@@ -86,7 +87,7 @@ public:
 		std::fill(map.begin(), map.end(), -1);
 
 		for (auto& item : lvd.items) {
-			addItem(item.x / tileSize.x, item.y / tileSize.y, item.flags);
+			addItem(item.x / tileSize.x, item.y / tileSize.y, item.id);
 		}
 	}
 
