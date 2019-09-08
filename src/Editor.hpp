@@ -65,8 +65,16 @@ public:
 
 	void init(unsigned width, unsigned height, const std::string &configPath, const dgm::ResourceManager& resmgr);
 
+	/**
+	 *  \warn Broken if init wasnt called first!
+	 *  \todo FIX
+	 */
 	void saveToFile(const std::string& filename);
 
+	/**
+	 *  \warn Broken if init wasnt called first!
+	 *  \todo FIX
+	 */
 	void loadFromFile(const std::string& filename);
 
 	Editor() : activeHistory(tileHistory), activeTool(tileTool), activeLayer(tileLayer) {
