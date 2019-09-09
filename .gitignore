@@ -2,6 +2,7 @@
 3rdParty/SFML
 3rdParty/DGM
 3rdParty/TGUI
+3rdParty/json
 
 ## Include solution file
 vsbuild
