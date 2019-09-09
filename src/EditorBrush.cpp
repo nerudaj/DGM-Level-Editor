@@ -1,47 +1,30 @@
 #include "EditorBrush.hpp"
-#include "../json.hpp"
-#include <fstream>
 
-nlohmann::json loadJsonFromFile(const std::string &filename) {
-	std::ifstream load(filename);
-	nlohmann::json file;
-	load >> file;
-	load.close();
-	load.clear();
+void EditorBrushTile::init(const nlohmann::json& config, const dgm::ResourceManager& resmgr) {
+	texture = resmgr.get<sf::Texture>(config["tileBrush"]["texture"]);
 
-	return file;
+	sf::Vector2i tileSize;
+	tileSize.x = config["editor"]["tileSize"][0].get<int>();
+	tileSize.y = config["editor"]["tileSize"][1].get<int>();
+
+	sf::IntRect bounds;
+	bounds.left = config["tileBrush"]["clip"]["boundaries"][0].get<int>();
+	bounds.top = config["tileBrush"]["clip"]["boundaries"][1].get<int>();
+	bounds.width = config["tileBrush"]["clip"]["boundaries"][2].get<int>();
+	bounds.height = config["tileBrush"]["clip"]["boundaries"][3].get<int>();
+
+	clip = dgm::Clip(tileSize, bounds);
+
+	std::vector<int> map(config["tileBrush"]["meshMap"].begin(), config["tileBrush"]["meshMap"].end());
+	meshMap = std::vector<bool>(map.begin(), map.end());
 }
 
-void EditorBrushTile::init(const std::string& cfgfile, const dgm::ResourceManager& resmgr) {
-	//auto json = loadJsonFromFile(cfgfile);
-
-	texture = resmgr.get<sf::Texture>("basictiles.png");
-	clip = dgm::Clip({ 16, 16 }, { 0, 0, 128, 48 });
-
-	meshMap = {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1};
-}
-
-void EditorBrushItem::init(const std::string& cfgfile, const dgm::ResourceManager& resmgr) {
-	//auto json = loadJsonFromFile(cfgfile);
-
-	struct ConfigLine {
-		std::string animationDataName;
-		std::string animationState;
-		std::string textureName;
-	};
-
-	std::vector<ConfigLine> lines = {
-		{ "item.json", "idle", "pot.png" },
-		{ "item.json", "idle", "torch.png" }
-	};
-
-	for (auto& line : lines) {
-		auto& anim = resmgr.get<std::shared_ptr<dgm::AnimationStates>>(line.animationDataName);
-		auto rect = (*anim)[line.animationState].getFrame(0);
-		sf::Texture& txt = resmgr.get<sf::Texture>(line.textureName);
+void EditorBrushItem::init(const nlohmann::json& config, const dgm::ResourceManager& resmgr) {
+	for (auto& item : config["itemBrush"]) {
+		auto& anim = resmgr.get<std::shared_ptr<dgm::AnimationStates>>(item["config"]);
+		auto rect = (*anim)[item["state"]].getFrame(0);
+		sf::Texture& txt = resmgr.get<sf::Texture>(item["texture"]);
 
 		items.push_back({ rect, txt });
 	}
 }
-
-

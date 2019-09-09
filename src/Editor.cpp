@@ -1,4 +1,16 @@
 #include "Editor.hpp"
+#include <json.hpp>
+#include <fstream>
+
+nlohmann::json loadJsonFromFile(const std::string& filename) {
+	std::ifstream load(filename);
+	nlohmann::json file;
+	load >> file;
+	load.close();
+	load.clear();
+
+	return file;
+}
 
 void Editor::draw(tgui::Canvas::Ptr canvas) {
 	tileLayer.draw(canvas);
@@ -13,20 +25,26 @@ void Editor::setZoomLevel(float zoom) {
 void Editor::setMode(EditorMode mode) {
 	if (mode == EditorMode::Tiles) {
 		activeHistory = tileHistory;
-		activeTool = tileTool;
+		activeBrush = tileBrush;
 		activeLayer = tileLayer;
 	}
 	else {
 		activeHistory = itemHistory;
-		activeTool = itemTool;
+		activeBrush = itemBrush;
 		activeLayer = itemLayer;
 	}
 }
 
-void Editor::init(unsigned width, unsigned height, const std::string &configPath, const dgm::ResourceManager& resmgr) {
-	// TODO: instantiate your own ResourceManager and load it using rootDir in configPath
+void Editor::init(unsigned width, unsigned height, const std::string &configPath) {
+	auto config = loadJsonFromFile(configPath);
 
-	tileSize = { 16, 16 }; // TODO: setup of this
+	std::string basePath = config["editor"]["pathToGameResources"].get<std::string>() + "/graphics";
+	// TODO: remember path to binary
+	resmgr.loadResourceDir<sf::Texture>(basePath + "/textures");
+	resmgr.loadResourceDir<std::shared_ptr<dgm::AnimationStates>>(basePath + "/configs");
+
+	tileSize.x = config["editor"]["tileSize"][0].get<int>();
+	tileSize.y = config["editor"]["tileSize"][1].get<int>();
 
 	tileHistory.clear();
 	itemHistory.clear();
@@ -34,11 +52,11 @@ void Editor::init(unsigned width, unsigned height, const std::string &configPath
 	tileHistory.addItem(0);
 	itemHistory.addItem(0);
 
-	tileTool.init(configPath, resmgr);
-	itemTool.init(configPath, resmgr);
+	tileBrush.init(config, resmgr);
+	itemBrush.init(config, resmgr);
 
-	tileLayer.init(width, height, tileSize, tileTool);
-	itemLayer.init(width, height, tileSize, itemTool);
+	tileLayer.init(width, height, tileSize, tileBrush);
+	itemLayer.init(width, height, tileSize, itemBrush);
 }
 
 void Editor::saveToFile(const std::string& filename) {

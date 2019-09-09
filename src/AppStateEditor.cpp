@@ -1,8 +1,8 @@
 #include <cmath>
 
 #include "AppStateEditor.hpp"
-#include "AppStateIngame.hpp"
 #include "FileApi.hpp"
+#include <fstream>
 
 const float TOPBAR_HEIGHT = 22.f;
 const float SIDEBAR_WIDTH = 100.f;
@@ -52,6 +52,17 @@ void AppStateEditor::draw() {
 }
 
 bool AppStateEditor::init() {
+	try {
+		resmgr.loadResource<sf::Font>(rootDir + "/resources/cruft.ttf");
+	}
+	catch (std::exception& e) {
+		std::ofstream save("log.txt");
+		save << "error:AppStateMainMenu: " << e.what() << std::endl;
+		save.close();
+		save.clear();
+		return false;
+	}
+
 	// Setup resources
 	sf::Font& font = resmgr.get<sf::Font>("cruft.ttf");
 
@@ -61,7 +72,7 @@ bool AppStateEditor::init() {
 	lastMouseButtonPressed = sf::Mouse::Left;
 
 	// Gui setup
-	theme.load(rootDir + "/graphics/gui/TransparentGrey.txt");
+	theme.load(rootDir + "/resources/TransparentGrey.txt");
 	
 	gui.setFont(font);
 	gui.setTarget(app->window.getWindowContext());
@@ -122,7 +133,7 @@ void AppStateEditor::buildLayout() {
 	menu->addMenuItem("Items mode (I)");
 	menu->connectMenuItem("Editor", "Items mode (I)", [this]() { switchEditorMode(EditorMode::Items); });
 	menu->addMenuItem("Play level");
-	menu->connectMenuItem("Editor", "Play level", [this]() { playLevel(); });
+	menu->connectMenuItem("Editor", "Play level", [this]() { editor.playLevel(); });
 	gui.add(menu);
 
 	// Side bar
@@ -176,7 +187,7 @@ void AppStateEditor::buildSidebar() {
 
 	// ### History buttons
 	EditorHistory& history = editor.getActiveHistory();
-	EditorBrush& brush = editor.getActiveTool();
+	EditorBrush& brush = editor.getActiveBrush();
 
 	const float HISTORY_BUTTONS_HEIGHT = app->window.getSize().y - TOPBAR_HEIGHT - SIDEBAR_WIDTH;
 	const unsigned BUTTON_COUNT = unsigned(HISTORY_BUTTONS_HEIGHT / SIDEBAR_WIDTH);
@@ -224,7 +235,7 @@ void AppStateEditor::buildSelectionModal() {
 
 	// Render all buttons
 	EditorHistory& history = editor.getActiveHistory();
-	EditorBrush& brush = editor.getActiveTool();
+	EditorBrush& brush = editor.getActiveBrush();
 	unsigned x = 0, y = 0;
 	for (size_t i = 0; i < brush.getItemCount(); i++) {
 		auto btn = tgui::Button::create();
@@ -345,12 +356,6 @@ void AppStateEditor::drawOnLayer() {
 	}
 }
 
-void AppStateEditor::playLevel() {
-	// TODO: Bootstrap what you need
-
-	app->pushState(new AppStateIngame(resmgr));
-}
-
 void AppStateEditor::newLevel() {
 	// Get settings from modal
 	// TODO: error catching
@@ -362,7 +367,7 @@ void AppStateEditor::newLevel() {
 	auto modal = gui.get<tgui::ChildWindow>("ModalNewLevel");
 	modal->close();
 
-	editor.init(levelWidth, levelHeight, configPath, resmgr);
+	editor.init(levelWidth, levelHeight, configPath);
 	buildSidebar();
 }
 

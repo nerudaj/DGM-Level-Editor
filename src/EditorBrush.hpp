@@ -2,6 +2,7 @@
 
 #include <DGM/dgm.hpp>
 #include <TGUI/TGUI.hpp>
+#include <json.hpp>
 
 /**
  *  @brief Class representing drawing brush in editor
@@ -30,7 +31,7 @@ public:
 		return { getTextureForItem(index), getTextureRectForItem(index) };
 	}
 
-	virtual void init(const std::string& cfgfile, const dgm::ResourceManager& resmgr) = 0;
+	virtual void init(const nlohmann::json& config, const dgm::ResourceManager& resmgr) = 0;
 };
 
 /**
@@ -67,7 +68,7 @@ public:
 		return clip.getFrame(index);
 	}
 
-	virtual void init(const std::string& cfgfile, const dgm::ResourceManager& resmgr) override;
+	virtual void init(const nlohmann::json& config, const dgm::ResourceManager& resmgr) override;
 };
 
 /**
@@ -95,5 +96,5 @@ public:
 		return items[index].frameBounds;
 	}
 
-	virtual void init(const std::string& cfgfile, const dgm::ResourceManager& resmgr) override;
+	virtual void init(const nlohmann::json& config, const dgm::ResourceManager& resmgr) override;
 };
