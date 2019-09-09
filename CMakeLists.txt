@@ -16,12 +16,14 @@ set ( VS_DEBUGGER_COMMAND_ARGUMENTS  "../.." )
 ## Dependencies
 set ( SFML_FOLDER  "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/SFML" )
 set ( DGM_FOLDER   "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/DGM" )
-set ( TGUI_FOLDER   "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/TGUI" )
+set ( TGUI_FOLDER  "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/TGUI" )
+set ( JSON_FOLDER  "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/json" )
 
 include_directories(
 	"${SFML_FOLDER}/include"
 	"${DGM_FOLDER}/include"
 	"${TGUI_FOLDER}/include"
+	"${JSON_FOLDER}"
 )
 
 link_directories(
