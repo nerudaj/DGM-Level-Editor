@@ -85,6 +85,7 @@ set ( SOURCE_FILES
 	src/Editor.cpp
 	src/EditorLayer.cpp
 	src/EditorBrush.cpp
+	src/Itemset.cpp
 	src/FileApi.cpp
 )
 
