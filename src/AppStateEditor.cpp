@@ -288,16 +288,16 @@ void AppStateEditor::buildNewLevelModal() {
 
 	// Textboxes
 	std::vector<std::vector<std::string>> boxes = {
-		{"66%", "10", "InputLevelWidth"},
-		{"66%", "20", "InputLevelHeight"},
-		{"58%", "Select a file...", "InputLevelConfig"},
+		{"66%", "20", "InputLevelWidth"},
+		{"66%", "10", "InputLevelHeight"},
+		{"58%", rootDir + "/config.json", "InputLevelConfig"},
 	};
 
 	for (unsigned i = 0; i < boxes.size(); i++) {
 		auto box = tgui::EditBox::create();
 		box->setSize(boxes[i][0], ROW_HEIGHT);
 		box->setPosition("32%", std::to_string(i * 10 + ROW_Y_OFFSET) + "%");
-		box->setDefaultText(boxes[i][1]);
+		box->setText(boxes[i][1]);
 		modal->add(box, boxes[i][2]);
 	}
 

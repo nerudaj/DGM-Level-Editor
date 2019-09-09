@@ -12,12 +12,38 @@ nlohmann::json loadJsonFromFile(const std::string& filename) {
 	return file;
 }
 
+void Editor::buildBackground(const sf::Vector2i& tileSize, unsigned width, unsigned height) {
+	sf::Image image;
+	image.create(tileSize.x * 2, tileSize.y);
+
+	for (int y = 0; y < tileSize.y; y++) {
+		for (int x = 0; x < tileSize.x; x++) {
+			image.setPixel(x, y, sf::Color::Transparent);
+			image.setPixel(x + tileSize.x, y, sf::Color(255, 255, 255, 16));
+		}
+	}
+
+	backgroundTexture.loadFromImage(image);
+	
+	std::vector<int> bgrData(size_t(width) * height, 0);
+	for (unsigned y = 0; y < height; y++) {
+		for (unsigned x = y % 2; x < width; x += 2) {
+			bgrData[y * width + x] = 1;
+		}
+	}
+
+	background.setTexture(backgroundTexture);
+	background.build(dgm::Clip(tileSize, sf::IntRect(0, 0, tileSize.x * 2, tileSize.y)), sf::Vector2u(tileSize), bgrData, { width, height });
+}
+
 void Editor::draw(tgui::Canvas::Ptr canvas) {
 	tileLayer.draw(canvas);
+	canvas->draw(background);
 	itemLayer.draw(canvas);
 }
 
 void Editor::setZoomLevel(float zoom) {
+	background.setScale(zoom, zoom);
 	tileLayer.setZoomLevel(zoom);
 	itemLayer.setZoomLevel(zoom);
 }
@@ -45,6 +71,8 @@ void Editor::init(unsigned width, unsigned height, const std::string &configPath
 
 	tileSize.x = config["editor"]["tileSize"][0].get<int>();
 	tileSize.y = config["editor"]["tileSize"][1].get<int>();
+
+	buildBackground(tileSize, width, height);
 
 	tileHistory.clear();
 	itemHistory.clear();

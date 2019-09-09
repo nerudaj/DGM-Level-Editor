@@ -12,6 +12,8 @@ class Editor {
 private:
 	// Resources
 	dgm::ResourceManager resmgr;
+	sf::Texture backgroundTexture;
+	dgm::Tileset background;
 
 	// Histories
 	EditorHistory tileHistory;
@@ -30,6 +32,8 @@ private:
 
 	// Misc
 	sf::Vector2i tileSize;
+
+	void buildBackground(const sf::Vector2i& tileSize, unsigned width, unsigned height);
 
 public:
 	void draw(tgui::Canvas::Ptr canvas);
