@@ -1,6 +1,7 @@
 DGM Level Editor vX.X.X changelog:
  * New level option does work
  * Bumped to DGM version 1.4.6 (which includes newer dshlibs and LevelD v1)
+ * Dropped DGM Template skeleton
 
 Known limitations/bugs:
 

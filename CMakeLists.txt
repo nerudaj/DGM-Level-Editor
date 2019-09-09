@@ -78,9 +78,6 @@ set ( LIB_TGUI
 
 set ( SOURCE_FILES
 	src/Main.cpp
-	src/AppStateMainMenu.cpp
-	src/AppStateMenuOptions.cpp
-	src/AppStateIngame.cpp
 	src/AppStateEditor.cpp
 	src/Editor.cpp
 	src/EditorLayer.cpp
@@ -91,9 +88,6 @@ set ( SOURCE_FILES
 
 set ( HEADER_FILES
 	src/Globals.hpp
-	src/AppStateMainMenu.hpp
-	src/AppStateMenuOptions.hpp
-	src/AppStateIngame.hpp
 	src/AppStateEditor.hpp
 	src/Editor.hpp
 	src/EditorHistory.hpp

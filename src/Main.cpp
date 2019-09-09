@@ -1,8 +1,6 @@
 #include <DGM/dgm.hpp>
 
-#include "AppStateMainMenu.hpp"
-#include "AppStateMenuOptions.hpp"
-#include "AppStateIngame.hpp"
+#include "AppStateEditor.hpp"
 
 int main(int argc, char *argv[]) {
 	std::string rootDir = "..";
@@ -13,12 +11,14 @@ int main(int argc, char *argv[]) {
 	cfg::Ini ini;
 	try {
 		ini.loadFromFile(rootDir + "/app.ini");
-	} catch (...) {}
+	} catch (...) {
+		ini["Window"]["title"] = "LevelD file editor";
+	}
 
 	dgm::App app;
 	app.window.open(ini);
 	
-	app.pushState(new AppStateMainMenu(rootDir));
+	app.pushState(new AppStateEditor(rootDir));
 	app.run();
 
 	app.window.close(ini);
