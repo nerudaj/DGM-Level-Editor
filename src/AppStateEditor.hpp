@@ -7,7 +7,7 @@
 class AppStateEditor : public dgm::AppState {
 private:
 	// Resources
-	const dgm::ResourceManager &resmgr;
+	dgm::ResourceManager resmgr;
 	tgui::Theme theme;
 	std::string rootDir;
 
@@ -33,7 +33,6 @@ private:
 	// Maintenance
 	void switchEditorMode(EditorMode mode);
 	void drawOnLayer();
-	void playLevel();
 	void newLevel();
 
 	// Misc
@@ -46,5 +45,5 @@ public:
 	virtual void draw() override;
 	virtual bool init() override;
 
-	AppStateEditor(const std::string &rootDir, dgm::ResourceManager& resmgr) : rootDir(rootDir), resmgr(resmgr) {};
+	AppStateEditor(const std::string &rootDir) : rootDir(rootDir) {};
 };
