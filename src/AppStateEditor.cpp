@@ -344,6 +344,7 @@ void AppStateEditor::buildNewLevelModal() {
 
 void AppStateEditor::buildPropertiesModal(unsigned x, unsigned y, unsigned id, uint16_t flags) {
 	auto modal = tgui::ChildWindow::create("Set properties");
+	modal->setRenderer(theme.getRenderer("ChildWindow"));
 	modal->setSize(300, 400);
 	modal->setPosition("35%", "35%");
 	gui.add(modal, "ModalSetProperties");
@@ -356,16 +357,33 @@ void AppStateEditor::buildPropertiesModal(unsigned x, unsigned y, unsigned id, u
 	modal->add(panel);
 
 	// Label
+	auto label = tgui::Label::create("Set flags:");
+	label->setSize(280, 20);
+	label->setPosition(10, 140);
+	modal->add(label);
 
 	// EditBox
+	auto edit = tgui::EditBox::create();
+	edit->setSize(280, 20);
+	edit->setPosition(10, 170);
+	edit->setText(std::to_string(flags));
+	modal->add(edit, "InputFlags");
 
 	// Buttons
 	auto btn = tgui::Button::create("Ok");
+	btn->setRenderer(theme.getRenderer("Button"));
 	btn->setSize("46%", "8%");
 	btn->setPosition("2%", "90%");
+	btn->connect("clicked", [x, y, this]() {
+		EditorLayerItem &layer = dynamic_cast<EditorLayerItem&>(editor.getActiveLayer());
+		uint8_t flags = std::stoul(gui.get<tgui::EditBox>("InputFlags")->getText().toAnsiString());
+		layer.changeTileProperty(x, y, flags);
+		gui.get<tgui::ChildWindow>("ModalSetProperties")->close();
+	});
 	modal->add(btn);
 
 	btn = tgui::Button::create("Cancel");
+	btn->setRenderer(theme.getRenderer("Button"));
 	btn->setSize("46%", "8%");
 	btn->setPosition("52%", "90%");
 	btn->connect("clicked", [this]() {
