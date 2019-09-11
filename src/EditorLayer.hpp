@@ -56,10 +56,23 @@ public:
 
 	virtual void changeTile(unsigned x, unsigned y, unsigned value) override {
 		itemset.addItem(x, y, value);
+		itemset.setProperties(x, y, 0);
+	}
+
+	void changeTileProperty(unsigned x, unsigned y, uint16_t flags) {
+		itemset.setProperties(x, y, flags);
 	}
 
 	virtual void setZoomLevel(float zoom) override {
 		itemset.setZoomLevel(zoom);
+	}
+
+	int getTileValue(unsigned x, unsigned y) {
+		return itemset.getItemValue(x, y);
+	}
+
+	uint16_t getTileProperties(unsigned x, unsigned y) {
+		return itemset.getItemProperties(x, y);
 	}
 
 	virtual void init(unsigned width, unsigned height, sf::Vector2i& tileSize, EditorBrush& brush) override {

@@ -22,6 +22,7 @@ void AppStateEditor::input() {
 		else if (event.type == sf::Event::KeyPressed) {
 			if (event.key.code == sf::Keyboard::T) switchEditorMode(EditorMode::Tiles);
 			else if (event.key.code == sf::Keyboard::I) switchEditorMode(EditorMode::Items);
+			else if (event.key.code == sf::Keyboard::P) switchEditorMode(EditorMode::Properties);
 		}
 		else if (event.type == sf::Event::MouseWheelScrolled && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
 			zoomLevel += event.mouseWheelScroll.delta * 0.5f;
@@ -75,6 +76,7 @@ bool AppStateEditor::init() {
 	// Setup member variables
 	zoomLevel = 1.f;
 	drawing = false;
+	properties = false;
 	lastMouseButtonPressed = sf::Mouse::Left;
 
 	// Gui setup
@@ -138,6 +140,8 @@ void AppStateEditor::buildLayout() {
 	menu->connectMenuItem("Editor", "Tiles mode (T)", [this]() { switchEditorMode(EditorMode::Tiles); });
 	menu->addMenuItem("Items mode (I)");
 	menu->connectMenuItem("Editor", "Items mode (I)", [this]() { switchEditorMode(EditorMode::Items); });
+	menu->addMenuItem("Properties mode (P)");
+	menu->connectMenuItem("Editor", "Properties mode (P)", [this]() { switchEditorMode(EditorMode::Properties); });
 	menu->addMenuItem("Play level");
 	menu->connectMenuItem("Editor", "Play level", [this]() { editor.playLevel(); });
 	gui.add(menu);
@@ -338,8 +342,41 @@ void AppStateEditor::buildNewLevelModal() {
 	modal->add(btn);
 }
 
+void AppStateEditor::buildPropertiesModal(unsigned x, unsigned y, unsigned id, uint16_t flags) {
+	auto modal = tgui::ChildWindow::create("Set properties");
+	modal->setSize(300, 400);
+	modal->setPosition("35%", "35%");
+	gui.add(modal, "ModalSetProperties");
+
+	// Item image
+	auto panel = tgui::Button::create();
+	panel->setSize(120, 120);
+	panel->setPosition(90, 10);
+	panel->getRenderer()->setTexture(editor.getActiveBrush().getTguiTextureForItem(id));
+	modal->add(panel);
+
+	// Label
+
+	// EditBox
+
+	// Buttons
+	auto btn = tgui::Button::create("Ok");
+	btn->setSize("46%", "8%");
+	btn->setPosition("2%", "90%");
+	modal->add(btn);
+
+	btn = tgui::Button::create("Cancel");
+	btn->setSize("46%", "8%");
+	btn->setPosition("52%", "90%");
+	btn->connect("clicked", [this]() {
+		gui.get<tgui::ChildWindow>("ModalSetProperties")->close();
+	});
+	modal->add(btn);
+}
+
 void AppStateEditor::switchEditorMode(EditorMode mode) {
 	editor.setMode(mode);
+	properties = mode == EditorMode::Properties;
 
 	log("Switched to " + std::to_string(mode) + " mode");
 
@@ -356,9 +393,20 @@ void AppStateEditor::drawOnLayer() {
 	unsigned tileY = unsigned(relativeMousePos.y / relativeTileSize.y);
 
 	if (levelWidth > tileX && levelHeight > tileY) {
-		EditorHistory& history = editor.getActiveHistory();
-		unsigned value = lastMouseButtonPressed == sf::Mouse::Left ? history[history.getActive()] : 0;
-		editor.getActiveLayer().changeTile(tileX, tileY, value);
+		if (properties) {
+			drawing = false;
+
+			EditorLayerItem& layer = dynamic_cast<EditorLayerItem&>(editor.getActiveLayer());
+			int value = layer.getTileValue(tileX, tileY);
+			if (value == -1) return;
+			uint16_t flags = layer.getTileProperties(tileX, tileY);
+			buildPropertiesModal(tileX, tileY, value, flags);
+		}
+		else {
+			EditorHistory& history = editor.getActiveHistory();
+			unsigned value = lastMouseButtonPressed == sf::Mouse::Left ? history[history.getActive()] : 0;
+			editor.getActiveLayer().changeTile(tileX, tileY, value);
+		}
 	}
 }
 

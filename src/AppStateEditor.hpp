@@ -20,6 +20,7 @@ private:
 	float zoomLevel;
 	sf::Mouse::Button lastMouseButtonPressed;
 	bool drawing;
+	bool properties;
 	
 	// Editor controller
 	Editor editor;
@@ -29,6 +30,7 @@ private:
 	void buildSidebar();
 	void buildSelectionModal();
 	void buildNewLevelModal();
+	void buildPropertiesModal(unsigned x, unsigned y, unsigned id, uint16_t flags);
 
 	// Maintenance
 	void switchEditorMode(EditorMode mode);

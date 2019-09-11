@@ -4,7 +4,8 @@
 
 enum class EditorMode : std::size_t {
 	Tiles,
-	Items
+	Items,
+	Properties
 };
 
 namespace std {

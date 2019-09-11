@@ -31,6 +31,12 @@ void Itemset::addItem(unsigned x, unsigned y, unsigned value) {
 	}
 }
 
+void Itemset::setProperties(unsigned x, unsigned y, uint16_t flags) {
+	if (map[y * width + x] == -1) return;
+
+	items[map[y * width + x]].flags = flags;
+}
+
 void Itemset::saveToLeveld(LevelD& lvd) const {
 	lvd.items.clear();
 
@@ -43,8 +49,8 @@ void Itemset::saveToLeveld(LevelD& lvd) const {
 				uint32_t(items[map[i]].id),
 				uint32_t(x * tileSize.x),
 				uint32_t(y * tileSize.y),
-				uint16_t(0)
-				});
+				items[map[i]].flags
+			});
 		}
 	}
 }
@@ -55,5 +61,6 @@ void Itemset::loadFromLeveld(const LevelD& lvd) {
 
 	for (auto& item : lvd.items) {
 		addItem(item.x / tileSize.x, item.y / tileSize.y, item.id);
+		setProperties(item.x / tileSize.x, item.y / tileSize.y, item.flags);
 	}
 }
