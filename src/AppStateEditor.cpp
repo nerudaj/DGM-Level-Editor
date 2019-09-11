@@ -13,6 +13,12 @@ void AppStateEditor::input() {
 		if (event.type == sf::Event::Closed) {
 			app->window.close();
 		}
+		else if (event.type == sf::Event::Resized) {
+			app->window.getWindowContext().setView(sf::View(sf::FloatRect(0.f, 0.f, static_cast<float>(event.size.width), static_cast<float>(event.size.height))));
+			gui.removeAllWidgets();
+			gui.setView(app->window.getWindowContext().getView());
+			buildLayout();
+		}
 		else if (event.type == sf::Event::KeyPressed) {
 			if (event.key.code == sf::Keyboard::T) switchEditorMode(EditorMode::Tiles);
 			else if (event.key.code == sf::Keyboard::I) switchEditorMode(EditorMode::Items);
