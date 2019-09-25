@@ -31,6 +31,8 @@ public:
 
 	void addItem(unsigned x, unsigned y, unsigned value);
 
+	void removeItem(unsigned x, unsigned y);
+
 	void setProperties(unsigned x, unsigned y, uint16_t flags);
 
 	uint16_t getItemProperties(unsigned x, unsigned y) {

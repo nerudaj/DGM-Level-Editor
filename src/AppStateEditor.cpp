@@ -95,9 +95,9 @@ void AppStateEditor::buildLayout() {
 	canvas = tgui::Canvas::create();
 	canvas->setSize(app->window.getSize().x - SIDEBAR_WIDTH, app->window.getSize().y - TOPBAR_HEIGHT);
 	canvas->setPosition(0.f, TOPBAR_HEIGHT);
-	canvas->connect("MousePressed", [this]() { 
-		drawing = true; 
-	});
+	canvas->connect("RightMousePressed", [this]() { drawing = true; });
+	canvas->connect("RightMouseReleased", [this]() { drawing = false; });
+	canvas->connect("MousePressed", [this]() { drawing = true; });
 	canvas->connect("MouseReleased", [this]() { drawing = false; });
 	gui.add(canvas, "TilesetCanvas");
 
@@ -422,8 +422,14 @@ void AppStateEditor::drawOnLayer() {
 		}
 		else {
 			EditorHistory& history = editor.getActiveHistory();
-			unsigned value = lastMouseButtonPressed == sf::Mouse::Left ? history[history.getActive()] : 0;
-			editor.getActiveLayer().changeTile(tileX, tileY, value);
+
+			if (lastMouseButtonPressed == sf::Mouse::Left) {
+				editor.getActiveLayer().changeTile(tileX, tileY, history[history.getActive()]);
+			}
+			else {
+				editor.getActiveLayer().removeTile(tileX, tileY);
+				drawing = false;
+			}
 		}
 	}
 }

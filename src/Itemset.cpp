@@ -31,6 +31,17 @@ void Itemset::addItem(unsigned x, unsigned y, unsigned value) {
 	}
 }
 
+void Itemset::removeItem(unsigned x, unsigned y) {
+	if (map[y * width + x] == -1) return;
+
+	int value = map[y * width + x];
+	items.erase(items.begin() + value);
+
+	for (auto& tile : map) {
+		if (tile > value) tile--;
+	}
+}
+
 void Itemset::setProperties(unsigned x, unsigned y, uint16_t flags) {
 	if (map[y * width + x] == -1) return;
 

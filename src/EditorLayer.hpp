@@ -9,6 +9,7 @@ class EditorLayer {
 public:
 	virtual void draw(tgui::Canvas::Ptr canvas) = 0;
 	virtual void changeTile(unsigned x, unsigned y, unsigned value) = 0;
+	virtual void removeTile(unsigned x, unsigned y) = 0;
 	virtual void setZoomLevel(float zoom) = 0;
 	virtual void init(unsigned width, unsigned height, sf::Vector2i& tileSize, EditorBrush& brush) = 0;
 	virtual void saveToLevelD(LevelD& lvd) const = 0;
@@ -31,6 +32,10 @@ public:
 		tileset.changeTile(x, y, value);
 		tileData[size_t(y) * mesh.getDataSize().x + x] = value;
 		mesh[size_t(y) * mesh.getDataSize().x + x] = meshMap[value];
+	}
+
+	virtual void removeTile(unsigned x, unsigned y) override {
+		changeTile(x, y, 0);
 	}
 
 	virtual void setZoomLevel(float zoom) override {
@@ -57,6 +62,10 @@ public:
 	virtual void changeTile(unsigned x, unsigned y, unsigned value) override {
 		itemset.addItem(x, y, value);
 		itemset.setProperties(x, y, 0);
+	}
+
+	virtual void removeTile(unsigned x, unsigned y) override {
+		itemset.removeItem(x, y);
 	}
 
 	void changeTileProperty(unsigned x, unsigned y, uint16_t flags) {
