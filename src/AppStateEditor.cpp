@@ -201,9 +201,9 @@ void AppStateEditor::buildSidebar() {
 
 	const float HISTORY_BUTTONS_HEIGHT = app->window.getSize().y - TOPBAR_HEIGHT - SIDEBAR_WIDTH;
 	const unsigned BUTTON_COUNT = unsigned(HISTORY_BUTTONS_HEIGHT / SIDEBAR_WIDTH);
-	const size_t LIMIT = std::min(size_t(BUTTON_COUNT), history.getSize());
+	history.setLimit(BUTTON_COUNT);
 
-	for (unsigned i = 0; i < LIMIT; i++) {
+	for (unsigned i = 0; i < history.getSize(); i++) {
 		auto btn = tgui::Button::create();
 		btn->getRenderer()->setTexture(brush.getTguiTextureForItem(history[i]));
 		btn->setSize(SIDEBAR_WIDTH - 20.f, SIDEBAR_WIDTH - 20.f);
