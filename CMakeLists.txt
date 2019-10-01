@@ -104,3 +104,9 @@ add_executable ( ${PROJECT_NAME} WIN32
 )
 target_link_libraries( ${PROJECT_NAME} ${LIB_DGM} ${LIB_TGUI} )
 target_compile_features( ${PROJECT_NAME} INTERFACE ${MY_CXX_COMPILE_FEATURES} )
+
+add_executable( "sample-binary" WIN32
+	"sample-project/sample-binary.cpp"
+)
+target_link_libraries( "sample-binary", ${LIB_DGM} )
+target_compile_features( "sample-binary" INTERFACE ${MY_CXX_COMPILE_FEATURES} )
