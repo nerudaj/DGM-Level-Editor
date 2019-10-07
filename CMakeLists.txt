@@ -1,5 +1,7 @@
 cmake_minimum_required ( VERSION 3.10 )
 
+set ( CMAKE_GENERATOR_PLATFORM       x64)
+
 ## Project setup
 project ( dgm-level-editor
 	LANGUAGES CXX
@@ -10,7 +12,6 @@ set ( CMAKE_CXX_STANDARD             17 )
 set ( CMAKE_CXX_STANDARD_REQUIRED    ON )
 set ( CMAKE_CXX_EXTENSIONS           OFF )
 set ( MY_CXX_COMPILE_FEATURES        cxx_generic_lambdas cxx_range_for cxx_strong_enums )
-set ( CMAKE_GENERATOR_PLATFORM       x64)
 set ( VS_DEBUGGER_COMMAND_ARGUMENTS  "../.." )
 
 ## Dependencies
