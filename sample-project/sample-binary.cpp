@@ -1,27 +1,31 @@
 #include <DGM/dgm.hpp>
 
-const sf::Vector2u FRAME_SIZE = { 16.f, 16.f};
+const sf::Vector2i FRAME_SIZE = { 16, 16 };
+const dgm::Clip MAP_CLIP(FRAME_SIZE, {0, 0, 128, 48});
 
 void loadLevel(const std::string &path, dgm::Tileset &tiles) {
-	lvd::LevelD level;
+	LevelD level;
 	level.loadFromFile(path);
 
 	std::vector<int> data(level.mesh.tiles.begin(), level.mesh.tiles.end());
-	tiles.build({level.mesh.width, level.mesh.height}, FRAME_SIZE, data, {});
+	tiles.build(MAP_CLIP, sf::Vector2u(FRAME_SIZE), data, { level.mesh.width, level.mesh.height });
 }
 
 
 
 int main(int argc, char *argv[]) {
-	if (argc != 2) throw std::runtime_error("This program requires path to *.lvd file!");
+	std::string path = "../pokus.lvd";
+	if (argc == 2) path = argv[1];
 
 	dgm::ResourceManager resmgr;
-	resmgr.loadDirectory<sf::Texture>("graphics/textures");
+	resmgr.loadResourceDir<sf::Texture>("graphics/textures");
 
 	dgm::Tileset tiles;
-	loadLevel(argv[1], tiles);
+	loadLevel(path, tiles);
+	tiles.setTexture(resmgr.get<sf::Texture>("tiles.png"));
 
-	dgm::Window window({1024, 578}, "Sample Binary");
+	dgm::Window window;
+	window.open({ 1024, 768 }, "Sample Binary", false);
 	
 	sf::Event event;
 	while (window.isOpen()) {

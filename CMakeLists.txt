@@ -108,5 +108,5 @@ target_compile_features( ${PROJECT_NAME} INTERFACE ${MY_CXX_COMPILE_FEATURES} )
 add_executable( "sample-binary" WIN32
 	"sample-project/sample-binary.cpp"
 )
-target_link_libraries( "sample-binary", ${LIB_DGM} )
+target_link_libraries( "sample-binary" ${LIB_DGM} )
 target_compile_features( "sample-binary" INTERFACE ${MY_CXX_COMPILE_FEATURES} )
