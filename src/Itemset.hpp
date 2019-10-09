@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <DGM/dgm.hpp>
 #include <TGUI/TGUI.hpp>
-#include "EditorBrush.hpp"
+#include "ToolRenderer.hpp"
 
 class Itemset {
 private:
@@ -18,7 +18,7 @@ private:
 	unsigned width;
 	sf::Vector2f tileSize;
 	float zoomLevel;
-	EditorBrushItem *brush;
+	ToolRendererItem *brush;
 
 public:
 	void draw(tgui::Canvas::Ptr canvas) {
@@ -45,7 +45,7 @@ public:
 		return items[map[y * width + x]].id;
 	}
 
-	void initialize(unsigned width, unsigned height, sf::Vector2f size, EditorBrushItem& brush) {
+	void initialize(unsigned width, unsigned height, sf::Vector2f size, ToolRendererItem& brush) {
 		map.resize(width * height, -1);
 		Itemset::width = width;
 		tileSize = size;

@@ -112,19 +112,9 @@ void AppStateEditor::buildLayout() {
 		buildNewLevelModal();
 	});
 	menu->addMenuItem("Load");
-	menu->connectMenuItem("File", "Load", [this]() {
-		try {
-			editor.loadFromFile(FileApi::getOpenFileName());
-		}
-		catch (...) {}
-	});
+	menu->connectMenuItem("File", "Load", [this]() { loadLevel(); });
 	menu->addMenuItem("Save");
-	menu->connectMenuItem("File", "Save", [this]() {
-		try {
-			editor.saveToFile(FileApi::getSaveFileName());
-		}
-		catch (...) {}
-	});
+	menu->connectMenuItem("File", "Save", [this]() { saveLevel(); });
 	menu->addMenuItem("Exit");
 	menu->connectMenuItem("File", "Exit", [this]() { app->popState(); });
 
@@ -138,12 +128,10 @@ void AppStateEditor::buildLayout() {
 	menu->addMenu("Editor");
 	menu->addMenuItem("Tiles mode (T)");
 	menu->connectMenuItem("Editor", "Tiles mode (T)", [this]() { switchEditorMode(EditorMode::Tiles); });
-	menu->addMenuItem("Items mode (I)");
+	/*menu->addMenuItem("Items mode (I)");
 	menu->connectMenuItem("Editor", "Items mode (I)", [this]() { switchEditorMode(EditorMode::Items); });
 	menu->addMenuItem("Properties mode (P)");
-	menu->connectMenuItem("Editor", "Properties mode (P)", [this]() { switchEditorMode(EditorMode::Properties); });
-	menu->addMenuItem("Play level");
-	menu->connectMenuItem("Editor", "Play level", [this]() { editor.playLevel(); });
+	menu->connectMenuItem("Editor", "Properties mode (P)", [this]() { switchEditorMode(EditorMode::Properties); });*/
 	gui.add(menu);
 
 	// Side bar
@@ -196,8 +184,8 @@ void AppStateEditor::buildSidebar() {
 	sidebar->add(addbtn);
 
 	// ### History buttons
-	EditorHistory& history = editor.getActiveHistory();
-	EditorBrush& brush = editor.getActiveBrush();
+	BrushHistory& history = editor.getActiveHistory();
+	ToolRenderer& brush = editor.getActiveBrush();
 
 	const float HISTORY_BUTTONS_HEIGHT = app->window.getSize().y - TOPBAR_HEIGHT - SIDEBAR_WIDTH;
 	const unsigned BUTTON_COUNT = unsigned(HISTORY_BUTTONS_HEIGHT / SIDEBAR_WIDTH);
@@ -244,8 +232,8 @@ void AppStateEditor::buildSelectionModal() {
 	const float BUTTON_MARGIN = 10.f;
 
 	// Render all buttons
-	EditorHistory& history = editor.getActiveHistory();
-	EditorBrush& brush = editor.getActiveBrush();
+	BrushHistory& history = editor.getActiveHistory();
+	ToolRenderer& brush = editor.getActiveBrush();
 	unsigned x = 0, y = 0;
 	for (size_t i = 0; i < brush.getItemCount(); i++) {
 		auto btn = tgui::Button::create();
@@ -318,7 +306,7 @@ void AppStateEditor::buildNewLevelModal() {
 	btn->setPosition("90%", "22%");
 	btn->connect("clicked", [this]() {
 		try {
-			auto str = FileApi::getOpenFileName();
+			auto str = FileApi::getOpenFileName("JSON Files\0*.json\0Any File\0*.*\0");
 			auto box = gui.get<tgui::EditBox>("InputLevelConfig");
 			box->setText(str);
 		}
@@ -421,7 +409,7 @@ void AppStateEditor::drawOnLayer() {
 			buildPropertiesModal(tileX, tileY, value, flags);
 		}
 		else {
-			EditorHistory& history = editor.getActiveHistory();
+			BrushHistory& history = editor.getActiveHistory();
 
 			if (lastMouseButtonPressed == sf::Mouse::Left) {
 				editor.getActiveLayer().changeTile(tileX, tileY, history[history.getActive()]);
@@ -447,6 +435,20 @@ void AppStateEditor::newLevel() {
 
 	editor.init(levelWidth, levelHeight, configPath);
 	buildSidebar();
+}
+
+void AppStateEditor::loadLevel() {
+	try {
+		editor.loadFromFile(FileApi::getOpenFileName("LevelD Files\0*.lvd\0Any File\0*.*\0"));
+	}
+	catch (...) {}
+}
+
+void AppStateEditor::saveLevel() {
+	try {
+		editor.saveToFile(FileApi::getSaveFileName("LevelD Files\0*.lvd\0Any File\0*.*\0"));
+	}
+	catch (...) {}
 }
 
 void AppStateEditor::log(const std::string& message) {

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "EditorMode.hpp"
-#include "EditorHistory.hpp"
-#include "EditorBrush.hpp"
+#include "BrushHistory.hpp"
+#include "ToolRenderer.hpp"
 #include "EditorLayer.hpp"
 
 /**
@@ -14,16 +14,18 @@ private:
 	dgm::ResourceManager resmgr;
 	sf::Texture backgroundTexture;
 	dgm::Tileset background;
+	std::string binaryCommand;
+	std::string binaryLoc;
 
 	// Histories
-	EditorHistory tileHistory;
-	EditorHistory itemHistory;
-	std::reference_wrapper<EditorHistory> activeHistory;
+	BrushHistory tileHistory;
+	BrushHistory itemHistory;
+	std::reference_wrapper<BrushHistory> activeHistory;
 
 	// Tools
-	EditorBrushTile tileBrush;
-	EditorBrushItem itemBrush;
-	std::reference_wrapper<EditorBrush> activeBrush;
+	ToolRendererTile tileBrush;
+	ToolRendererItem itemBrush;
+	std::reference_wrapper<ToolRenderer> activeBrush;
 
 	// Layers
 	EditorLayerTile tileLayer;
@@ -44,19 +46,19 @@ public:
 		return tileSize;
 	}
 
-	EditorHistory& getActiveHistory() {
+	BrushHistory& getActiveHistory() {
 		return activeHistory;
 	}
 
-	const EditorHistory& getActiveHistory() const {
+	const BrushHistory& getActiveHistory() const {
 		return activeHistory.get();
 	}
 
-	EditorBrush& getActiveBrush() {
+	ToolRenderer& getActiveBrush() {
 		return activeBrush.get();
 	}
 
-	const EditorBrush& getActiveBrush() const {
+	const ToolRenderer& getActiveBrush() const {
 		return activeBrush;
 	}
 
@@ -83,8 +85,6 @@ public:
 	 *  \todo FIX
 	 */
 	void loadFromFile(const std::string& filename);
-
-	void playLevel() {}
 
 	Editor() : activeHistory(tileHistory), activeBrush(tileBrush), activeLayer(tileLayer) {
 		tileHistory.clear();

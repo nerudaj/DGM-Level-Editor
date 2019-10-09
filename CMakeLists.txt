@@ -82,7 +82,7 @@ set ( SOURCE_FILES
 	src/AppStateEditor.cpp
 	src/Editor.cpp
 	src/EditorLayer.cpp
-	src/EditorBrush.cpp
+	src/ToolRenderer.cpp
 	src/Itemset.cpp
 	src/FileApi.cpp
 )
@@ -91,10 +91,10 @@ set ( HEADER_FILES
 	src/Globals.hpp
 	src/AppStateEditor.hpp
 	src/Editor.hpp
-	src/EditorHistory.hpp
+	src/BrushHistory.hpp
 	src/EditorLayer.hpp
 	src/EditorMode.hpp
-	src/EditorBrush.hpp
+	src/ToolRenderer.hpp
 	src/Itemset.hpp
 	src/FileApi.hpp
 )
@@ -105,9 +105,3 @@ add_executable ( ${PROJECT_NAME} WIN32
 )
 target_link_libraries( ${PROJECT_NAME} ${LIB_DGM} ${LIB_TGUI} )
 target_compile_features( ${PROJECT_NAME} INTERFACE ${MY_CXX_COMPILE_FEATURES} )
-
-add_executable( "sample-binary" WIN32
-	"sample-project/sample-binary.cpp"
-)
-target_link_libraries( "sample-binary" ${LIB_DGM} )
-target_compile_features( "sample-binary" INTERFACE ${MY_CXX_COMPILE_FEATURES} )

@@ -7,7 +7,7 @@
 /**
  *  @brief Class representing drawing brush in editor
  */
-class EditorBrush {
+class ToolRenderer {
 public:
 	/**
 	 *  @brief Get number of items stored in brush
@@ -37,7 +37,7 @@ public:
 /**
  *  @brief Tool for rendering tiles
  */
-class EditorBrushTile : public EditorBrush {
+class ToolRendererTile : public ToolRenderer {
 private:
 	dgm::Clip clip;
 	sf::Texture texture;
@@ -74,7 +74,7 @@ public:
 /**
  *  @brief Tool for rendering items
  */
-class EditorBrushItem : public EditorBrush {
+class ToolRendererItem : public ToolRenderer {
 private:
 	struct ItemData {
 		sf::IntRect frameBounds;

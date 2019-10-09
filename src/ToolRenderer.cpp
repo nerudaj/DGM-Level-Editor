@@ -1,6 +1,6 @@
-#include "EditorBrush.hpp"
+#include "ToolRenderer.hpp"
 
-void EditorBrushTile::init(const nlohmann::json& config, const dgm::ResourceManager& resmgr) {
+void ToolRendererTile::init(const nlohmann::json& config, const dgm::ResourceManager& resmgr) {
 	texture = resmgr.get<sf::Texture>(config["tileBrush"]["texture"]);
 
 	sf::Vector2i tileSize;
@@ -19,7 +19,7 @@ void EditorBrushTile::init(const nlohmann::json& config, const dgm::ResourceMana
 	meshMap = std::vector<bool>(map.begin(), map.end());
 }
 
-void EditorBrushItem::init(const nlohmann::json& config, const dgm::ResourceManager& resmgr) {
+void ToolRendererItem::init(const nlohmann::json& config, const dgm::ResourceManager& resmgr) {
 	for (auto& item : config["itemBrush"]) {
 		auto& anim = resmgr.get<std::shared_ptr<dgm::AnimationStates>>(item["config"]);
 		auto rect = (*anim)[item["state"]].getFrame(0);

@@ -4,7 +4,7 @@
 
 class FileApi {
 public:
-	static std::string getSaveFileName();
+	static std::string getSaveFileName(const char *filter);
 
-	static std::string getOpenFileName();
+	static std::string getOpenFileName(const char* filter);
 };

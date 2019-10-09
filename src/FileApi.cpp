@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include <stdexcept>
 
-std::string FileApi::getSaveFileName() {
+std::string FileApi::getSaveFileName(const char *filter) {
 	char filename[MAX_PATH];
 
 	OPENFILENAME ofn;
@@ -10,7 +10,7 @@ std::string FileApi::getSaveFileName() {
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
-	ofn.lpstrFilter = "LevelD Files\0*.lvd\0Any File\0*.*\0";
+	ofn.lpstrFilter = filter;
 	ofn.lpstrFile = filename;
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrTitle = "Select a File";
@@ -23,7 +23,7 @@ std::string FileApi::getSaveFileName() {
 	return std::string(filename);
 }
 
-std::string FileApi::getOpenFileName() {
+std::string FileApi::getOpenFileName(const char* filter) {
 	char filename[MAX_PATH];
 
 	OPENFILENAME ofn;
@@ -31,7 +31,7 @@ std::string FileApi::getOpenFileName() {
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
-	ofn.lpstrFilter = "LevelD Files\0*.lvd\0Any File\0*.*\0";
+	ofn.lpstrFilter = filter;
 	ofn.lpstrFile = filename;
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrTitle = "Select a File";

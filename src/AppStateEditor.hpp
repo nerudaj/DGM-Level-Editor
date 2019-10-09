@@ -35,7 +35,11 @@ private:
 	// Maintenance
 	void switchEditorMode(EditorMode mode);
 	void drawOnLayer();
+
+	// IO
 	void newLevel();
+	void loadLevel();
+	void saveLevel();
 
 	// Misc
 	void log(const std::string& message);

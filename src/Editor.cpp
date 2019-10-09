@@ -65,7 +65,6 @@ void Editor::init(unsigned width, unsigned height, const std::string &configPath
 	auto config = loadJsonFromFile(configPath);
 
 	std::string basePath = config["editor"]["pathToGameResources"].get<std::string>() + "/graphics";
-	// TODO: remember path to binary
 	resmgr.loadResourceDir<sf::Texture>(basePath + "/textures");
 	resmgr.loadResourceDir<std::shared_ptr<dgm::AnimationStates>>(basePath + "/configs");
 
@@ -102,6 +101,8 @@ void Editor::loadFromFile(const std::string& filename) {
 
 	tileLayer.loadFromLevelD(lvd);
 	itemLayer.loadFromLevelD(lvd);
+
+	buildBackground(tileSize, lvd.mesh.width, lvd.mesh.height);
 }
 
 std::string std::to_string(EditorMode mode) {

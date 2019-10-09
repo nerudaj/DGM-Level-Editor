@@ -2,7 +2,7 @@
 
 #include <DGM/dgm.hpp>
 #include <TGUI/TGUI.hpp>
-#include "EditorBrush.hpp"
+#include "ToolRenderer.hpp"
 #include "Itemset.hpp"
 
 class EditorLayer {
@@ -11,7 +11,7 @@ public:
 	virtual void changeTile(unsigned x, unsigned y, unsigned value) = 0;
 	virtual void removeTile(unsigned x, unsigned y) = 0;
 	virtual void setZoomLevel(float zoom) = 0;
-	virtual void init(unsigned width, unsigned height, sf::Vector2i& tileSize, EditorBrush& brush) = 0;
+	virtual void init(unsigned width, unsigned height, sf::Vector2i& tileSize, ToolRenderer& brush) = 0;
 	virtual void saveToLevelD(LevelD& lvd) const = 0;
 	virtual void loadFromLevelD(const LevelD& lvd) = 0;
 };
@@ -42,7 +42,7 @@ public:
 		tileset.setScale(zoom, zoom);
 	}
 
-	virtual void init(unsigned width, unsigned height, sf::Vector2i& tileSize, EditorBrush& brush);
+	virtual void init(unsigned width, unsigned height, sf::Vector2i& tileSize, ToolRenderer& brush);
 
 	virtual void saveToLevelD(LevelD& lvd) const override;
 
@@ -84,8 +84,8 @@ public:
 		return itemset.getItemProperties(x, y);
 	}
 
-	virtual void init(unsigned width, unsigned height, sf::Vector2i& tileSize, EditorBrush& brush) override {
-		itemset.initialize(width, height, sf::Vector2f(tileSize), dynamic_cast<EditorBrushItem&>(brush));
+	virtual void init(unsigned width, unsigned height, sf::Vector2i& tileSize, ToolRenderer& brush) override {
+		itemset.initialize(width, height, sf::Vector2f(tileSize), dynamic_cast<ToolRendererItem&>(brush));
 	}
 
 	virtual void saveToLevelD(LevelD& lvd) const override;

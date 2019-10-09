@@ -1,6 +1,5 @@
 {
     "editor": {
-        "pathToGameBinary": "TODO",
         "pathToGameResources": "sample-project",
         "tileSize": [16, 16]
     },

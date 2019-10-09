@@ -1,7 +1,7 @@
 #include "EditorLayer.hpp"
 
-void EditorLayerTile::init(unsigned width, unsigned height, sf::Vector2i& tileSize, EditorBrush& brush) {
-	EditorBrushTile& tileBrush = dynamic_cast<EditorBrushTile&>(brush);
+void EditorLayerTile::init(unsigned width, unsigned height, sf::Vector2i& tileSize, ToolRenderer& brush) {
+	ToolRendererTile& tileBrush = dynamic_cast<ToolRendererTile&>(brush);
 	tileData = std::vector<int>(size_t(width) * size_t(height), 0);
 
 	tileset.setTexture(tileBrush.getTexture());
