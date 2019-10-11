@@ -35,6 +35,10 @@ public:
 
 	void setProperties(unsigned x, unsigned y, uint16_t flags);
 
+	sf::Vector2u getSize() const {
+		return { width, static_cast<unsigned>(map.size() / width) };
+	}
+
 	uint16_t getItemProperties(unsigned x, unsigned y) {
 		if (map[y * width + x] == -1) return 0;
 		return items[map[y * width + x]].flags;

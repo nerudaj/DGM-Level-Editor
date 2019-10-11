@@ -14,8 +14,6 @@ private:
 	dgm::ResourceManager resmgr;
 	sf::Texture backgroundTexture;
 	dgm::Tileset background;
-	std::string binaryCommand;
-	std::string binaryLoc;
 
 	// Histories
 	BrushHistory tileHistory;

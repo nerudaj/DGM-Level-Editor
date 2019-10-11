@@ -128,10 +128,10 @@ void AppStateEditor::buildLayout() {
 	menu->addMenu("Editor");
 	menu->addMenuItem("Tiles mode (T)");
 	menu->connectMenuItem("Editor", "Tiles mode (T)", [this]() { switchEditorMode(EditorMode::Tiles); });
-	/*menu->addMenuItem("Items mode (I)");
+	menu->addMenuItem("Items mode (I)");
 	menu->connectMenuItem("Editor", "Items mode (I)", [this]() { switchEditorMode(EditorMode::Items); });
 	menu->addMenuItem("Properties mode (P)");
-	menu->connectMenuItem("Editor", "Properties mode (P)", [this]() { switchEditorMode(EditorMode::Properties); });*/
+	menu->connectMenuItem("Editor", "Properties mode (P)", [this]() { switchEditorMode(EditorMode::Properties); });
 	gui.add(menu);
 
 	// Side bar
@@ -398,7 +398,7 @@ void AppStateEditor::drawOnLayer() {
 	unsigned tileX = unsigned(relativeMousePos.x / relativeTileSize.x);
 	unsigned tileY = unsigned(relativeMousePos.y / relativeTileSize.y);
 
-	if (levelWidth > tileX && levelHeight > tileY) {
+	//if (levelWidth > tileX && levelHeight > tileY) {
 		if (properties) {
 			drawing = false;
 
@@ -419,7 +419,7 @@ void AppStateEditor::drawOnLayer() {
 				drawing = false;
 			}
 		}
-	}
+	//}
 }
 
 void AppStateEditor::newLevel() {

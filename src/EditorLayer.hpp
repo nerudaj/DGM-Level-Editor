@@ -29,6 +29,8 @@ public:
 	}
 
 	virtual void changeTile(unsigned x, unsigned y, unsigned value) override {
+		if (mesh.getDataSize().x <= x || mesh.getDataSize().y <= y) return;
+
 		tileset.changeTile(x, y, value);
 		tileData[size_t(y) * mesh.getDataSize().x + x] = value;
 		mesh[size_t(y) * mesh.getDataSize().x + x] = meshMap[value];
@@ -60,11 +62,15 @@ public:
 	}
 
 	virtual void changeTile(unsigned x, unsigned y, unsigned value) override {
+		if (itemset.getSize().x <= x || itemset.getSize().y <= y) return;
+
 		itemset.addItem(x, y, value);
 		itemset.setProperties(x, y, 0);
 	}
 
 	virtual void removeTile(unsigned x, unsigned y) override {
+		if (itemset.getSize().x <= x || itemset.getSize().y <= y) return;
+
 		itemset.removeItem(x, y);
 	}
 
@@ -77,10 +83,14 @@ public:
 	}
 
 	int getTileValue(unsigned x, unsigned y) {
+		if (itemset.getSize().x <= x || itemset.getSize().y <= y) return -1;
+
 		return itemset.getItemValue(x, y);
 	}
 
 	uint16_t getTileProperties(unsigned x, unsigned y) {
+		if (itemset.getSize().x <= x || itemset.getSize().y <= y) return 0;
+
 		return itemset.getItemProperties(x, y);
 	}
 
