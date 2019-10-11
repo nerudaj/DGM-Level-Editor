@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 
 	cfg::Ini ini;
 	try {
-		ini.loadFromFile(rootDir + "/app.ini");
+		ini.loadFromFile("app.ini");
 	} catch (...) {
 		ini["Window"]["title"] = "LevelD file editor";
 	}
@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 
 	app.window.close(ini);
 
-	ini.saveToFile(rootDir + "/app.ini");
+	ini.saveToFile("app.ini");
 
 	return 0;
 }
