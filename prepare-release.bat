@@ -35,6 +35,8 @@ mkdir %RELDIR%\%PROJECT_NAME%-%version%\sample-project
 
 echo Phase 5 - Copying data
 copy changelog.txt %RELDIR%\%PROJECT_NAME%-%version%
+copy Readme.md %RELDIR%\%PROJECT_NAME%-%version%
+copy config.json %RELDIR%\%PROJECT_NAME%-%version%
 copy %BUILDDIR%\Release\*.exe %RELDIR%\%PROJECT_NAME%-%version%\bin
 robocopy 3rdParty\SFML\bin %RELDIR%\%PROJECT_NAME%-%version%\bin openal32.dll sfml-audio-2.dll sfml-graphics-2.dll sfml-system-2.dll sfml-window-2.dll
 robocopy 3rdParty\TGUI\bin %RELDIR%\%PROJECT_NAME%-%version%\bin tgui.dll

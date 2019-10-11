@@ -1,4 +1,4 @@
-DGM Level Editor v0.2.4 changelog:
+DGM Level Editor v0.2.6 changelog:
  * Fixed issue when save/loading levels of different sizes
  * Fixed options that were disabled by error in previous version
  * Added How to use section to Readme.md
