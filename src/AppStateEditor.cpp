@@ -288,7 +288,7 @@ void AppStateEditor::buildNewLevelModal() {
 	std::vector<std::vector<std::string>> boxes = {
 		{"66%", "20", "InputLevelWidth"},
 		{"66%", "10", "InputLevelHeight"},
-		{"58%", rootDir + "/config.json", "InputLevelConfig"},
+		{"58%", "Pick a config file", "InputLevelConfig"},
 	};
 
 	for (unsigned i = 0; i < boxes.size(); i++) {
