@@ -13,7 +13,7 @@ void ToolRendererTile::init(const nlohmann::json& config, const dgm::ResourceMan
 	bounds.width = config["tileBrush"]["clip"]["boundaries"][2].get<int>();
 	bounds.height = config["tileBrush"]["clip"]["boundaries"][3].get<int>();
 
-	clip = dgm::Clip(tileSize, bounds);
+	clip = dgm::Clip(sf::Vector2u(tileSize), bounds);
 
 	std::vector<int> map(config["tileBrush"]["meshMap"].begin(), config["tileBrush"]["meshMap"].end());
 	meshMap = std::vector<bool>(map.begin(), map.end());

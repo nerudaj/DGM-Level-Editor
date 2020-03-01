@@ -5,7 +5,7 @@ void EditorLayerTile::init(unsigned width, unsigned height, sf::Vector2i& tileSi
 	tileData = std::vector<int>(size_t(width) * size_t(height), 0);
 
 	tileset.setTexture(tileBrush.getTexture());
-	tileset.build(tileBrush.getClip(), sf::Vector2u(tileSize), tileData, { width, height });
+	tileset.rebuild(tileBrush.getClip(), sf::Vector2u(tileSize), tileData, { width, height });
 
 	meshMap = tileBrush.getMeshMap();
 	mesh.setDataSize({width, height});
@@ -17,6 +17,8 @@ void EditorLayerTile::saveToLevelD(LevelD& lvd) const {
 	lvd.mesh.height = mesh.getDataSize().y;
 
 	lvd.mesh.tiles = std::vector<uint16_t>(tileData.begin(), tileData.end());
+	lvd.mesh.tileWidth = 32;
+	lvd.mesh.tileHeight = 32;
 	
 	unsigned size = lvd.mesh.width * lvd.mesh.height;
 	lvd.mesh.blocks.resize(size, 0);
@@ -35,7 +37,7 @@ void EditorLayerTile::loadFromLevelD(const LevelD& lvd) {
 	// TODO: voxel size
 
 	tileData = std::vector<int>(lvd.mesh.tiles.begin(), lvd.mesh.tiles.end());
-	tileset.build(tileset.getClip(), mesh.getVoxelSize(), tileData, mesh.getDataSize());
+	tileset.rebuild(tileset.getClip(), mesh.getVoxelSize(), tileData, mesh.getDataSize());
 }
 
 void EditorLayerItem::saveToLevelD(LevelD& lvd) const {

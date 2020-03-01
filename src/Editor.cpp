@@ -33,7 +33,7 @@ void Editor::buildBackground(const sf::Vector2i& tileSize, unsigned width, unsig
 	}
 
 	background.setTexture(backgroundTexture);
-	background.build(dgm::Clip(tileSize, sf::IntRect(0, 0, tileSize.x * 2, tileSize.y)), sf::Vector2u(tileSize), bgrData, { width, height });
+	background.rebuild(dgm::Clip(sf::Vector2u(tileSize), sf::IntRect(0, 0, tileSize.x * 2, tileSize.y)), sf::Vector2u(tileSize), bgrData, { width, height });
 }
 
 void Editor::draw(tgui::Canvas::Ptr canvas) {
