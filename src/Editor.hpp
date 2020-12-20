@@ -1,91 +1,46 @@
 #pragma once
 
-#include "EditorMode.hpp"
-#include "BrushHistory.hpp"
-#include "ToolRenderer.hpp"
-#include "EditorLayer.hpp"
+#include <DGM/dgm.hpp>
+#include <TGUI/TGUI.hpp>
+#include "Camera.hpp"
+#include "EditorState.hpp"
+#include "ToolMesh.hpp"
 
-/**
- *  @brief Data context of Level editor
- */
 class Editor {
 private:
-	// Resources
-	dgm::ResourceManager resmgr;
-	sf::Texture backgroundTexture;
-	dgm::Tileset background;
+	tgui::Gui &gui;
+	tgui::Theme &theme;
+	tgui::Canvas::Ptr& canvas;
+	Camera camera = Camera(canvas);
+	EditorStateManager stateMgr;
+	sf::CircleShape mouseIndicator;
 
-	// Histories
-	BrushHistory tileHistory;
-	BrushHistory itemHistory;
-	std::reference_wrapper<BrushHistory> activeHistory;
+	bool initialized = false;
+	std::string configPath;
 
-	// Tools
-	ToolRendererTile tileBrush;
-	ToolRendererItem itemBrush;
-	std::reference_wrapper<ToolRenderer> activeBrush;
-
-	// Layers
-	EditorLayerTile tileLayer;
-	EditorLayerItem itemLayer;
-	std::reference_wrapper<EditorLayer> activeLayer;
-
-	// Misc
-	sf::Vector2i tileSize;
-
-	void buildBackground(const sf::Vector2i& tileSize, unsigned width, unsigned height);
+	bool isMouseWithinBoundaries(const sf::Vector2f &mousePos) const;
 
 public:
-	void draw(tgui::Canvas::Ptr canvas);
+	void handleEvent(const sf::Event& event, const sf::Vector2i &mousePos);
 
-	void setZoomLevel(float zoom);
-
-	const sf::Vector2i& getTileSize() const {
-		return tileSize;
-	}
-
-	BrushHistory& getActiveHistory() {
-		return activeHistory;
-	}
-
-	const BrushHistory& getActiveHistory() const {
-		return activeHistory.get();
-	}
-
-	ToolRenderer& getActiveBrush() {
-		return activeBrush.get();
-	}
-
-	const ToolRenderer& getActiveBrush() const {
-		return activeBrush;
-	}
-
-	EditorLayer& getActiveLayer() {
-		return activeLayer.get();
-	}
-
-	const EditorLayer& getActiveLayer() const {
-		return activeLayer.get();
-	}
-
-	void setMode(EditorMode mode);
-
-	void init(unsigned width, unsigned height, const std::string &configPath);
+	void draw();
 
 	/**
-	 *  \warn Broken if init wasnt called first!
-	 *  \todo FIX
+	 *  Initialize Editor object with new level - it has some fixed width and height
+	 *  Also there is path to config json which should be loaded and given to each
+	 *  instantiated Tool.
 	 */
-	void saveToFile(const std::string& filename);
+	void init(unsigned levelWidth, unsigned levelHeight, const std::string& configPath);
 
-	/**
-	 *  \warn Broken if init wasnt called first!
-	 *  \todo FIX
-	 */
-	void loadFromFile(const std::string& filename);
+	void switchTool(const std::string &tool);
 
-	Editor() : activeHistory(tileHistory), activeBrush(tileBrush), activeLayer(tileLayer) {
-		tileHistory.clear();
-		itemHistory.clear();
-	}
+	/*void selectToolProperty(tgui::Gui& gui) {
+		stateMgr.getTool().getTool().buildPropertySelectionModal(gui);
+	}*/
+
+	void loadFromFile(const std::string &filename);
+
+	void saveToFile(const std::string &filename);
+
+	Editor(tgui::Gui &gui, tgui::Theme &theme, tgui::Canvas::Ptr& canvas);
 };

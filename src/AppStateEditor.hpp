@@ -2,8 +2,15 @@
 
 #include <DGM/dgm.hpp>
 #include <TGUI/TGUI.hpp>
+#include "Camera.hpp"
+#include "NewLevelDialog.hpp"
+#include "LogConsole.hpp"
 #include "Editor.hpp"
 
+/**
+ *  This class is responsible for drawing top level gui - topbar, canvas, console, bootstrapping
+ *  space for sidebar. It is responsibility for underlying components that can fill it with content to do so.
+ */
 class AppStateEditor : public dgm::AppState {
 private:
 	// Resources
@@ -14,35 +21,28 @@ private:
 	// Gui
 	tgui::Gui gui;
 	tgui::Canvas::Ptr canvas;
-	
-	// Editor settings
-	unsigned levelWidth, levelHeight;
-	float zoomLevel;
-	sf::Mouse::Button lastMouseButtonPressed;
-	bool drawing;
-	bool properties;
-	
-	// Editor controller
-	Editor editor;
+	NewLevelDialog dialogNewLevel = NewLevelDialog(gui);
+
+	// Editor
+	Editor editor = Editor(gui, theme, canvas);
+
+	std::string savePath;
 
 	// Build functions
 	void buildLayout();
-	void buildSidebar();
-	void buildSelectionModal();
-	void buildNewLevelModal();
 	void buildPropertiesModal(unsigned x, unsigned y, unsigned id, uint16_t flags);
 
-	// Maintenance
-	void switchEditorMode(EditorMode mode);
-	void drawOnLayer();
+	void setWindowTitle(const std::string appendix = "") {
+		app->window.getWindowContext().setTitle("DGM Level Editor" + (appendix.empty() ? "" : " - " + appendix));
+	}
 
 	// IO
-	void newLevel();
+	void newLevelDialogCallback();
 	void loadLevel();
-	void saveLevel();
+	void saveLevel(bool forceNewPath = false);
 
-	// Misc
-	void log(const std::string& message);
+	// Shortcut
+	unsigned keyShortcut = 0;
 
 public:
 	// Inherited via AppState

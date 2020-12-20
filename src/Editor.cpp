@@ -1,111 +1,98 @@
 #include "Editor.hpp"
-#include <json.hpp>
 #include <fstream>
+#include "JsonHelper.hpp"
 
-nlohmann::json loadJsonFromFile(const std::string& filename) {
-	std::ifstream load(filename);
-	nlohmann::json file;
-	load >> file;
-	load.close();
-	load.clear();
+const sf::Vector2f LEFT_VEC(-24.f, 0.f);
+const sf::Vector2f UP_VEC(0.f, -24.f);
+const sf::Vector2f DOWN_VEC(0.f, 24.f);
+const sf::Vector2f RIGHT_VEC(24.f, 0.f);
 
-	return file;
+bool Editor::isMouseWithinBoundaries(const sf::Vector2f& mousePos) const {
+	return mousePos.x < 0.f && mousePos.y < 0.f;
 }
 
-void Editor::buildBackground(const sf::Vector2i& tileSize, unsigned width, unsigned height) {
-	sf::Image image;
-	image.create(tileSize.x * 2, tileSize.y);
+void Editor::handleEvent(const sf::Event& event, const sf::Vector2i& mousePos) {
+	if (!initialized) return;
 
-	for (int y = 0; y < tileSize.y; y++) {
-		for (int x = 0; x < tileSize.x; x++) {
-			image.setPixel(x, y, sf::Color::Transparent);
-			image.setPixel(x + tileSize.x, y, sf::Color(255, 255, 255, 16));
-		}
+	// Update mouse position for both indicator and current tool
+	auto realMousePos = camera.getWorldCoordinates(sf::Vector2f(mousePos));
+	mouseIndicator.setPosition(realMousePos);
+	stateMgr.getTool().penPosition(sf::Vector2i(realMousePos));
+
+	if (event.type == sf::Event::KeyPressed) {
+		if (event.key.code == sf::Keyboard::Left) camera.move(LEFT_VEC);
+		else if (event.key.code == sf::Keyboard::Up) camera.move(UP_VEC);
+		else if (event.key.code == sf::Keyboard::Down) camera.move(DOWN_VEC);
+		else if (event.key.code == sf::Keyboard::Right) camera.move(RIGHT_VEC);
 	}
-
-	backgroundTexture.loadFromImage(image);
-	
-	std::vector<int> bgrData(size_t(width) * height, 0);
-	for (unsigned y = 0; y < height; y++) {
-		for (unsigned x = y % 2; x < width; x += 2) {
-			bgrData[y * width + x] = 1;
-		}
-	}
-
-	background.setTexture(backgroundTexture);
-	background.rebuild(dgm::Clip(sf::Vector2u(tileSize), sf::IntRect(0, 0, tileSize.x * 2, tileSize.y)), sf::Vector2u(tileSize), bgrData, { width, height });
-}
-
-void Editor::draw(tgui::Canvas::Ptr canvas) {
-	tileLayer.draw(canvas);
-	canvas->draw(background);
-	itemLayer.draw(canvas);
-}
-
-void Editor::setZoomLevel(float zoom) {
-	background.setScale(zoom, zoom);
-	tileLayer.setZoomLevel(zoom);
-	itemLayer.setZoomLevel(zoom);
-}
-
-void Editor::setMode(EditorMode mode) {
-	if (mode == EditorMode::Tiles) {
-		activeHistory = tileHistory;
-		activeBrush = tileBrush;
-		activeLayer = tileLayer;
-	}
-	else {
-		activeHistory = itemHistory;
-		activeBrush = itemBrush;
-		activeLayer = itemLayer;
+	else if (event.type == sf::Event::MouseWheelScrolled && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
+		camera.zoom(event.mouseWheelScroll.delta * -0.25f);
+		std::cout << "Zoom: " << camera.getCurrentZoomLevel() << std::endl;
 	}
 }
 
-void Editor::init(unsigned width, unsigned height, const std::string &configPath) {
-	auto config = loadJsonFromFile(configPath);
+void Editor::draw() {
+	if (!initialized) return;
 
-	std::string basePath = config["editor"]["pathToGameResources"].get<std::string>() + "/graphics";
-	resmgr.loadResourceDir<sf::Texture>(basePath + "/textures");
-	resmgr.loadResourceDir<std::shared_ptr<dgm::AnimationStates>>(basePath + "/configs");
-
-	tileSize.x = config["editor"]["tileSize"][0].get<int>();
-	tileSize.y = config["editor"]["tileSize"][1].get<int>();
-
-	buildBackground(tileSize, width, height);
-
-	tileHistory.clear();
-	itemHistory.clear();
-
-	tileHistory.addItem(0);
-	itemHistory.addItem(0);
-
-	tileBrush.init(config, resmgr);
-	itemBrush.init(config, resmgr);
-
-	tileLayer.init(width, height, tileSize, tileBrush);
-	itemLayer.init(width, height, tileSize, itemBrush);
+	stateMgr.getTool().drawTo(canvas);
+	canvas->draw(mouseIndicator);
 }
 
-void Editor::saveToFile(const std::string& filename) {
-	LevelD lvd;
+void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& configPath) {
+	// Load json config and configure all tools
+	auto config = JsonHelper::loadFromFile(configPath);
+	stateMgr.forallStates([levelWidth, levelHeight, &config] (Tool &tool) {
+		tool.configure(config);
+		tool.resize(levelWidth, levelHeight);
+	});
 
-	tileLayer.saveToLevelD(lvd);
-	itemLayer.saveToLevelD(lvd);
+	// Configure camera
+	camera.init();
+	camera.resetPosition();
+	camera.resetZoom();
 
-	lvd.saveToFile(filename);
+	// Configure canvas callbacks
+	canvas->connect("RightMousePressed", [this] () { /* TODO: enable drawing */ });
+	canvas->connect("RightMouseReleased", [this] () { /* TODO: disable drawing */ });
+	canvas->connect("MousePressed", [this] () { stateMgr.getTool().penDown(); });
+	canvas->connect("MouseReleased", [this] () { stateMgr.getTool().penUp(); });
+
+	initialized = true;
+	Editor::configPath = configPath; // Remember this and export to leveld later
+
+	// By default selecting mesh tool
+	switchTool("mesh");
 }
 
-void Editor::loadFromFile(const std::string& filename) {
+void Editor::switchTool(const std::string &tool) {
+	stateMgr.changeState(tool);
+	stateMgr.getTool().buildSidebar(gui, theme);
+}
+
+void Editor::loadFromFile(const std::string &filename) {
 	LevelD lvd;
 	lvd.loadFromFile(filename);
 
-	tileLayer.loadFromLevelD(lvd);
-	itemLayer.loadFromLevelD(lvd);
-
-	buildBackground(tileSize, lvd.mesh.width, lvd.mesh.height);
+	init(1, 1, lvd.metadata.description); // Currently using this to be able to load the config
+	stateMgr.forallStates([&lvd] (Tool &tool) {
+		tool.loadFrom(lvd);
+	});
 }
 
-std::string std::to_string(EditorMode mode) {
-	if (mode == EditorMode::Tiles) return "Tiles";
-	return "Items";
+void Editor::saveToFile(const std::string &filename) {
+	LevelD lvd;
+	lvd.metadata.description = configPath; // Currently using this to be able to load the config
+	stateMgr.forallStates([&lvd] (Tool &tool) {
+		tool.saveTo(lvd);
+	});
+	lvd.saveToFile(filename);
+}
+
+Editor::Editor(tgui::Gui &gui, tgui::Theme &theme, tgui::Canvas::Ptr& canvas) : gui(gui), theme(theme), canvas(canvas) {
+	// Instantiate all EditorTools here
+	stateMgr.addState("mesh", new ToolMesh());
+
+	// Bootstrapping mouse indicator
+	mouseIndicator.setRadius(8.f);
+	mouseIndicator.setFillColor(sf::Color::Green);
 }

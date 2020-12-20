@@ -1,0 +1,14 @@
+{
+    "layerTile": {
+        "texture": {
+            "path": "C:/Users/doomista/Documents/GitHub/DGM/sample-project/tileset.png",
+            "tileDimensions": [32, 32],
+            "tileOffsets": [0, 0],
+            "boundaries": [0, 0, 64, 64]
+        },
+        "defaultProperties": {
+            "count": 4,
+            "solids": [0, 0, 1, 1]
+        }
+    }
+}

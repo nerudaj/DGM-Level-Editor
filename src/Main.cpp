@@ -10,9 +10,11 @@ int main(int argc, char *argv[]) {
 
 	cfg::Ini ini;
 	try {
-		ini.loadFromFile("app.ini");
+		ini.loadFromFile(rootDir + "/app.ini");
 	} catch (...) {
 		ini["Window"]["title"] = "LevelD file editor";
+		ini["Window"]["width"] = 1280;
+		ini["Window"]["height"] = 720;
 	}
 
 	dgm::App app;
@@ -23,7 +25,7 @@ int main(int argc, char *argv[]) {
 
 	app.window.close(ini);
 
-	ini.saveToFile("app.ini");
+	ini.saveToFile(rootDir + "/app.ini");
 
 	return 0;
 }

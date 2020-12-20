@@ -12,7 +12,7 @@ std::string FileApi::getSaveFileName(const char *filter) {
 	ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
 	ofn.lpstrFilter = filter;
 	ofn.lpstrFile = filename;
-	ofn.nMaxFile = MAX_PATH;
+	ofn.nMaxFile = MAX_PATH - 1;
 	ofn.lpstrTitle = "Select a File";
 	ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
 
@@ -20,6 +20,7 @@ std::string FileApi::getSaveFileName(const char *filter) {
 		throw std::runtime_error("File select dialog failed");
 	}
 
+	filename[MAX_PATH - 1] = '\0';
 	return std::string(filename);
 }
 
@@ -33,7 +34,7 @@ std::string FileApi::getOpenFileName(const char* filter) {
 	ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
 	ofn.lpstrFilter = filter;
 	ofn.lpstrFile = filename;
-	ofn.nMaxFile = MAX_PATH;
+	ofn.nMaxFile = MAX_PATH - 1;
 	ofn.lpstrTitle = "Select a File";
 	ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
 
@@ -41,5 +42,6 @@ std::string FileApi::getOpenFileName(const char* filter) {
 		throw std::runtime_error("File select dialog failed");
 	}
 
+	filename[MAX_PATH - 1] = '\0';
 	return std::string(filename);
 }
