@@ -14,6 +14,19 @@ unsigned Tilemap::getTile(unsigned tileX, unsigned tileY) {
 	return 0;
 }
 
+void ToolMesh::handleShortcuts(const sf::Event& event) {
+	if (event.type == sf::Event::KeyPressed) {
+		if (event.key.code == sf::Keyboard::LShift) shiftOn = true;
+		else if (event.key.code == sf::Keyboard::P) changeDrawingMode(DrawMode::Pencil);
+		else if (event.key.code == sf::Keyboard::F) changeDrawingMode(DrawMode::RectFill);
+		else if (event.key.code == sf::Keyboard::E) changeDrawingMode(DrawMode::RectEdge);
+		else if (event.key.code == sf::Keyboard::L) changeDrawingMode(DrawMode::Line);
+	}
+	else if (event.type == sf::Event::KeyReleased) {
+		if (event.key.code == sf::Keyboard::LShift) shiftOn = false;
+	}
+}
+
 void ToolMesh::configure(nlohmann::json &config) {
 	std::string texturePath = config["layerTile"]["texture"]["path"];
 	if (!texture.loadFromFile(texturePath)) {
@@ -106,8 +119,27 @@ void ToolMesh::setProperty(const ToolProperty &prop) {
 	std::cerr << "ToolMesh::setProperty: Function is called, but is not implemented." << std::endl;
 }
 
-void ToolMesh::buildCtxMenu(tgui::Gui &gui) {
-	std::cerr << "ToolMesh::buildCtxMenu: Function is called, but is not implemented." << std::endl;
+void ToolMesh::buildCtxMenu(tgui::MenuBar::Ptr &menu) {
+	menu->removeMenu(CTX_MENU_NAME);
+	menu->addMenu(CTX_MENU_NAME);
+
+	const std::string OPTION_PENCIL = "Pencil Mode (Shift+P)";
+	const std::string OPTION_FILL = "Rect-fill Mode (Shift+F)";
+	const std::string OPTION_EDGE = "Rect-edge Mode (Shift+E)";
+	const std::string OPTION_LINE = "Line Mode (Shift+L)";
+
+	menu->addMenuItem(OPTION_PENCIL);
+	menu->connectMenuItem(CTX_MENU_NAME, OPTION_PENCIL, [this]() { changeDrawingMode(DrawMode::Pencil); });
+	menu->addMenuItem(OPTION_FILL);
+	menu->connectMenuItem(CTX_MENU_NAME, OPTION_FILL, [this]() { changeDrawingMode(DrawMode::RectFill); });
+	menu->addMenuItem(OPTION_EDGE);
+	menu->connectMenuItem(CTX_MENU_NAME, OPTION_EDGE, [this]() { changeDrawingMode(DrawMode::RectEdge); });
+	menu->addMenuItem(OPTION_LINE);
+	menu->connectMenuItem(CTX_MENU_NAME, OPTION_LINE, [this]() { changeDrawingMode(DrawMode::Line); });
+}
+
+void ToolMesh::destroyCtxMenu(tgui::MenuBar::Ptr& menu) {
+	menu->removeMenu("Tool Menu");
 }
 
 void ToolMesh::buildSidebar(tgui::Gui &gui, tgui::Group::Ptr &sidebar, tgui::Theme &theme) {
@@ -194,4 +226,17 @@ void ToolMesh::buildTileIdSelectionModal(tgui::Gui &gui) {
 			y++;
 		}
 	}
+}
+
+void ToolMesh::changeDrawingMode(ToolMesh::DrawMode newMode) {
+	Log::write("Mesh: Changing draw mode to " + std::to_string(newMode));
+	mode = newMode;
+}
+
+std::string std::to_string(ToolMesh::DrawMode mode) {
+	if (mode == ToolMesh::DrawMode::Pencil) return "Pencil";
+	else if (mode == ToolMesh::DrawMode::RectFill) return "RectFill";
+	else if (mode == ToolMesh::DrawMode::RectEdge) return "RectEdge";
+	else if (mode == ToolMesh::DrawMode::Line) return "Line";
+	return "Error";
 }

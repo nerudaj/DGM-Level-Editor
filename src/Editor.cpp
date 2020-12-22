@@ -29,6 +29,8 @@ void Editor::handleEvent(const sf::Event& event, const sf::Vector2i& mousePos) {
 		camera.zoom(event.mouseWheelScroll.delta * -0.25f);
 		std::cout << "Zoom: " << camera.getCurrentZoomLevel() << std::endl;
 	}
+
+	stateMgr.getTool().handleShortcuts(event);
 }
 
 void Editor::draw() {
@@ -67,6 +69,9 @@ void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& 
 void Editor::switchTool(const std::string &tool) {
 	stateMgr.changeState(tool);
 	stateMgr.getTool().buildSidebar(gui, theme);
+
+	auto menu = gui.get<tgui::MenuBar>("TopMenuBar");
+	stateMgr.getTool().buildCtxMenu(menu);
 }
 
 void Editor::loadFromFile(const std::string &filename) {

@@ -29,7 +29,12 @@ class Tool {
 private:
     virtual void buildSidebar(tgui::Gui &gui, tgui::Group::Ptr &sidebar, tgui::Theme &theme) = 0;
 
+protected:
+    const std::string CTX_MENU_NAME = "Tool";
+
 public:
+    virtual void handleShortcuts(const sf::Event& event) = 0;
+
 	virtual void configure(nlohmann::json &config) = 0;
 
     virtual void resize(unsigned width, unsigned height) = 0;
@@ -47,7 +52,8 @@ public:
 	virtual ToolProperty *getProperty() = 0;
 	virtual void setProperty(const ToolProperty &prop) = 0;
 
-	virtual void buildCtxMenu(tgui::Gui &gui) = 0;
+	virtual void buildCtxMenu(tgui::MenuBar::Ptr &menu) = 0;
+    virtual void destroyCtxMenu(tgui::MenuBar::Ptr& menu) = 0;
 	
     void buildSidebar(tgui::Gui &gui, tgui::Theme &theme);
 };

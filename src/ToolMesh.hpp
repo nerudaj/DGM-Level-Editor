@@ -9,7 +9,13 @@ public:
 };
 
 class ToolMesh : public Tool {
+public:
+    enum class DrawMode {
+        Pencil, RectFill, RectEdge, Line
+    };
 private:
+    DrawMode mode = DrawMode::Pencil;
+
     BackgroundGrid bgr; // checker pattern for better UX
     sf::Texture texture; // tileset texture
     dgm::Clip clip; // how tileset is sliced
@@ -20,12 +26,17 @@ private:
 
     unsigned penTileId = 1;
     bool drawing = false;
+    bool shiftOn = false;
 
     virtual void buildSidebar(tgui::Gui &gui, tgui::Group::Ptr &sidebar, tgui::Theme &theme) override;
     void buildTileIdSelectionModal(tgui::Gui &gui);
 
+    void changeDrawingMode(DrawMode newMode);
+
 public:
     // Inherited via EditorTool
+    virtual void handleShortcuts(const sf::Event& event) override;
+
     virtual void configure(nlohmann::json &config);
 
     virtual void resize(unsigned width, unsigned height);
@@ -46,5 +57,11 @@ public:
 
     virtual void setProperty(const ToolProperty &prop) override;
 
-    virtual void buildCtxMenu(tgui::Gui &gui) override;
+    virtual void buildCtxMenu(tgui::MenuBar::Ptr &menu) override;
+
+    virtual void destroyCtxMenu(tgui::MenuBar::Ptr& menu) override;
 };
+
+namespace std {
+    std::string to_string(ToolMesh::DrawMode mode);
+}

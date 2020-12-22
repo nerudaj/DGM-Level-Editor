@@ -138,7 +138,7 @@ void AppStateEditor::buildLayout() {
 	//menu->connectMenuItem("Editor", "Items mode (I)", [this]() { switchEditorMode(EditorMode::Items); });
 	menu->addMenuItem("Properties mode (P)");
 	//menu->connectMenuItem("Editor", "Properties mode (P)", [this]() { switchEditorMode(EditorMode::Properties); });
-	gui.add(menu);
+	gui.add(menu, "TopMenuBar");
 
 	// Side bar - only bootstrap the space it will be sitting in
 	auto sidebar = tgui::Group::create();
