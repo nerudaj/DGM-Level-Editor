@@ -14,16 +14,6 @@ unsigned Tilemap::getTile(unsigned tileX, unsigned tileY) {
 	return 0;
 }
 
-void ToolMesh::handleShortcuts(const sf::Event& event) {
-	if (event.type == sf::Event::KeyPressed) {
-		if (event.key.code == sf::Keyboard::LShift) shiftOn = true;
-		else if (event.key.code == sf::Keyboard::P) changeDrawingMode(DrawMode::Pencil);
-		else if (event.key.code == sf::Keyboard::F) changeDrawingMode(DrawMode::RectFill);
-		else if (event.key.code == sf::Keyboard::E) changeDrawingMode(DrawMode::RectEdge);
-		else if (event.key.code == sf::Keyboard::L) changeDrawingMode(DrawMode::Line);
-	}
-	else if (event.type == sf::Event::KeyReleased) {
-		if (event.key.code == sf::Keyboard::LShift) shiftOn = false;
 	}
 }
 
@@ -126,7 +116,6 @@ void ToolMesh::buildCtxMenu(tgui::MenuBar::Ptr &menu) {
 	const std::string OPTION_PENCIL = "Pencil Mode (Shift+P)";
 	const std::string OPTION_FILL = "Rect-fill Mode (Shift+F)";
 	const std::string OPTION_EDGE = "Rect-edge Mode (Shift+E)";
-	const std::string OPTION_LINE = "Line Mode (Shift+L)";
 
 	menu->addMenuItem(OPTION_PENCIL);
 	menu->connectMenuItem(CTX_MENU_NAME, OPTION_PENCIL, [this]() { changeDrawingMode(DrawMode::Pencil); });
@@ -134,8 +123,11 @@ void ToolMesh::buildCtxMenu(tgui::MenuBar::Ptr &menu) {
 	menu->connectMenuItem(CTX_MENU_NAME, OPTION_FILL, [this]() { changeDrawingMode(DrawMode::RectFill); });
 	menu->addMenuItem(OPTION_EDGE);
 	menu->connectMenuItem(CTX_MENU_NAME, OPTION_EDGE, [this]() { changeDrawingMode(DrawMode::RectEdge); });
-	menu->addMenuItem(OPTION_LINE);
-	menu->connectMenuItem(CTX_MENU_NAME, OPTION_LINE, [this]() { changeDrawingMode(DrawMode::Line); });
+
+	clearShortcuts();
+	registerShortcut(sf::Keyboard::P, [this]() { changeDrawingMode(DrawMode::Pencil); });
+	registerShortcut(sf::Keyboard::F, [this]() { changeDrawingMode(DrawMode::RectFill); });
+	registerShortcut(sf::Keyboard::E, [this]() { changeDrawingMode(DrawMode::RectEdge); });
 }
 
 void ToolMesh::destroyCtxMenu(tgui::MenuBar::Ptr& menu) {

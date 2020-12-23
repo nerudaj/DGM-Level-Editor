@@ -28,12 +28,19 @@ public:
 class Tool {
 private:
     virtual void buildSidebar(tgui::Gui &gui, tgui::Group::Ptr &sidebar, tgui::Theme &theme) = 0;
+    std::map<sf::Keyboard::Key, std::function<void(void)>> callbacks;
+    bool shiftPressed = false;
 
 protected:
     const std::string CTX_MENU_NAME = "Tool";
 
+    void registerShortcut(sf::Keyboard::Key key, std::function<void(void)> callback);
+    void clearShortcuts() {
+        callbacks.clear();
+    }
+
 public:
-    virtual void handleShortcuts(const sf::Event& event) = 0;
+    void handleShortcuts(const sf::Event& event);
 
 	virtual void configure(nlohmann::json &config) = 0;
 

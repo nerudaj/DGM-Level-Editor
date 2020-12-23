@@ -20,13 +20,12 @@ private:
     sf::Texture texture; // tileset texture
     dgm::Clip clip; // how tileset is sliced
     Tilemap tilemap; // renders tileset
-    dgm::Mesh mesh; // blocks of tileset
+    //dgm::Mesh mesh; // blocks of tileset
 
     std::vector<bool> defaultBlocks;
 
     unsigned penTileId = 1;
     bool drawing = false;
-    bool shiftOn = false;
 
     virtual void buildSidebar(tgui::Gui &gui, tgui::Group::Ptr &sidebar, tgui::Theme &theme) override;
     void buildTileIdSelectionModal(tgui::Gui &gui);
@@ -34,9 +33,6 @@ private:
     void changeDrawingMode(DrawMode newMode);
 
 public:
-    // Inherited via EditorTool
-    virtual void handleShortcuts(const sf::Event& event) override;
-
     virtual void configure(nlohmann::json &config);
 
     virtual void resize(unsigned width, unsigned height);
