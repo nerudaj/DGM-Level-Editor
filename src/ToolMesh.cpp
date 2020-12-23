@@ -14,6 +14,22 @@ unsigned Tilemap::getTile(unsigned tileX, unsigned tileY) {
 	return 0;
 }
 
+void Tilemap::drawArea(const sf::Vector2i& start, const sf::Vector2i& end, bool fill, unsigned tileValue, bool blocking) {
+	unsigned startX = start.x / mesh.getVoxelSize().x;
+	unsigned startY = start.y / mesh.getVoxelSize().y;
+	unsigned endX = end.x / mesh.getVoxelSize().x;
+	unsigned endY = end.y / mesh.getVoxelSize().y;
+
+	Log::write("drawArea [" + std::to_string(startX) + ", " + std::to_string(startY) + "] -> [" +
+		std::to_string(endX) + ", " + std::to_string(endY) + "]");
+
+	for (unsigned y = startY; y <= endY; y++) {
+		for (unsigned x = startX; x <= endX; x++) {
+			if (!fill && !(x == startX || x == endX || y == startY || y == endY)) continue;
+
+			changeTile(x, y, tileValue);
+			mesh.at(x, y) = blocking;
+		}
 	}
 }
 
@@ -36,21 +52,24 @@ void ToolMesh::configure(nlohmann::json &config) {
 
 	clip = dgm::Clip(tileDims, bounds, 0, tileOffs);
 	tilemap.init(texture, clip);
+	tilemap.mesh.setVoxelSize(clip.getFrameSize());
+
+	rectShape.setOutlineColor(sf::Color(255, 0, 0, 128));
+	rectShape.setOutlineThickness(2.f);
 }
 
 void ToolMesh::resize(unsigned width, unsigned height) {
 	bgr.build({ width, height }, clip.getFrameSize());
 	tilemap.build(clip.getFrameSize(), std::vector<int>(width * height, 0), { width, height });
-	mesh.setDataSize(width, height);
-	mesh.setVoxelSize(clip.getFrameSize());
+	tilemap.mesh.setDataSize(width, height);
 }
 
 void ToolMesh::saveTo(LevelD &lvd) {
 	Log::write("ToolMesh::saveTo");
 	lvd.mesh.tileWidth = clip.getFrameSize().x;
 	lvd.mesh.tileHeight = clip.getFrameSize().y;
-	lvd.mesh.layerWidth = mesh.getDataSize().x;
-	lvd.mesh.layerHeight = mesh.getDataSize().y;
+	lvd.mesh.layerWidth = tilemap.mesh.getDataSize().x;
+	lvd.mesh.layerHeight = tilemap.mesh.getDataSize().y;
 
 	lvd.mesh.layers.resize(1);
 	lvd.mesh.layers[0].tiles.resize(lvd.mesh.layerWidth * lvd.mesh.layerHeight);
@@ -58,7 +77,7 @@ void ToolMesh::saveTo(LevelD &lvd) {
 	for (unsigned tileY = 0, i = 0; tileY < lvd.mesh.layerHeight; tileY++) {
 		for (unsigned tileX = 0; tileX < lvd.mesh.layerWidth; tileX++, i++) {
 			lvd.mesh.layers[0].tiles[i] = tilemap.getTile(tileX, tileY);
-			lvd.mesh.layers[0].blocks[i] = mesh[i];
+			lvd.mesh.layers[0].blocks[i] = tilemap.mesh[i];
 		}
 	}
 }
@@ -68,37 +87,64 @@ void ToolMesh::loadFrom(const LevelD &lvd) {
 	resize(lvd.mesh.layerWidth, lvd.mesh.layerHeight);
 
 	tilemap.build(lvd.mesh, 0);
-	mesh = dgm::Mesh(lvd.mesh, 0);
+	tilemap.mesh = dgm::Mesh(lvd.mesh, 0);
 }
 
 void ToolMesh::drawTo(tgui::Canvas::Ptr &canvas) {
 	canvas->draw(tilemap);
 	bgr.draw(canvas);
+
+	if (drawing) {
+		if (mode == DrawMode::RectEdge || mode == DrawMode::RectFill) {
+			canvas->draw(rectShape);
+		}
+	}
 }
 
 void ToolMesh::penDown() {
-	drawing = true;
 	Log::write("penDown");
+
+	drawing = true;
+	penDownPos = penPos;
+	rectShape.setPosition(sf::Vector2f(penDownPos));
+
+	if (mode == DrawMode::RectEdge) {
+		rectShape.setFillColor(sf::Color::Transparent);
+	}
+	else if (mode == DrawMode::RectFill) {
+		rectShape.setFillColor(sf::Color(128, 0, 0, 128));
+	}
 }
 
 void ToolMesh::penPosition(const sf::Vector2i &position) {
-	if (!drawing) return;
+	penPos = position;
+
+	if (mode != DrawMode::Pencil) {
+		rectShape.setSize(sf::Vector2f(position - penDownPos));
+	}
+
+	if (!(drawing && mode == DrawMode::Pencil)) return;
 	Log::write("penPosition && drawing");
 
-	unsigned tileX = position.x / mesh.getVoxelSize().x;
-	unsigned tileY = position.y / mesh.getVoxelSize().y;
+	unsigned tileX = position.x / tilemap.mesh.getVoxelSize().x;
+	unsigned tileY = position.y / tilemap.mesh.getVoxelSize().y;
 
-	if (tileX < 0 || tileY < 0 || tileX >= mesh.getDataSize().x || tileY >= mesh.getDataSize().y) return;
+	if (tileX < 0 || tileY < 0 || tileX >= tilemap.mesh.getDataSize().x || tileY >= tilemap.mesh.getDataSize().y) return;
 
 	Log::write("Changing tile[" + std::to_string(tileX) + ", " + std::to_string(tileY) + "]");
-		
-	tilemap.changeTile(tileX, tileY, penTileId);
-	mesh[tileY * mesh.getDataSize().x + tileX] = defaultBlocks[penTileId];
+	
+	tilemap.drawArea(position, position, true, penTileId, defaultBlocks[penTileId]);
 }
 
 void ToolMesh::penUp() {
-	drawing = false;
 	Log::write("penUp");
+	drawing = false;
+
+	if (mode == DrawMode::RectEdge) {
+		tilemap.drawArea(penDownPos, penPos, false, penTileId, defaultBlocks[penTileId]);
+	} else if (mode == DrawMode::RectFill) {
+		tilemap.drawArea(penDownPos, penPos, true, penTileId, defaultBlocks[penTileId]);
+	}
 }
 
 ToolProperty *ToolMesh::getProperty() {

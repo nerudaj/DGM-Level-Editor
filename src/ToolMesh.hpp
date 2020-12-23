@@ -5,7 +5,11 @@
 
 class Tilemap : public dgm::TileMap {
 public:
+    dgm::Mesh mesh;
+
     unsigned getTile(unsigned tileX, unsigned tileY);
+
+    void drawArea(const sf::Vector2i& start, const sf::Vector2i& end, bool fill, unsigned tileValue, bool blocking);
 };
 
 class ToolMesh : public Tool {
@@ -13,8 +17,10 @@ public:
     enum class DrawMode {
         Pencil, RectFill, RectEdge, Line
     };
+
 private:
     DrawMode mode = DrawMode::Pencil;
+    sf::RectangleShape rectShape;
 
     BackgroundGrid bgr; // checker pattern for better UX
     sf::Texture texture; // tileset texture
@@ -26,6 +32,8 @@ private:
 
     unsigned penTileId = 1;
     bool drawing = false;
+    sf::Vector2i penDownPos;
+    sf::Vector2i penPos;
 
     virtual void buildSidebar(tgui::Gui &gui, tgui::Group::Ptr &sidebar, tgui::Theme &theme) override;
     void buildTileIdSelectionModal(tgui::Gui &gui);
