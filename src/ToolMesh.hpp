@@ -57,6 +57,10 @@ public:
 
     virtual void penUp() override;
 
+    virtual void penCancel() override {
+        drawing = false;
+    }
+
     virtual ToolProperty *getProperty() override;
 
     virtual void setProperty(const ToolProperty &prop) override;

@@ -54,6 +54,7 @@ public:
 	virtual void penDown() = 0;
     virtual void penPosition(const sf::Vector2i &position) = 0;
 	virtual void penUp() = 0;
+    virtual void penCancel() = 0;
 
 	// Returns nullptr if no property can be returned
 	virtual ToolProperty *getProperty() = 0;

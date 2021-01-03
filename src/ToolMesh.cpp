@@ -137,6 +137,8 @@ void ToolMesh::penPosition(const sf::Vector2i &position) {
 }
 
 void ToolMesh::penUp() {
+	if (!drawing) return;
+
 	Log::write("penUp");
 	drawing = false;
 
