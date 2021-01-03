@@ -3,6 +3,22 @@
 #include "Tool.hpp"
 #include "BackgroundGrid.hpp"
 
+class MeshToolProperty : public ToolProperty {
+protected:
+    virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) override;
+    bool empty = false;
+
+public:
+    uint16_t tileId = 0;
+    bool blocking = false;
+
+    virtual bool isEmpty() override { return empty; }
+
+    virtual void clear() override { empty = true; }
+
+    MeshToolProperty(Tool* parent) : ToolProperty(parent) {}
+};
+
 class Tilemap : public dgm::TileMap {
 public:
     dgm::Mesh mesh;
@@ -27,6 +43,7 @@ private:
     dgm::Clip clip; // how tileset is sliced
     Tilemap tilemap; // renders tileset
     //dgm::Mesh mesh; // blocks of tileset
+    MeshToolProperty tileProperty = MeshToolProperty(this);
 
     std::vector<bool> defaultBlocks;
 
@@ -61,7 +78,7 @@ public:
         drawing = false;
     }
 
-    virtual ToolProperty *getProperty() override;
+    virtual ToolProperty &getProperty() override;
 
     virtual void setProperty(const ToolProperty &prop) override;
 

@@ -4,9 +4,22 @@
 #include <TGUI/TGUI.hpp>
 #include <json.hpp>
 
+class Tool;
+
 class ToolProperty {
+protected:
+    Tool* parent;
+
+    virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) = 0;
+
 public:
-    virtual void buildModal(tgui::Gui *gui) = 0;
+    void buildModal(tgui::Gui& gui);
+
+    virtual bool isEmpty() = 0;
+
+    virtual void clear() = 0;
+
+    ToolProperty(Tool* parent) : parent(parent) {}
 };
 
 /**
@@ -57,7 +70,7 @@ public:
     virtual void penCancel() = 0;
 
 	// Returns nullptr if no property can be returned
-	virtual ToolProperty *getProperty() = 0;
+	virtual ToolProperty &getProperty() = 0;
 	virtual void setProperty(const ToolProperty &prop) = 0;
 
 	virtual void buildCtxMenu(tgui::MenuBar::Ptr &menu) = 0;

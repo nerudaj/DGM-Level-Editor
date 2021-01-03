@@ -149,12 +149,15 @@ void ToolMesh::penUp() {
 	}
 }
 
-ToolProperty *ToolMesh::getProperty() {
-	return nullptr;
+ToolProperty &ToolMesh::getProperty() {
+	tileProperty.clear();
+	// TODO: get position of cursor and convert to tileProperty if over valid target
+	// if valid target, set empty to false
+	return tileProperty;
 }
 
 void ToolMesh::setProperty(const ToolProperty &prop) {
-	std::cerr << "ToolMesh::setProperty: Function is called, but is not implemented." << std::endl;
+	Log::write("ToolMesh::setProperty: Function is called, but is not implemented.");
 }
 
 void ToolMesh::buildCtxMenu(tgui::MenuBar::Ptr &menu) {
@@ -279,4 +282,8 @@ std::string std::to_string(ToolMesh::DrawMode mode) {
 	else if (mode == ToolMesh::DrawMode::RectEdge) return "RectEdge";
 	else if (mode == ToolMesh::DrawMode::Line) return "Line";
 	return "Error";
+}
+
+void MeshToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) {
+	
 }

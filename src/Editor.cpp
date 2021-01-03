@@ -1,6 +1,7 @@
 #include "Editor.hpp"
 #include <fstream>
 #include "JsonHelper.hpp"
+#include "LogConsole.hpp"
 
 const sf::Vector2f LEFT_VEC(-24.f, 0.f);
 const sf::Vector2f UP_VEC(0.f, -24.f);
@@ -55,8 +56,14 @@ void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& 
 	camera.resetZoom();
 
 	// Configure canvas callbacks
-	canvas->connect("RightMousePressed", [this] () { /* TODO: enable drawing */ });
-	canvas->connect("RightMouseReleased", [this] () { /* TODO: disable drawing */ });
+	canvas->connect("RightMousePressed", [this] () {
+		Log::write("RMB down");
+		auto &prop = stateMgr.getTool().getProperty();
+		prop.buildModal(gui);
+	});
+	canvas->connect("RightMouseReleased", [this] () {
+		Log::write("RMB up"); 
+	});
 	canvas->connect("MousePressed", [this] () { stateMgr.getTool().penDown(); });
 	canvas->connect("MouseReleased", [this] () { stateMgr.getTool().penUp(); });
 
