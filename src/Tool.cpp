@@ -5,8 +5,8 @@ void ToolProperty::buildModal(tgui::Gui& gui) {
 
 	// Create wrapper window
 	auto modal = tgui::ChildWindow::create("Tile Properties");
-	modal->setSize("50%", "50%");
-	modal->setPosition("25%", "25%");
+	modal->setSize("50%", "80%");
+	modal->setPosition("25%", "20%");
 	gui.add(modal, "ToolPropertyModal");
 
 	// Create scrollable group inside of this window

@@ -22,6 +22,13 @@ public:
     ToolProperty(Tool* parent) : parent(parent) {}
 };
 
+class ImageToolProperty : public ToolProperty {
+public:
+    tgui::Texture imageTexture;
+
+    ImageToolProperty(Tool* parent) : ToolProperty(parent) {}
+};
+
 /**
  *  This is generic top level class representing an Editor Tool.
  *  This is a component that can edit one attribute of LevelD -

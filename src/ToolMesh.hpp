@@ -3,20 +3,30 @@
 #include "Tool.hpp"
 #include "BackgroundGrid.hpp"
 
-class MeshToolProperty : public ToolProperty {
+class MeshToolProperty : public ImageToolProperty {
 protected:
     virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) override;
-    bool empty = false;
 
 public:
-    uint16_t tileId = 0;
-    bool blocking = false;
+    uint32_t tileX;
+    uint32_t tileY;
+    uint16_t tileValue;
+    bool blocking;
+    bool defaultBlocking;
+    bool empty;
 
     virtual bool isEmpty() override { return empty; }
 
-    virtual void clear() override { empty = true; }
+    virtual void clear() override {
+        tileX = 0;
+        tileY = 0;
+        tileValue = 0;
+        blocking = false;
+        defaultBlocking = false;
+        empty = true;
+    }
 
-    MeshToolProperty(Tool* parent) : ToolProperty(parent) {}
+    MeshToolProperty(Tool* parent) : ImageToolProperty(parent) { clear(); }
 };
 
 class Tilemap : public dgm::TileMap {
@@ -24,6 +34,15 @@ public:
     dgm::Mesh mesh;
 
     unsigned getTile(unsigned tileX, unsigned tileY);
+
+    bool getTileBlock(unsigned tileX, unsigned tileY) {
+        return mesh.at(tileX, tileY);
+    }
+
+    void setTile(unsigned x, unsigned y, unsigned tileValue, bool blocking) {
+        changeTile(x, y, tileValue);
+        mesh.at(x, y) = blocking;
+    }
 
     void drawArea(const sf::Vector2i& start, const sf::Vector2i& end, bool fill, unsigned tileValue, bool blocking);
 };
@@ -56,6 +75,18 @@ private:
     void buildTileIdSelectionModal(tgui::Gui &gui);
 
     void changeDrawingMode(DrawMode newMode);
+
+    sf::Vector2u worldToTilePos(const sf::Vector2i& position) {
+        unsigned tileX = position.x / tilemap.mesh.getVoxelSize().x;
+        unsigned tileY = position.y / tilemap.mesh.getVoxelSize().y;
+        return { tileX, tileY };
+    }
+
+    bool isPositionValid(const sf::Vector2u& tilePos) {
+        return !(tilePos.x < 0 || tilePos.y < 0
+            || tilePos.x >= tilemap.mesh.getDataSize().x
+            || tilePos.y >= tilemap.mesh.getDataSize().y);
+    }
 
 public:
     virtual void configure(nlohmann::json &config);

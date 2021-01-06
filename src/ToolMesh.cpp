@@ -27,8 +27,7 @@ void Tilemap::drawArea(const sf::Vector2i& start, const sf::Vector2i& end, bool 
 		for (unsigned x = startX; x <= endX; x++) {
 			if (!fill && !(x == startX || x == endX || y == startY || y == endY)) continue;
 
-			changeTile(x, y, tileValue);
-			mesh.at(x, y) = blocking;
+			setTile(x, y, tileValue, blocking);
 		}
 	}
 }
@@ -126,14 +125,10 @@ void ToolMesh::penPosition(const sf::Vector2i &position) {
 	if (!(drawing && mode == DrawMode::Pencil)) return;
 	Log::write("penPosition && drawing");
 
-	unsigned tileX = position.x / tilemap.mesh.getVoxelSize().x;
-	unsigned tileY = position.y / tilemap.mesh.getVoxelSize().y;
-
-	if (tileX < 0 || tileY < 0 || tileX >= tilemap.mesh.getDataSize().x || tileY >= tilemap.mesh.getDataSize().y) return;
-
-	Log::write("Changing tile[" + std::to_string(tileX) + ", " + std::to_string(tileY) + "]");
-	
-	tilemap.drawArea(position, position, true, penTileId, defaultBlocks[penTileId]);
+	auto tilePos = worldToTilePos(position);
+	if (isPositionValid(tilePos)) {
+		tilemap.drawArea(position, position, true, penTileId, defaultBlocks[penTileId]);
+	}
 }
 
 void ToolMesh::penUp() {
@@ -151,13 +146,23 @@ void ToolMesh::penUp() {
 
 ToolProperty &ToolMesh::getProperty() {
 	tileProperty.clear();
-	// TODO: get position of cursor and convert to tileProperty if over valid target
-	// if valid target, set empty to false
+
+	auto tilePos = worldToTilePos(penPos);
+	if (not isPositionValid(tilePos)) return tileProperty; // returning null property
+
+	tileProperty.tileX = tilePos.x;
+	tileProperty.tileY = tilePos.y;
+	tileProperty.tileValue = tilemap.getTile(tilePos.x, tilePos.y);
+	tileProperty.blocking = tilemap.getTileBlock(tilePos.x, tilePos.y);
+	tileProperty.defaultBlocking = defaultBlocks[tileProperty.tileValue];
+	tileProperty.imageTexture = tgui::Texture(texture, clip.getFrame(tileProperty.tileValue));
+	tileProperty.empty = false;
+
 	return tileProperty;
 }
 
 void ToolMesh::setProperty(const ToolProperty &prop) {
-	Log::write("ToolMesh::setProperty: Function is called, but is not implemented.");
+	tilemap.setTile(tileProperty.tileX, tileProperty.tileY, tileProperty.tileValue, tileProperty.blocking);
 }
 
 void ToolMesh::buildCtxMenu(tgui::MenuBar::Ptr &menu) {
@@ -285,5 +290,44 @@ std::string std::to_string(ToolMesh::DrawMode mode) {
 }
 
 void MeshToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) {
-	
+	const float IMAGE_SIZE = panel->getSize().x / 4.f;
+	const float VERTICAL_OFFSET = 20.f;
+	const float LABEL_HEIGHT = 20.f;
+
+	// Display image with preview
+	auto imagePanel = tgui::Panel::create();
+	imagePanel->setSize(IMAGE_SIZE, IMAGE_SIZE);
+	imagePanel->setPosition((panel->getSize().x - IMAGE_SIZE) / 2.f, VERTICAL_OFFSET);
+	imagePanel->getRenderer()->setTextureBackground(imageTexture);
+	panel->add(imagePanel);
+
+	auto addLabel = [&](float ypos, const std::string& text) {
+		auto label = tgui::Label::create(text);
+		label->setTextSize(16);
+		label->setSize("40%", LABEL_HEIGHT);
+		label->setPosition("25%", ypos);
+		panel->add(label);
+	};
+
+	unsigned yOffset = IMAGE_SIZE + 2 * VERTICAL_OFFSET;
+	addLabel(yOffset, "Tile X: " + std::to_string(tileX));
+
+	yOffset += LABEL_HEIGHT + VERTICAL_OFFSET;
+	addLabel(yOffset, "Tile Y: " + std::to_string(tileY));
+
+	yOffset += LABEL_HEIGHT + VERTICAL_OFFSET;
+	addLabel(yOffset, "Blocking: ");
+	auto checkbox = tgui::CheckBox::create();
+	checkbox->setSize(LABEL_HEIGHT, LABEL_HEIGHT);
+	checkbox->setPosition("65%", yOffset);
+	checkbox->setChecked(blocking);
+	checkbox->connect("Changed", [this]() { blocking = !blocking; });
+	panel->add(checkbox);
+
+	yOffset += LABEL_HEIGHT + VERTICAL_OFFSET;
+	std::string yesno = defaultBlocking ? "Yes" : "No";
+	addLabel(yOffset, "Blocking by default: " + yesno);
+
+	yOffset += LABEL_HEIGHT + VERTICAL_OFFSET;
+	addLabel(yOffset, ""); // intentionaly left blank
 }

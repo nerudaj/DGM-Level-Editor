@@ -59,7 +59,7 @@ void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& 
 	canvas->connect("RightMousePressed", [this] () {
 		Log::write("RMB down");
 		auto &prop = stateMgr.getTool().getProperty();
-		prop.buildModal(gui);
+		if (!prop.isEmpty()) prop.buildModal(gui);
 	});
 	canvas->connect("RightMouseReleased", [this] () {
 		Log::write("RMB up"); 
