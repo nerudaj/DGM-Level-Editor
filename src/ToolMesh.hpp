@@ -47,6 +47,30 @@ public:
     void drawArea(const sf::Vector2i& start, const sf::Vector2i& end, bool fill, unsigned tileValue, bool blocking);
 };
 
+class ToolMeshHistory {
+private:
+    std::vector<unsigned> history;
+
+public:
+    void insert(unsigned value) {
+        auto it = std::find(history.begin(), history.end(), value);
+        if (it != history.end()) history.erase(it);
+        history.insert(history.begin(), value);
+    }
+
+    void prune(unsigned size) {
+        if (history.size() > size) history.resize(size);
+    }
+
+    std::vector<unsigned>::const_iterator begin() const {
+        return history.begin();
+    }
+
+    std::vector<unsigned>::const_iterator end() const {
+        return history.end();
+    }
+};
+
 class ToolMesh : public Tool {
 public:
     enum class DrawMode {
@@ -66,13 +90,16 @@ private:
 
     std::vector<bool> defaultBlocks;
 
-    unsigned penTileId = 1;
+    unsigned penTileId = 0;
     bool drawing = false;
     sf::Vector2i penDownPos;
     sf::Vector2i penPos;
 
+    ToolMeshHistory penHistory;
+
     virtual void buildSidebar(tgui::Gui &gui, tgui::Group::Ptr &sidebar, tgui::Theme &theme) override;
-    void buildTileIdSelectionModal(tgui::Gui &gui);
+    void changePenValue(unsigned value, tgui::Gui& gui, tgui::Theme& theme);
+    void buildTileIdSelectionModal(tgui::Gui &gui, tgui::Theme &theme);
 
     void changeDrawingMode(DrawMode newMode);
 
@@ -87,6 +114,8 @@ private:
             || tilePos.x >= tilemap.mesh.getDataSize().x
             || tilePos.y >= tilemap.mesh.getDataSize().y);
     }
+
+    tgui::Texture ToolMesh::getTileAsTexture(unsigned tileId);
 
 public:
     virtual void configure(nlohmann::json &config);

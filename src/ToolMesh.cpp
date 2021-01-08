@@ -144,6 +144,10 @@ void ToolMesh::penUp() {
 	}
 }
 
+tgui::Texture ToolMesh::getTileAsTexture(unsigned tileId) {
+	return tgui::Texture(texture, clip.getFrame(tileId));
+}
+
 ToolProperty &ToolMesh::getProperty() {
 	tileProperty.clear();
 
@@ -155,7 +159,7 @@ ToolProperty &ToolMesh::getProperty() {
 	tileProperty.tileValue = tilemap.getTile(tilePos.x, tilePos.y);
 	tileProperty.blocking = tilemap.getTileBlock(tilePos.x, tilePos.y);
 	tileProperty.defaultBlocking = defaultBlocks[tileProperty.tileValue];
-	tileProperty.imageTexture = tgui::Texture(texture, clip.getFrame(tileProperty.tileValue));
+	tileProperty.imageTexture = getTileAsTexture(tileProperty.tileValue);
 	tileProperty.empty = false;
 
 	return tileProperty;
@@ -192,47 +196,50 @@ void ToolMesh::destroyCtxMenu(tgui::MenuBar::Ptr& menu) {
 
 void ToolMesh::buildSidebar(tgui::Gui &gui, tgui::Group::Ptr &sidebar, tgui::Theme &theme) {
 	const float SIDEBAR_WIDTH = sidebar->getSize().x;
+	const float OFFSET = 10.f;
+	const float BUTTON_SIZE = SIDEBAR_WIDTH - 2 * OFFSET;
 
 	// + button
 	auto addbtn = tgui::Button::create("+");
 	addbtn->setRenderer(theme.getRenderer("Button"));
-	addbtn->setSize(SIDEBAR_WIDTH - 20.f, SIDEBAR_WIDTH - 20.f);
-	addbtn->setPosition(10.f, 10.f);
-	addbtn->connect("clicked", [this, &gui] () {
-		buildTileIdSelectionModal(gui);
+	addbtn->setSize(BUTTON_SIZE, BUTTON_SIZE);
+	addbtn->setPosition(OFFSET, OFFSET);
+	addbtn->connect("clicked", [this, &gui, &theme] () {
+		buildTileIdSelectionModal(gui, theme);
 	});
 	sidebar->add(addbtn);
 
-	// ### History buttons
-/*	BrushHistory& history = editor.getActiveHistory();
-	ToolRenderer& brush = editor.getActiveBrush();
+	// History buttons
+	const unsigned BUTTON_COUNT = sidebar->getSize().y / (BUTTON_SIZE + OFFSET);
+	penHistory.prune(BUTTON_COUNT);
 
-	const float HISTORY_BUTTONS_HEIGHT = app->window.getSize().y - TOPBAR_HEIGHT - SIDEBAR_WIDTH;
-	const unsigned BUTTON_COUNT = unsigned(HISTORY_BUTTONS_HEIGHT / SIDEBAR_WIDTH);
-	history.setLimit(BUTTON_COUNT);
-
-	for (unsigned i = 0; i < history.getSize(); i++) {
+	float yPos = 2 * OFFSET + BUTTON_SIZE;
+	for (auto tileId : penHistory) {
 		auto btn = tgui::Button::create();
-		btn->getRenderer()->setTexture(brush.getTguiTextureForItem(history[i]));
-		btn->setSize(SIDEBAR_WIDTH - 20.f, SIDEBAR_WIDTH - 20.f);
-		btn->setPosition(10.f, SIDEBAR_WIDTH + i * (SIDEBAR_WIDTH - 10.f));
+		btn->getRenderer()->setTexture(getTileAsTexture(tileId));
+		btn->setSize(BUTTON_SIZE, BUTTON_SIZE);
+		btn->setPosition(OFFSET, yPos);
+		sidebar->add(btn);
 
+		btn->connect("clicked", [this, &gui, &theme, tileId]() { changePenValue(tileId, gui, theme); });
+
+		/*
 		if (history.getActive() != i) {
 			btn->getRenderer()->setOpacity(0.2f);
 		}
+		*/
 
-		btn->connect("pressed", [this, &history, i]() {
-			if (history.getActive() == i) return;
-
-			history.setActive(i);
-			buildSidebar();
-		});
-
-		sidebar->add(btn);
-	}*/
+		yPos += OFFSET + BUTTON_SIZE;
+	}
 }
 
-void ToolMesh::buildTileIdSelectionModal(tgui::Gui &gui) {
+void ToolMesh::changePenValue(unsigned value, tgui::Gui& gui, tgui::Theme& theme) {
+	penTileId = value;
+	penHistory.insert(penTileId);
+	Tool::buildSidebar(gui, theme);
+}
+
+void ToolMesh::buildTileIdSelectionModal(tgui::Gui &gui, tgui::Theme &theme) {
 	const float SCROLLBAR_WIDTH = 20.f;
 
 	// Create wrapper window
@@ -259,10 +266,10 @@ void ToolMesh::buildTileIdSelectionModal(tgui::Gui &gui) {
 		btn->setPosition(x * BUTTON_SIZE_OUTER + BUTTON_MARGIN, y * BUTTON_SIZE_OUTER + BUTTON_MARGIN);
 
 		// User chosen a particular tile
-		btn->connect("pressed", [this, i, &gui] () {
+		btn->connect("pressed", [this, i, &gui, &theme] () {
 			auto modal = gui.get<tgui::ChildWindow>("ToolSelection");
 			modal->close();
-			penTileId = i;
+			changePenValue(i, gui, theme);
 		});
 
 		group->add(btn);
