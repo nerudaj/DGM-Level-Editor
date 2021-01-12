@@ -1,5 +1,5 @@
 {
-    "layerTile": {
+    "toolMesh": {
         "texture": {
             "path": "C:/Users/doomista/Documents/GitHub/DGM/sample-project/tileset.png",
             "tileDimensions": [32, 32],
@@ -11,4 +11,14 @@
             "solids": [0, 0, 1, 1]
         }
     }
+	"toolItem" : {
+		"items": [
+			{
+				"texture": {
+					"path": "",
+					"clip": [0, 0, 1, 1]
+				}
+			}
+		]
+	}
 }

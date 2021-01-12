@@ -2,49 +2,21 @@
 #include "JsonHelper.hpp"
 #include "LogConsole.hpp"
 
-unsigned Tilemap::getTile(unsigned tileX, unsigned tileY) {
-	unsigned tileI = tileY * dataSize.x + tileX;
-	sf::Vertex *quad = &vertices[tileI * size_t(4)];
-
-	for (unsigned i = 0; i < clip.getFrameCount(); i++) {
-		if (quad[0].texCoords.x == clip.getFrame(i).left && quad[0].texCoords.y == clip.getFrame(i).top) return i;
-	}
-
-	Log::write("Value of tile on coords[" + std::to_string(tileX) + ", " + std::to_string(tileY) + "] not found");
-	return 0;
-}
-
-void Tilemap::drawArea(const sf::Vector2i& start, const sf::Vector2i& end, bool fill, unsigned tileValue, bool blocking) {
-	unsigned startX = start.x / mesh.getVoxelSize().x;
-	unsigned startY = start.y / mesh.getVoxelSize().y;
-	unsigned endX = end.x / mesh.getVoxelSize().x;
-	unsigned endY = end.y / mesh.getVoxelSize().y;
-
-	Log::write("drawArea [" + std::to_string(startX) + ", " + std::to_string(startY) + "] -> [" +
-		std::to_string(endX) + ", " + std::to_string(endY) + "]");
-
-	for (unsigned y = startY; y <= endY; y++) {
-		for (unsigned x = startX; x <= endX; x++) {
-			if (!fill && !(x == startX || x == endX || y == startY || y == endY)) continue;
-
-			setTile(x, y, tileValue, blocking);
-		}
-	}
-}
-
 void ToolMesh::configure(nlohmann::json &config) {
-	std::string texturePath = config["layerTile"]["texture"]["path"];
+	const std::string TOOL_STR = "toolMesh";
+
+	std::string texturePath = config[TOOL_STR]["texture"]["path"];
 	if (!texture.loadFromFile(texturePath)) {
 		throw dgm::ResourceException("Cannot load texture file: " + texturePath);
 	}
 
-	sf::Vector2u tileDims = JsonHelper::arrayToVector2u(config["layerTile"]["texture"]["tileDimensions"]);
-	sf::Vector2u tileOffs = JsonHelper::arrayToVector2u(config["layerTile"]["texture"]["tileOffsets"]);
-	sf::IntRect  bounds = JsonHelper::arrayToIntRect(config["layerTile"]["texture"]["boundaries"]);
+	sf::Vector2u tileDims = JsonHelper::arrayToVector2u(config[TOOL_STR]["texture"]["tileDimensions"]);
+	sf::Vector2u tileOffs = JsonHelper::arrayToVector2u(config[TOOL_STR]["texture"]["tileOffsets"]);
+	sf::IntRect  bounds = JsonHelper::arrayToIntRect(config[TOOL_STR]["texture"]["boundaries"]);
 
-	defaultBlocks.resize(config["layerTile"]["defaultProperties"]["count"]);
+	defaultBlocks.resize(config[TOOL_STR]["defaultProperties"]["count"]);
 	unsigned i = 0;
-	for (auto &item : config["layerTile"]["defaultProperties"]["solids"]) {
+	for (auto &item : config[TOOL_STR]["defaultProperties"]["solids"]) {
 		defaultBlocks[i++] = bool(int(item));
 		Log::write(std::to_string(i) + ": " + std::to_string(bool(int(item))));
 	}
@@ -170,28 +142,15 @@ void ToolMesh::setProperty(const ToolProperty &prop) {
 }
 
 void ToolMesh::buildCtxMenu(tgui::MenuBar::Ptr &menu) {
-	menu->removeMenu(CTX_MENU_NAME);
-	menu->addMenu(CTX_MENU_NAME);
+	Tool::buildCtxMenu(menu); // bootstrap
 
 	const std::string OPTION_PENCIL = "Pencil Mode (Shift+P)";
 	const std::string OPTION_FILL = "Rect-fill Mode (Shift+F)";
 	const std::string OPTION_EDGE = "Rect-edge Mode (Shift+E)";
 
-	menu->addMenuItem(OPTION_PENCIL);
-	menu->connectMenuItem(CTX_MENU_NAME, OPTION_PENCIL, [this]() { changeDrawingMode(DrawMode::Pencil); });
-	menu->addMenuItem(OPTION_FILL);
-	menu->connectMenuItem(CTX_MENU_NAME, OPTION_FILL, [this]() { changeDrawingMode(DrawMode::RectFill); });
-	menu->addMenuItem(OPTION_EDGE);
-	menu->connectMenuItem(CTX_MENU_NAME, OPTION_EDGE, [this]() { changeDrawingMode(DrawMode::RectEdge); });
-
-	clearShortcuts();
-	registerShortcut(sf::Keyboard::P, [this]() { changeDrawingMode(DrawMode::Pencil); });
-	registerShortcut(sf::Keyboard::F, [this]() { changeDrawingMode(DrawMode::RectFill); });
-	registerShortcut(sf::Keyboard::E, [this]() { changeDrawingMode(DrawMode::RectEdge); });
-}
-
-void ToolMesh::destroyCtxMenu(tgui::MenuBar::Ptr& menu) {
-	menu->removeMenu("Tool Menu");
+	addCtxMenuItem(menu, OPTION_PENCIL, [this]() { changeDrawingMode(DrawMode::Pencil); }, sf::Keyboard::P);
+	addCtxMenuItem(menu, OPTION_FILL, [this]() { changeDrawingMode(DrawMode::RectFill); }, sf::Keyboard::F);
+	addCtxMenuItem(menu, OPTION_EDGE, [this]() { changeDrawingMode(DrawMode::RectEdge); }, sf::Keyboard::E);
 }
 
 void ToolMesh::buildSidebar(tgui::Gui &gui, tgui::Group::Ptr &sidebar, tgui::Theme &theme) {

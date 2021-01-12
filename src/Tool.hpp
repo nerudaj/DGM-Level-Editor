@@ -4,30 +4,7 @@
 #include <TGUI/TGUI.hpp>
 #include <json.hpp>
 
-class Tool;
-
-class ToolProperty {
-protected:
-    Tool* parent;
-
-    virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) = 0;
-
-public:
-    void buildModal(tgui::Gui& gui);
-
-    virtual bool isEmpty() = 0;
-
-    virtual void clear() = 0;
-
-    ToolProperty(Tool* parent) : parent(parent) {}
-};
-
-class ImageToolProperty : public ToolProperty {
-public:
-    tgui::Texture imageTexture;
-
-    ImageToolProperty(Tool* parent) : ToolProperty(parent) {}
-};
+#include "ToolProperty.hpp"
 
 /**
  *  This is generic top level class representing an Editor Tool.
@@ -59,6 +36,8 @@ protected:
         callbacks.clear();
     }
 
+    void addCtxMenuItem(tgui::MenuBar::Ptr& menu, const std::string &label, std::function<void(void)> callback, sf::Keyboard::Key shortcutKey);
+
 public:
     void handleShortcuts(const sf::Event& event);
 
@@ -80,8 +59,23 @@ public:
 	virtual ToolProperty &getProperty() = 0;
 	virtual void setProperty(const ToolProperty &prop) = 0;
 
-	virtual void buildCtxMenu(tgui::MenuBar::Ptr &menu) = 0;
-    virtual void destroyCtxMenu(tgui::MenuBar::Ptr& menu) = 0;
-	
+    virtual void buildCtxMenu(tgui::MenuBar::Ptr& menu);
+    void destroyCtxMenu(tgui::MenuBar::Ptr& menu) {
+        menu->removeMenu(CTX_MENU_NAME);
+    }
+
     void buildSidebar(tgui::Gui &gui, tgui::Theme &theme);
+};
+
+class ToolWithSprites : public Tool {
+protected:
+    unsigned penValue = 0;
+    // TODO: history
+
+    virtual void buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) override;
+    void buildSpriteIdSelectionModal(tgui::Gui& gui, tgui::Theme& theme);
+    void changePenValue(unsigned value, tgui::Gui& gui, tgui::Theme& theme);
+
+public:
+    virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) = 0;
 };

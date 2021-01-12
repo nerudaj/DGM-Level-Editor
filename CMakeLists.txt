@@ -144,7 +144,10 @@ set ( SOURCE_FILES
 	src/Main.cpp
 	src/NewLevelDialog.cpp
 	src/Tool.cpp
+	src/ToolProperty.cpp
 	src/ToolMesh.cpp
+	src/ToolItem.cpp
+	src/Tilemap.cpp
 )
 
 set ( HEADER_FILES
@@ -159,7 +162,10 @@ set ( HEADER_FILES
 	src/LogConsole.hpp
 	src/NewLevelDialog.hpp
 	src/Tool.hpp
+	src/ToolProperty.hpp
 	src/ToolMesh.hpp
+	src/ToolItem.hpp
+	src/Tilemap.hpp
 )
 
 add_executable ( ${PROJECT_NAME} WIN32

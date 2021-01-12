@@ -2,6 +2,7 @@
 
 #include "Tool.hpp"
 #include "BackgroundGrid.hpp"
+#include "Tilemap.hpp"
 
 class MeshToolProperty : public ImageToolProperty {
 protected:
@@ -27,24 +28,6 @@ public:
     }
 
     MeshToolProperty(Tool* parent) : ImageToolProperty(parent) { clear(); }
-};
-
-class Tilemap : public dgm::TileMap {
-public:
-    dgm::Mesh mesh;
-
-    unsigned getTile(unsigned tileX, unsigned tileY);
-
-    bool getTileBlock(unsigned tileX, unsigned tileY) {
-        return mesh.at(tileX, tileY);
-    }
-
-    void setTile(unsigned x, unsigned y, unsigned tileValue, bool blocking) {
-        changeTile(x, y, tileValue);
-        mesh.at(x, y) = blocking;
-    }
-
-    void drawArea(const sf::Vector2i& start, const sf::Vector2i& end, bool fill, unsigned tileValue, bool blocking);
 };
 
 class ToolMeshHistory {
@@ -143,8 +126,6 @@ public:
     virtual void setProperty(const ToolProperty &prop) override;
 
     virtual void buildCtxMenu(tgui::MenuBar::Ptr &menu) override;
-
-    virtual void destroyCtxMenu(tgui::MenuBar::Ptr& menu) override;
 };
 
 namespace std {
