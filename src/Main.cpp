@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 
 	cfg::Ini ini;
 	try {
-		ini.loadFromFile(rootDir + "/app.ini");
+		ini.loadFromFile("%appdata%/leveld-editor.ini");
 	} catch (...) {
 		ini["Window"]["title"] = "LevelD file editor";
 		ini["Window"]["width"] = 1280;
@@ -20,12 +20,12 @@ int main(int argc, char *argv[]) {
 	dgm::App app;
 	app.window.open(ini);
 	
-	app.pushState(new AppStateEditor(rootDir));
+	app.pushState(new AppStateEditor(ini, rootDir));
 	app.run();
 
 	app.window.close(ini);
 
-	ini.saveToFile(rootDir + "/app.ini");
+	ini.saveToFile("%appdata%/leveld-editor.ini");
 
 	return 0;
 }

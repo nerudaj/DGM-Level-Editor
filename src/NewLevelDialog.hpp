@@ -1,5 +1,6 @@
 #pragma once
 
+#include <DGM/dgm.hpp>
 #include <TGUI/TGUI.hpp>
 #include <functional>
 
@@ -20,6 +21,7 @@ private:
 	const std::string INPUT_LEVEL_CONFIG_ID = "InputLevelConfig";
 
 	tgui::Gui& gui;
+	cfg::Ini& ini;
 
 public:
 	void open(std::function<void()> confirmCallback);
@@ -36,5 +38,5 @@ public:
 		return gui.get<tgui::EditBox>(INPUT_LEVEL_CONFIG_ID)->getText().toAnsiString();
 	}
 
-	NewLevelDialog(tgui::Gui& gui) : gui(gui) {}
+	NewLevelDialog(tgui::Gui& gui, cfg::Ini &ini) : gui(gui), ini(ini) {}
 };

@@ -40,6 +40,11 @@ void NewLevelDialog::open(std::function<void()> confirmCallback) {
 		modal->add(box, boxes[i][2]);
 	}
 
+	if (ini.hasSection("Editor") && ini["Editor"].hasKey("configPath")) {
+		auto box = gui.get<tgui::EditBox>("InputLevelConfig");
+		box->setText(ini["Editor"]["configPath"].asString());
+	}
+
 	// ## Buttons
 	// Selection of config file
 	auto btn = tgui::Button::create("...");

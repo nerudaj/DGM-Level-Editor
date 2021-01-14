@@ -131,12 +131,12 @@ void AppStateEditor::buildLayout() {
 	menu->connectMenuItem("View", "Console", [this]() { Log::get().toggle(); });
 	
 	menu->addMenu("Editor");
-	menu->addMenuItem("Resize level");
+	//menu->addMenuItem("Resize level");
 	menu->addMenuItem("Tiles mode (T)");
-	//menu->connectMenuItem("Editor", "Tiles mode (T)", [this]() { switchEditorMode(EditorMode::Tiles); });
+	menu->connectMenuItem("Editor", "Tiles mode (T)", [this]() { editor.switchTool("mesh"); });
 	menu->addMenuItem("Items mode (I)");
-	//menu->connectMenuItem("Editor", "Items mode (I)", [this]() { switchEditorMode(EditorMode::Items); });
-	menu->addMenuItem("Properties mode (P)");
+	menu->connectMenuItem("Editor", "Items mode (I)", [this]() { editor.switchTool("item"); });
+	//menu->addMenuItem("Properties mode (P)");
 	//menu->connectMenuItem("Editor", "Properties mode (P)", [this]() { switchEditorMode(EditorMode::Properties); });
 	gui.add(menu, "TopMenuBar");
 
@@ -212,6 +212,7 @@ void AppStateEditor::newLevelDialogCallback() {
 
 	Log::write("editor.init(" + std::to_string(levelWidth) + ", " + std::to_string(levelHeight) + ", " + configPath + ");");
 	editor.init(levelWidth, levelHeight, configPath);
+	ini["Editor"]["configPath"] = configPath;
 }
 
 void AppStateEditor::loadLevel() {

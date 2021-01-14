@@ -14,6 +14,7 @@
 class AppStateEditor : public dgm::AppState {
 private:
 	// Resources
+	cfg::Ini& ini;
 	dgm::ResourceManager resmgr;
 	tgui::Theme theme;
 	std::string rootDir;
@@ -21,7 +22,7 @@ private:
 	// Gui
 	tgui::Gui gui;
 	tgui::Canvas::Ptr canvas;
-	NewLevelDialog dialogNewLevel = NewLevelDialog(gui);
+	NewLevelDialog dialogNewLevel = NewLevelDialog(gui, ini);
 
 	// Editor
 	Editor editor = Editor(gui, theme, canvas);
@@ -51,5 +52,5 @@ public:
 	virtual void draw() override;
 	virtual bool init() override;
 
-	AppStateEditor(const std::string &rootDir) : rootDir(rootDir) {};
+	AppStateEditor(cfg::Ini &ini, const std::string &rootDir) : ini(ini), rootDir(rootDir) {};
 };
