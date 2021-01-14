@@ -10,13 +10,18 @@
             "count": 4,
             "solids": [0, 0, 1, 1]
         }
-    }
+    },
 	"toolItem" : {
 		"items": [
 			{
 				"texture": {
-					"path": "",
-					"clip": [0, 0, 1, 1]
+					"path": "C:/Users/doomista/Desktop/Github/DGM/examples/resources/soldier.png",
+					"clip": [0, 0, 80, 68]
+				}
+			}, {
+				"texture": {
+					"path": "C:/Users/doomista/Desktop/Github/DGM/examples/resources/gas.png",
+					"clip": [0, 0, 16, 16]
 				}
 			}
 		]

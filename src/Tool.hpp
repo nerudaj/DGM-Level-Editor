@@ -67,15 +67,40 @@ public:
     void buildSidebar(tgui::Gui &gui, tgui::Theme &theme);
 };
 
+class ToolMeshHistory {
+private:
+    std::vector<unsigned> history;
+
+public:
+    void insert(unsigned value) {
+        auto it = std::find(history.begin(), history.end(), value);
+        if (it != history.end()) history.erase(it);
+        history.insert(history.begin(), value);
+    }
+
+    void prune(unsigned size) {
+        if (history.size() > size) history.resize(size);
+    }
+
+    std::vector<unsigned>::const_iterator begin() const {
+        return history.begin();
+    }
+
+    std::vector<unsigned>::const_iterator end() const {
+        return history.end();
+    }
+};
+
 class ToolWithSprites : public Tool {
 protected:
     unsigned penValue = 0;
-    // TODO: history
+    ToolMeshHistory penHistory;
 
     virtual void buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) override;
     void buildSpriteIdSelectionModal(tgui::Gui& gui, tgui::Theme& theme);
     void changePenValue(unsigned value, tgui::Gui& gui, tgui::Theme& theme);
 
 public:
-    virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) = 0;
+    virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const = 0;
+    virtual unsigned getSpriteCount() const = 0;
 };

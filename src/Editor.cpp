@@ -104,6 +104,7 @@ void Editor::saveToFile(const std::string &filename) {
 Editor::Editor(tgui::Gui &gui, tgui::Theme &theme, tgui::Canvas::Ptr& canvas) : gui(gui), theme(theme), canvas(canvas) {
 	// Instantiate all EditorTools here
 	stateMgr.addState("mesh", new ToolMesh());
+	stateMgr.addState("item", new ToolItem());
 
 	// Bootstrapping mouse indicator
 	mouseIndicator.setRadius(8.f);

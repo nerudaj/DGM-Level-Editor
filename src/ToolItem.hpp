@@ -9,9 +9,11 @@ class ItemToolProperty : public ImageToolProperty {
 public:
 	virtual bool isEmpty() override;
 	virtual void clear() override;
+
+	ItemToolProperty(Tool* parent) : ImageToolProperty(parent) {}
 };
 
-class ToolItem : public Tool {
+class ToolItem : public ToolWithSprites {
 public:
 	enum class EditMode : std::size_t {
 		ModeDraw, ModeErase
@@ -26,18 +28,23 @@ protected:
 
 	std::vector<LevelD::Thing> items;
 	std::vector<ItemRenderData> renderData;
-	ItemToolProperty itemProperty;
+	ItemToolProperty itemProperty = ItemToolProperty(this);
 
-	unsigned penValue = 0;
 	sf::Vector2i penDownPos;
 	sf::Vector2i penPos;
 
 	EditMode editMode = EditMode::ModeDraw;
 	bool dragging = false;
 
-	virtual void buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) override;
-
 	void changeEditMode(EditMode mode);
+
+	virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const override {
+		return tgui::Texture(renderData[spriteId].texture, renderData[spriteId].clip);
+	}
+
+	virtual unsigned getSpriteCount() const override {
+		return renderData.size();
+	}
 
 public:
 	virtual void configure(nlohmann::json& config) override;

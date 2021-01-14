@@ -1,42 +1,6 @@
 #include "ToolItem.hpp"
+#include "JsonHelper.hpp"
 #include "LogConsole.hpp"
-
-void ToolItem::buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) {
-	const float SIDEBAR_WIDTH = sidebar->getSize().x;
-	const float OFFSET = 10.f;
-	const float BUTTON_SIZE = SIDEBAR_WIDTH - 2 * OFFSET;
-
-	// + button
-	auto addbtn = tgui::Button::create("+");
-	addbtn->setRenderer(theme.getRenderer("Button"));
-	addbtn->setSize(BUTTON_SIZE, BUTTON_SIZE);
-	addbtn->setPosition(OFFSET, OFFSET);
-	addbtn->connect("clicked", [this, &gui, &theme]() {
-		// TODO: buildTileIdSelectionModal(gui, theme);
-	});
-	sidebar->add(addbtn);
-
-	// History buttons
-	/*const unsigned BUTTON_COUNT = sidebar->getSize().y / (BUTTON_SIZE + OFFSET);
-	penHistory.prune(BUTTON_COUNT);
-
-	float yPos = 2 * OFFSET + BUTTON_SIZE;
-	for (auto tileId : penHistory) {
-		auto btn = tgui::Button::create();
-		btn->getRenderer()->setTexture(getTileAsTexture(tileId));
-		btn->setSize(BUTTON_SIZE, BUTTON_SIZE);
-		btn->setPosition(OFFSET, yPos);
-		sidebar->add(btn);
-
-		btn->connect("clicked", [this, &gui, &theme, tileId]() { changePenValue(tileId, gui, theme); });
-
-		if (history.getActive() != i) {
-			btn->getRenderer()->setOpacity(0.2f);
-		}
-
-		yPos += OFFSET + BUTTON_SIZE;
-	}*/
-}
 
 void ToolItem::changeEditMode(EditMode mode) {
 	Log::write("Changing ToolItem editMode to " + std::to_string(mode));
@@ -44,7 +8,22 @@ void ToolItem::changeEditMode(EditMode mode) {
 }
 
 void ToolItem::configure(nlohmann::json& config) {
-	Log::write("ToolItem::configure: Not implemented");
+	const std::string TOOL_STR = "toolItem";
+
+	auto items = config[TOOL_STR]["items"];
+	for (auto &item : items) {
+		renderData.push_back(ItemRenderData());
+		auto &rd = renderData.back();
+		auto texturePath = item["texture"]["path"].get<std::string>();
+
+		if (!rd.texture.loadFromFile(texturePath)) {
+			Log::write("Could not load texture: " + texturePath);
+			continue;
+		}
+
+		rd.clip = JsonHelper::arrayToIntRect(item["texture"]["clip"]);
+		rd.sprite.setTexture(rd.texture);
+	}
 }
 
 void ToolItem::resize(unsigned width, unsigned height) {

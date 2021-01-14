@@ -5,6 +5,7 @@
 #include "Camera.hpp"
 #include "EditorState.hpp"
 #include "ToolMesh.hpp"
+#include "ToolItem.hpp"
 
 class Editor {
 private:
