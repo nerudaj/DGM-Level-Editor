@@ -38,7 +38,9 @@ void Editor::handleEvent(const sf::Event& event, const sf::Vector2i& mousePos) {
 void Editor::draw() {
 	if (!initialized) return;
 
-	stateMgr.getTool().drawTo(canvas);
+	stateMgr.forallStates([this] (Tool& tool, bool active) {
+		tool.drawTo(canvas, active ? 255 : 128);
+	});
 	canvas->draw(mouseIndicator);
 }
 

@@ -28,10 +28,10 @@ private:
 	Editor editor = Editor(gui, theme, canvas);
 
 	std::string savePath;
+	std::map<sf::Keyboard::Key, std::function<void(void)>> editorShortcuts;
 
 	// Build functions
 	void buildLayout();
-	void buildPropertiesModal(unsigned x, unsigned y, unsigned id, uint16_t flags);
 
 	void setWindowTitle(const std::string appendix = "") {
 		app->window.getWindowContext().setTitle("DGM Level Editor" + (appendix.empty() ? "" : " - " + appendix));

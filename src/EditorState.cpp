@@ -2,10 +2,17 @@
 
 void EditorStateManager::addState(const std::string& id, Tool* layer) {
 	states[id] = EditorState(layer);
+	orderedByInsertion.push_back(id);
 }
 
-void EditorStateManager::forallStates(std::function<void(Tool &)> callback) {
-	for (auto &state : states) {
+void EditorStateManager::forallStates(std::function<void(Tool&, bool)> callback) {
+	for (auto &name : orderedByInsertion) {
+		callback(states[name].getTool(), currentState->first == name);
+	}
+}
+
+void EditorStateManager::forallStates(std::function<void(Tool&)> callback) {
+	for (auto& state : states) {
 		callback(state.second.getTool());
 	}
 }

@@ -1,6 +1,25 @@
 #include "FileApi.hpp"
 #include <Windows.h>
 #include <stdexcept>
+#include <shlobj_core.h>
+#include <locale>
+#include <codecvt>
+
+std::string FileApi::resolveAppdata()
+{
+	PWSTR raw;
+	std::wstring result;
+	if (SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &raw) == S_OK) {
+		result = std::wstring(raw);
+	}
+	CoTaskMemFree(raw);
+
+	// Need to convert wstring to string
+	using convert_type = std::codecvt_utf8<wchar_t>;
+	std::wstring_convert<convert_type, wchar_t> converter;
+
+	return converter.to_bytes(result);
+}
 
 std::string FileApi::getSaveFileName(const char *filter) {
 	char filename[MAX_PATH];

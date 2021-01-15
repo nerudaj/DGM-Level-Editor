@@ -48,7 +48,7 @@ public:
 	virtual void saveTo(LevelD &lvd) = 0;
 	virtual void loadFrom(const LevelD &lvd) = 0;
 
-	virtual void drawTo(tgui::Canvas::Ptr &canvas) = 0;
+	virtual void drawTo(tgui::Canvas::Ptr &canvas, uint8_t opacity) = 0;
 
 	virtual void penDown() = 0;
     virtual void penPosition(const sf::Vector2i &position) = 0;
@@ -82,6 +82,11 @@ public:
         if (history.size() > size) history.resize(size);
     }
 
+    void clear() {
+        history.clear();
+        insert(0);
+    }
+
     std::vector<unsigned>::const_iterator begin() const {
         return history.begin();
     }
@@ -102,5 +107,5 @@ protected:
 
 public:
     virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const = 0;
-    virtual unsigned getSpriteCount() const = 0;
+    virtual std::size_t getSpriteCount() const = 0;
 };

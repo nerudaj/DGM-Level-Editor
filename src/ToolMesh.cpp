@@ -27,6 +27,8 @@ void ToolMesh::configure(nlohmann::json &config) {
 
 	rectShape.setOutlineColor(sf::Color(255, 0, 0, 128));
 	rectShape.setOutlineThickness(2.f);
+
+	penHistory.clear();
 }
 
 void ToolMesh::resize(unsigned width, unsigned height) {
@@ -61,7 +63,7 @@ void ToolMesh::loadFrom(const LevelD &lvd) {
 	tilemap.mesh = dgm::Mesh(lvd.mesh, 0);
 }
 
-void ToolMesh::drawTo(tgui::Canvas::Ptr &canvas) {
+void ToolMesh::drawTo(tgui::Canvas::Ptr &canvas, uint8_t) {
 	canvas->draw(tilemap);
 	bgr.draw(canvas);
 
@@ -164,8 +166,8 @@ std::string std::to_string(ToolMesh::DrawMode mode) {
 
 void MeshToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) {
 	const float IMAGE_SIZE = panel->getSize().x / 4.f;
-	const float VERTICAL_OFFSET = 20.f;
-	const float LABEL_HEIGHT = 20.f;
+	const unsigned VERTICAL_OFFSET = 20;
+	const unsigned LABEL_HEIGHT = 20;
 
 	// Display image with preview
 	auto imagePanel = tgui::Panel::create();

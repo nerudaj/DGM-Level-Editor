@@ -1,6 +1,7 @@
 #include <DGM/dgm.hpp>
 
 #include "AppStateEditor.hpp"
+#include "FileApi.hpp"
 
 int main(int argc, char *argv[]) {
 	std::string rootDir = "..";
@@ -8,9 +9,11 @@ int main(int argc, char *argv[]) {
 		rootDir = argv[1];
 	}
 
+	const auto APPDATA = FileApi::resolveAppdata();
+
 	cfg::Ini ini;
 	try {
-		ini.loadFromFile("%appdata%/leveld-editor.ini");
+		ini.loadFromFile(APPDATA + "/leveld-editor.ini");
 	} catch (...) {
 		ini["Window"]["title"] = "LevelD file editor";
 		ini["Window"]["width"] = 1280;
@@ -25,7 +28,7 @@ int main(int argc, char *argv[]) {
 
 	app.window.close(ini);
 
-	ini.saveToFile("%appdata%/leveld-editor.ini");
+	ini.saveToFile(APPDATA + "/leveld-editor.ini");
 
 	return 0;
 }

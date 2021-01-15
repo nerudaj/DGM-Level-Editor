@@ -37,6 +37,9 @@ void AppStateEditor::input() {
 			else if (event.key.code == sf::Keyboard::N && keyShortcut == 1) {
 				dialogNewLevel.open([this] () { newLevelDialogCallback(); });
 			}
+			else if (editorShortcuts.count(event.key.code)) {
+				editorShortcuts[event.key.code]();
+			}
 		} else if (event.type == sf::Event::KeyReleased) {
 			if (event.key.code == sf::Keyboard::LControl) {
 				keyShortcut ^= 1;
@@ -129,15 +132,18 @@ void AppStateEditor::buildLayout() {
 	menu->addMenu("View");
 	menu->addMenuItem("Console");
 	menu->connectMenuItem("View", "Console", [this]() { Log::get().toggle(); });
-	
+
 	menu->addMenu("Editor");
-	//menu->addMenuItem("Resize level");
-	menu->addMenuItem("Tiles mode (T)");
-	menu->connectMenuItem("Editor", "Tiles mode (T)", [this]() { editor.switchTool("mesh"); });
-	menu->addMenuItem("Items mode (I)");
-	menu->connectMenuItem("Editor", "Items mode (I)", [this]() { editor.switchTool("item"); });
-	//menu->addMenuItem("Properties mode (P)");
-	//menu->connectMenuItem("Editor", "Properties mode (P)", [this]() { switchEditorMode(EditorMode::Properties); });
+	auto addEditorMenuItem = [this, &menu](const std::string& label,
+										   std::function<void(void)> callback,
+										   sf::Keyboard::Key shortcut) {
+		menu->addMenuItem(label);
+		menu->connectMenuItem("Editor", label, callback);
+		editorShortcuts[shortcut] = callback;
+	};
+	addEditorMenuItem("Mesh mode (T)", [this]() { editor.switchTool("mesh"); }, sf::Keyboard::M);
+	addEditorMenuItem("Items mode (I)", [this]() { editor.switchTool("item"); }, sf::Keyboard::I);
+
 	gui.add(menu, "TopMenuBar");
 
 	// Side bar - only bootstrap the space it will be sitting in
@@ -149,56 +155,6 @@ void AppStateEditor::buildLayout() {
 	// Logger console
 	Log::get().init(&gui);
 	Log::get().create(theme, { 0.f, app->window.getSize().y - 200.f });
-}
-
-void AppStateEditor::buildPropertiesModal(unsigned x, unsigned y, unsigned id, uint16_t flags) {
-	/*auto modal = tgui::ChildWindow::create("Set properties");
-	modal->setRenderer(theme.getRenderer("ChildWindow"));
-	modal->setSize(300, 400);
-	modal->setPosition("35%", "35%");
-	gui.add(modal, "ModalSetProperties");
-
-	// Item image
-	auto panel = tgui::Button::create();
-	panel->setSize(120, 120);
-	panel->setPosition(90, 10);
-	panel->getRenderer()->setTexture(editor.getActiveBrush().getTguiTextureForItem(id));
-	modal->add(panel);
-
-	// Label
-	auto label = tgui::Label::create("Set flags:");
-	label->setSize(280, 20);
-	label->setPosition(10, 140);
-	modal->add(label);
-
-	// EditBox
-	auto edit = tgui::EditBox::create();
-	edit->setSize(280, 20);
-	edit->setPosition(10, 170);
-	edit->setText(std::to_string(flags));
-	modal->add(edit, "InputFlags");
-
-	// Buttons
-	auto btn = tgui::Button::create("Ok");
-	btn->setRenderer(theme.getRenderer("Button"));
-	btn->setSize("46%", "8%");
-	btn->setPosition("2%", "90%");
-	btn->connect("clicked", [x, y, this]() {
-		EditorLayerItem &layer = dynamic_cast<EditorLayerItem&>(editor.getActiveLayer());
-		uint8_t flags = std::stoul(gui.get<tgui::EditBox>("InputFlags")->getText().toAnsiString());
-		layer.changeTileProperty(x, y, flags);
-		gui.get<tgui::ChildWindow>("ModalSetProperties")->close();
-	});
-	modal->add(btn);
-
-	btn = tgui::Button::create("Cancel");
-	btn->setRenderer(theme.getRenderer("Button"));
-	btn->setSize("46%", "8%");
-	btn->setPosition("52%", "90%");
-	btn->connect("clicked", [this]() {
-		gui.get<tgui::ChildWindow>("ModalSetProperties")->close();
-	});
-	modal->add(btn);*/
 }
 
 void AppStateEditor::newLevelDialogCallback() {

@@ -71,7 +71,7 @@ private:
         return tgui::Texture(texture, clip.getFrame(spriteId));
     }
 
-    virtual unsigned getSpriteCount() const override {
+    virtual std::size_t getSpriteCount() const override {
         return clip.getFrameCount();
     }
 
@@ -84,7 +84,7 @@ public:
 
     virtual void loadFrom(const LevelD &lvd);
 
-    virtual void drawTo(tgui::Canvas::Ptr &canvas) override;
+    virtual void drawTo(tgui::Canvas::Ptr &canvas, uint8_t opacity) override;
 
     virtual void penDown() override;
 

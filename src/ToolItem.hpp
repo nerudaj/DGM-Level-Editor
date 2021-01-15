@@ -22,6 +22,7 @@ public:
 protected:
 	struct ItemRenderData {
 		sf::Texture texture;
+		tgui::Texture guiTexture;
 		sf::IntRect clip;
 		sf::Sprite sprite;
 	};
@@ -30,21 +31,31 @@ protected:
 	std::vector<ItemRenderData> renderData;
 	ItemToolProperty itemProperty = ItemToolProperty(this);
 
+	sf::Vector2u tileSize;
+	sf::Vector2i levelSize;
 	sf::Vector2i penDownPos;
 	sf::Vector2i penPos;
 
 	EditMode editMode = EditMode::ModeDraw;
 	bool dragging = false;
+	std::size_t draggedItemId = 0;
+	sf::Vector2i dragOffset;
 
 	void changeEditMode(EditMode mode);
 
-	virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const override {
-		return tgui::Texture(renderData[spriteId].texture, renderData[spriteId].clip);
+	bool isValidPenPosForDrawing(const sf::Vector2i& pos) const {
+		return !(pos.x < 0 || pos.y < 0 || pos.x >= levelSize.x || pos.y >= levelSize.y);
 	}
 
-	virtual unsigned getSpriteCount() const override {
+	virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const override {
+		return renderData[spriteId].guiTexture;
+	}
+
+	virtual std::size_t getSpriteCount() const override {
 		return renderData.size();
 	}
+
+	std::size_t getItemFromPosition(const sf::Vector2i &vec) const;
 
 public:
 	virtual void configure(nlohmann::json& config) override;
@@ -55,7 +66,7 @@ public:
 
 	virtual void loadFrom(const LevelD& lvd) override;
 
-	virtual void drawTo(tgui::Canvas::Ptr& canvas) override;
+	virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
 
 	virtual void penDown() override;
 
