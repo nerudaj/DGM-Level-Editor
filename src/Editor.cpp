@@ -61,7 +61,7 @@ void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& 
 	canvas->connect("RightMousePressed", [this] () {
 		Log::write("RMB down");
 		auto &prop = stateMgr.getTool().getProperty();
-		if (!prop.isEmpty()) prop.buildModal(gui);
+		if (!prop.isEmpty()) prop.buildModal();
 	});
 	canvas->connect("RightMouseReleased", [this] () {
 		Log::write("RMB up"); 
@@ -78,7 +78,7 @@ void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& 
 
 void Editor::switchTool(const std::string &tool) {
 	stateMgr.changeState(tool);
-	stateMgr.getTool().buildSidebar(gui, theme);
+	stateMgr.getTool().buildSidebar(theme);
 
 	auto menu = gui.get<tgui::MenuBar>("TopMenuBar");
 	stateMgr.getTool().buildCtxMenu(menu);
@@ -105,8 +105,8 @@ void Editor::saveToFile(const std::string &filename) {
 
 Editor::Editor(tgui::Gui &gui, tgui::Theme &theme, tgui::Canvas::Ptr& canvas) : gui(gui), theme(theme), canvas(canvas) {
 	// Instantiate all EditorTools here
-	stateMgr.addState("mesh", new ToolMesh());
-	stateMgr.addState("item", new ToolItem());
+	stateMgr.addState("mesh", new ToolMesh(gui));
+	stateMgr.addState("item", new ToolItem(gui));
 
 	// Bootstrapping mouse indicator
 	mouseIndicator.setRadius(8.f);

@@ -138,12 +138,21 @@ void ToolItem::penCancel() {
 }
 
 ToolProperty& ToolItem::getProperty() {
-	Log::write("ToolItem::getProperty: Not implemented");
+	itemProperty.clear();
+
+	std::size_t itemId = 0;
+	if ((itemId = getItemFromPosition(penPos)) != -1) {
+		itemProperty.imageTexture = getSpriteAsTexture(items[itemId].id);
+		itemProperty.empty = false;
+		itemProperty.data = items[itemId];
+		itemProperty.itemId = itemId;
+	}
+
 	return itemProperty;
 }
 
-void ToolItem::setProperty(const ToolProperty& prop) {
-	Log::write("ToolItem::setProperty: Not implemented");
+void ToolItem::setProperty(const ToolProperty&) {
+	items[itemProperty.itemId] = itemProperty.data;
 }
 
 void ToolItem::buildCtxMenu(tgui::MenuBar::Ptr& menu) {
@@ -156,17 +165,26 @@ void ToolItem::buildCtxMenu(tgui::MenuBar::Ptr& menu) {
 	addCtxMenuItem(menu, OPTION_ERASE, [this]() { changeEditMode(EditMode::ModeErase); }, sf::Keyboard::E);
 }
 
-void ItemToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) {
-	Log::write("ToolItem::buildModalSpecifics: Not implemented");
-}
+void ItemToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel, const unsigned VERTICAL_OFFSET, const unsigned START_YPOS) {
+	unsigned yOffset = START_YPOS;
+	addLabel(panel, "Item ID: " + std::to_string(data.id), yOffset);
 
-bool ItemToolProperty::isEmpty() {
-	Log::write("ItemToolProperty::isEmpty: Not implemented");
-	return false;
-}
+	yOffset += ROW_HEIGHT;
+	addIntEdit(panel, "X coordinate: ", yOffset, data.x);
 
-void ItemToolProperty::clear() {
-	Log::write("ItemToolProperty::clear: Not implemented");
+	yOffset += ROW_HEIGHT;
+	addIntEdit(panel, "Y coordinate: ", yOffset, data.y);
+
+	yOffset += ROW_HEIGHT;
+	addLabel(panel, "Tag: " + std::to_string(data.tag), yOffset);
+
+	yOffset += ROW_HEIGHT;
+	addLabel(panel, "Flags: " + std::to_string(data.flags), yOffset);
+
+	// TODO: metadata
+
+	yOffset += ROW_HEIGHT;
+	addLabel(panel, "", yOffset); // intentionaly left blank
 }
 
 std::string std::to_string(ToolItem::EditMode mode) {

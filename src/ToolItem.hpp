@@ -4,13 +4,22 @@
 
 class ItemToolProperty : public ImageToolProperty {
 	// Dìdí se pøes ImageToolProperty.
-	virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) override;
+	virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel, const unsigned VERTICAL_OFFSET, const unsigned START_YPOS) override;
 
 public:
-	virtual bool isEmpty() override;
-	virtual void clear() override;
+	std::size_t itemId;
+	LevelD::Thing data;
+	bool empty = true;
 
-	ItemToolProperty(Tool* parent) : ImageToolProperty(parent) {}
+	virtual bool isEmpty() override {
+		return empty;
+	}
+
+	virtual void clear() override {
+		empty = true;
+	}
+
+	ItemToolProperty(tgui::Gui &gui, Tool* parent) : ImageToolProperty(gui, parent) {}
 };
 
 class ToolItem : public ToolWithSprites {
@@ -29,7 +38,7 @@ protected:
 
 	std::vector<LevelD::Thing> items;
 	std::vector<ItemRenderData> renderData;
-	ItemToolProperty itemProperty = ItemToolProperty(this);
+	ItemToolProperty itemProperty = ItemToolProperty(gui, this);
 
 	sf::Vector2u tileSize;
 	sf::Vector2i levelSize;
@@ -81,6 +90,8 @@ public:
 	virtual void setProperty(const ToolProperty& prop) override;
 
 	virtual void buildCtxMenu(tgui::MenuBar::Ptr& menu) override;
+
+	ToolItem(tgui::Gui& gui) : ToolWithSprites(gui) {}
 };
 
 namespace std {

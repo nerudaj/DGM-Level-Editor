@@ -6,7 +6,7 @@
 
 class MeshToolProperty : public ImageToolProperty {
 protected:
-    virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) override;
+    virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel, const unsigned VERTICAL_OFFSET, const unsigned START_YPOS) override;
 
 public:
     uint32_t tileX;
@@ -27,7 +27,7 @@ public:
         empty = true;
     }
 
-    MeshToolProperty(Tool* parent) : ImageToolProperty(parent) { clear(); }
+    MeshToolProperty(tgui::Gui &gui, Tool* parent) : ImageToolProperty(gui, parent) { clear(); }
 };
 
 class ToolMesh : public ToolWithSprites {
@@ -44,8 +44,7 @@ private:
     sf::Texture texture; // tileset texture
     dgm::Clip clip; // how tileset is sliced
     Tilemap tilemap; // renders tileset
-    //dgm::Mesh mesh; // blocks of tileset
-    MeshToolProperty tileProperty = MeshToolProperty(this);
+    MeshToolProperty tileProperty = MeshToolProperty(gui, this);
 
     std::vector<bool> defaultBlocks;
 
@@ -101,6 +100,8 @@ public:
     virtual void setProperty(const ToolProperty &prop) override;
 
     virtual void buildCtxMenu(tgui::MenuBar::Ptr &menu) override;
+
+    ToolMesh(tgui::Gui& gui) : ToolWithSprites(gui) {}
 };
 
 namespace std {

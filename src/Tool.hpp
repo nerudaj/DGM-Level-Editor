@@ -30,6 +30,7 @@ private:
 
 protected:
     const std::string CTX_MENU_NAME = "Tool";
+    tgui::Gui& gui;
 
     void registerShortcut(sf::Keyboard::Key key, std::function<void(void)> callback);
     void clearShortcuts() {
@@ -64,7 +65,9 @@ public:
         menu->removeMenu(CTX_MENU_NAME);
     }
 
-    void buildSidebar(tgui::Gui &gui, tgui::Theme &theme);
+    void buildSidebar(tgui::Theme &theme);
+
+    Tool(tgui::Gui& gui) : gui(gui) {}
 };
 
 class ToolMeshHistory {
@@ -108,4 +111,6 @@ protected:
 public:
     virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const = 0;
     virtual std::size_t getSpriteCount() const = 0;
+
+    ToolWithSprites(tgui::Gui& gui) : Tool(gui) {}
 };

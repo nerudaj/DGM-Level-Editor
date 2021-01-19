@@ -135,7 +135,7 @@ ToolProperty &ToolMesh::getProperty() {
 	return tileProperty;
 }
 
-void ToolMesh::setProperty(const ToolProperty &prop) {
+void ToolMesh::setProperty(const ToolProperty &) {
 	tilemap.setTile(tileProperty.tileX, tileProperty.tileY, tileProperty.tileValue, tileProperty.blocking);
 }
 
@@ -164,45 +164,19 @@ std::string std::to_string(ToolMesh::DrawMode mode) {
 	return "Error";
 }
 
-void MeshToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) {
-	const float IMAGE_SIZE = panel->getSize().x / 4.f;
-	const unsigned VERTICAL_OFFSET = 20;
-	const unsigned LABEL_HEIGHT = 20;
+void MeshToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel, const unsigned VERTICAL_OFFSET, const unsigned START_YPOS) {
+	unsigned yOffset = START_YPOS;
+	addIntEdit(panel, "Tile X: ", yOffset, tileX, false);
 
-	// Display image with preview
-	auto imagePanel = tgui::Panel::create();
-	imagePanel->setSize(IMAGE_SIZE, IMAGE_SIZE);
-	imagePanel->setPosition((panel->getSize().x - IMAGE_SIZE) / 2.f, VERTICAL_OFFSET);
-	imagePanel->getRenderer()->setTextureBackground(imageTexture);
-	panel->add(imagePanel);
+	yOffset += ROW_HEIGHT;
+	addIntEdit(panel, "Tile Y: ", yOffset, tileY, false);
 
-	auto addLabel = [&](float ypos, const std::string& text) {
-		auto label = tgui::Label::create(text);
-		label->setTextSize(16);
-		label->setSize("40%", LABEL_HEIGHT);
-		label->setPosition("25%", ypos);
-		panel->add(label);
-	};
+	yOffset += ROW_HEIGHT;
+	addBoolEdit(panel, "Blocking:", yOffset, blocking);
 
-	unsigned yOffset = IMAGE_SIZE + 2 * VERTICAL_OFFSET;
-	addLabel(yOffset, "Tile X: " + std::to_string(tileX));
+	yOffset += ROW_HEIGHT;
+	addBoolEdit(panel, "Blocking by default", yOffset, defaultBlocking, false);
 
-	yOffset += LABEL_HEIGHT + VERTICAL_OFFSET;
-	addLabel(yOffset, "Tile Y: " + std::to_string(tileY));
-
-	yOffset += LABEL_HEIGHT + VERTICAL_OFFSET;
-	addLabel(yOffset, "Blocking: ");
-	auto checkbox = tgui::CheckBox::create();
-	checkbox->setSize(LABEL_HEIGHT, LABEL_HEIGHT);
-	checkbox->setPosition("65%", yOffset);
-	checkbox->setChecked(blocking);
-	checkbox->connect("Changed", [this]() { blocking = !blocking; });
-	panel->add(checkbox);
-
-	yOffset += LABEL_HEIGHT + VERTICAL_OFFSET;
-	std::string yesno = defaultBlocking ? "Yes" : "No";
-	addLabel(yOffset, "Blocking by default: " + yesno);
-
-	yOffset += LABEL_HEIGHT + VERTICAL_OFFSET;
-	addLabel(yOffset, ""); // intentionaly left blank
+	yOffset += ROW_HEIGHT;
+	addLabel(panel, "", yOffset); // intentionaly left blank
 }

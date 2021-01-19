@@ -6,7 +6,7 @@ void Tool::buildCtxMenu(tgui::MenuBar::Ptr& menu) {
 	menu->addMenu(CTX_MENU_NAME);
 }
 
-void Tool::buildSidebar(tgui::Gui &gui, tgui::Theme &theme) {
+void Tool::buildSidebar(tgui::Theme &theme) {
 	auto sidebar = gui.get<tgui::Group>("Sidebar");
 	sidebar->removeAllWidgets();
 
@@ -133,5 +133,5 @@ void ToolWithSprites::buildSpriteIdSelectionModal(tgui::Gui& gui, tgui::Theme& t
 void ToolWithSprites::changePenValue(unsigned value, tgui::Gui& gui, tgui::Theme& theme) {
 	penValue = value;
 	penHistory.insert(penValue);
-	Tool::buildSidebar(gui, theme);
+	Tool::buildSidebar(theme);
 }
