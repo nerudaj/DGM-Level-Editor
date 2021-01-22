@@ -164,19 +164,11 @@ std::string std::to_string(ToolMesh::DrawMode mode) {
 	return "Error";
 }
 
-void MeshToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel, const unsigned VERTICAL_OFFSET, const unsigned START_YPOS) {
-	unsigned yOffset = START_YPOS;
-	addIntEdit(panel, "Tile X: ", yOffset, tileX, false);
+void MeshToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& dst) {
+	constexpr bool DISABLED = false; // the function accepts predicate enabled
 
-	yOffset += ROW_HEIGHT;
-	addIntEdit(panel, "Tile Y: ", yOffset, tileY, false);
-
-	yOffset += ROW_HEIGHT;
-	addBoolEdit(panel, "Blocking:", yOffset, blocking);
-
-	yOffset += ROW_HEIGHT;
-	addBoolEdit(panel, "Blocking by default", yOffset, defaultBlocking, false);
-
-	yOffset += ROW_HEIGHT;
-	addLabel(panel, "", yOffset); // intentionaly left blank
+	addOption(dst, "Tile X:", "X coordinate of the tile", tileX, 0, DISABLED);
+	addOption(dst, "Tile Y:", "Y coordinate of the tile", tileY, 1, DISABLED);
+	addOption(dst, "Impassable:", "Whether this tile blocks the player", blocking, 2);
+	addOption(dst, "Impassable by default:", "Whether this type of tile is impassable by default", defaultBlocking, 3, DISABLED);
 }

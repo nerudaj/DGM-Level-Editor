@@ -111,6 +111,9 @@ void ToolItem::penDown() {
 	item.id = penValue;
 	item.x = penPos.x;
 	item.y = penPos.y;
+	item.tag = 0;
+	item.flags = 0;
+	item.metadata = "";
 
 	items.push_back(item);
 	Log::write("[" + std::to_string(penPos.x) + ", " + std::to_string(penPos.y) + "]");
@@ -165,26 +168,15 @@ void ToolItem::buildCtxMenu(tgui::MenuBar::Ptr& menu) {
 	addCtxMenuItem(menu, OPTION_ERASE, [this]() { changeEditMode(EditMode::ModeErase); }, sf::Keyboard::E);
 }
 
-void ItemToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel, const unsigned VERTICAL_OFFSET, const unsigned START_YPOS) {
-	unsigned yOffset = START_YPOS;
-	addLabel(panel, "Item ID: " + std::to_string(data.id), yOffset);
+void ItemToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& dst) {
+	constexpr bool DISABLED = false;
 
-	yOffset += ROW_HEIGHT;
-	addIntEdit(panel, "X coordinate: ", yOffset, data.x);
-
-	yOffset += ROW_HEIGHT;
-	addIntEdit(panel, "Y coordinate: ", yOffset, data.y);
-
-	yOffset += ROW_HEIGHT;
-	addLabel(panel, "Tag: " + std::to_string(data.tag), yOffset);
-
-	yOffset += ROW_HEIGHT;
-	addLabel(panel, "Flags: " + std::to_string(data.flags), yOffset);
-
-	// TODO: metadata
-
-	yOffset += ROW_HEIGHT;
-	addLabel(panel, "", yOffset); // intentionaly left blank
+	addOption(dst, "Item ID:", "Unique identifier of the object", data.id, 0, DISABLED);
+	addOption(dst, "X coordinate:", "Measured in pixels from top-left corner", data.x, 1);
+	addOption(dst, "Y coordinate:", "Measured in pixels from top-left corner", data.y, 2);
+	addOption(dst, "Tag:", "Value used to group related objects", data.tag, 3); // TODO: New tag
+	addOption(dst, "Flags:", "16 bit value to alter behaviour of this object", data.flags, 4);
+	addOption(dst, "Metadata:", "Text field for custom data", data.metadata, 5);
 }
 
 std::string std::to_string(ToolItem::EditMode mode) {

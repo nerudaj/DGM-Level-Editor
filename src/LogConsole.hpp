@@ -5,7 +5,7 @@
 
 class Log {
 private:
-	tgui::Gui *gui;
+	tgui::Gui *gui = nullptr;
 	static Log *instance;
 
 	Log() {}

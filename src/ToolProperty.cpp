@@ -1,53 +1,115 @@
 #include "ToolProperty.hpp"
 #include "Tool.hpp"
 
-void ToolProperty::addLabel(tgui::ScrollablePanel::Ptr& target, const std::string& text, unsigned y) {
-	auto label = tgui::Label::create(text);
-	label->setTextSize(LABEL_FONT_SIZE);
-	label->setSize(LABEL_WIDTH, ROW_HEIGHT);
-	label->setPosition(LABEL_LEFT_MARGIN, y);
-	target->add(label);
+tgui::Panel::Ptr ToolProperty::getRowBackground(unsigned y, const std::string& tooltip) {
+	auto tt = tgui::Label::create(tooltip);
+	tt->getRenderer()->setBackgroundColor(sf::Color::White);
+	tt->getRenderer()->setBorders(tgui::Borders::Outline(1));
+	tt->getRenderer()->setBorderColor(sf::Color::Black);
+
+	auto row = tgui::Panel::create();
+	row->setSize("100%", ROW_HEIGHT);
+	row->setPosition({ "0%", y * ROW_HEIGHT });
+	row->setToolTip(tt);
+	row->getRenderer()->setBackgroundColor(y % 2 == 0 ? ROW_BGR_DARK : ROW_BGR_LIGHT);
+	return row;
 }
 
-void ToolProperty::addBoolEdit(tgui::ScrollablePanel::Ptr& target, const std::string& label, unsigned y, bool& var, bool enabled) {
-	addLabel(target, label, y);
+tgui::Label::Ptr ToolProperty::getLabel(const std::string& label) {
+	auto l = tgui::Label::create(label);
+	l->setSize(LABEL_WIDTH, "100%");
+	l->setPosition(LABEL_LEFT_MARGIN, "0%");
+	l->setTextSize(LABEL_FONT_SIZE);
+	return l;
+}
+
+void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, bool& val, unsigned ypos, bool enabled) {
+	auto row = getRowBackground(ypos, tooltip);
+	target->add(row);
+
+	auto lbl = getLabel(label);
+	row->add(lbl);
 
 	auto checkbox = tgui::CheckBox::create();
-	checkbox->setSize(ROW_HEIGHT, ROW_HEIGHT);
-	checkbox->setPosition(EDIT_LEFT_MARGIN, y);
-	checkbox->setChecked(var);
+	checkbox->setSize(row->getSize().y, row->getSize().y);
+	checkbox->setPosition(VALUE_LEFT_MARGIN, "0%");
+	checkbox->setChecked(val);
 	checkbox->setEnabled(enabled);
-	checkbox->connect("Changed", [&var]() { var = !var; });
+	checkbox->connect("Changed", [&val](bool newVal) { val = newVal; });
 
-	target->add(checkbox);
+	row->add(checkbox);
 }
 
-void ToolProperty::addIntEdit(tgui::ScrollablePanel::Ptr& target, const std::string& label, unsigned y, uint32_t& var, bool enabled) {
-	addLabel(target, label, y);
+
+template<typename T>
+inline void ToolProperty::addOptionUint(TargetPanel& target, const std::string& label, const std::string& tooltip, T& val, unsigned ypos, bool enabled) {
+	auto row = getRowBackground(ypos, tooltip);
+	target->add(row);
+
+	auto lbl = getLabel(label);
+	row->add(lbl);
 
 	auto edit = tgui::EditBox::create();
-	edit->setSize(EDIT_WIDTH, ROW_HEIGHT);
-	edit->setPosition(EDIT_LEFT_MARGIN, y);
+	edit->setSize(VALUE_WIDTH, "100%");
+	edit->setPosition(VALUE_LEFT_MARGIN, "0%");
+	edit->setText(std::to_string(val));
 	edit->setEnabled(enabled);
-	edit->setText(std::to_string(var));
 	edit->getRenderer()->setBorderColor(sf::Color::Black);
-	edit->connect("TextChanged", [this, label, &var] () {
-		auto edit = gui.get<tgui::EditBox>("EditBox" + label);
-		unsigned long num = 0;
-		try {
-			num = std::stoul(std::string(edit->getText()));
-			if (num > uint32_t(-1)) throw 1;
-			edit->getRenderer()->setBorderColor(sf::Color::Black);
-			var = num;
-		}
-		catch (...) { edit->getRenderer()->setBorderColor(sf::Color::Red); }
-	});
-	target->add(edit, "EditBox" + label);
+	edit->setInputValidator(tgui::EditBox::Validator::UInt);
+
+	if (enabled) {
+		edit->connect("TextChanged", [this, &val, label](const std::string& newVal) {
+			auto edit = gui.get<tgui::EditBox>("EditBox" + label);
+			try {
+				std::size_t endpos;
+				unsigned long value = std::stoul(newVal, &endpos);
+				if (value > T(-1)) throw 1;
+				val = T(value);
+				edit->getRenderer()->setBorderColor(sf::Color::Black);
+				formValid = true;
+			}
+			catch (...) {
+				edit->getRenderer()->setBorderColor(sf::Color::Red);
+				formValid = false;
+			}
+		});
+	}
+
+	row->add(edit, "EditBox" + label);
+}
+
+
+void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, uint32_t& val, unsigned ypos, bool enabled) {
+	addOptionUint(target, label, tooltip, val, ypos, enabled);
+}
+
+void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, uint16_t& val, unsigned ypos, bool enabled) {
+	addOptionUint(target, label, tooltip, val, ypos, enabled);
+}
+
+void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, std::string& val, unsigned ypos, bool enabled) {
+	auto row = getRowBackground(ypos, tooltip);
+	target->add(row);
+
+	auto lbl = getLabel(label);
+	row->add(lbl);
+
+	auto edit = tgui::EditBox::create();
+	edit->setSize(VALUE_WIDTH, "100%");
+	edit->setPosition(VALUE_LEFT_MARGIN, "0%");
+	edit->setText(val);
+	edit->setMaximumCharacters(255);
+	edit->setEnabled(enabled);
+	edit->getRenderer()->setBorderColor(sf::Color::Black);
+
+	if (enabled) {
+		edit->connect("TextChanged", [this, &val, label](const std::string& newVal) { val = newVal; });
+	}
+
+	row->add(edit, "EditBox" + label);
 }
 
 void ToolProperty::buildModal() {
-	const float SCROLLBAR_WIDTH = 20.f;
-
 	// Create wrapper window
 	auto modal = tgui::ChildWindow::create("Tile Properties");
 	modal->setSize("50%", "80%");
@@ -55,8 +117,7 @@ void ToolProperty::buildModal() {
 	gui.add(modal, "ToolPropertyModal");
 
 	// Create scrollable group inside of this window
-	auto group = tgui::ScrollablePanel::create();
-	group->getRenderer()->setScrollbarWidth(SCROLLBAR_WIDTH);
+	auto group = tgui::Panel::create();
 	group->setSize("100%", "88%");
 	modal->add(group);
 
@@ -73,6 +134,7 @@ void ToolProperty::buildModal() {
 	btn->setSize("20%", "8%");
 	btn->setPosition("56%", "90%");
 	btn->connect("clicked", [this, close]() {
+		if (!formValid) return;
 		parent->setProperty(*this);
 		close();
 	});
@@ -83,9 +145,13 @@ void ToolProperty::buildModal() {
 	btn->setPosition("78%", "90%");
 	btn->connect("clicked", [this, close]() { close();  });
 	modal->add(btn);
+
+	formValid = true;
 }
 
-void ImageToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) {
+void ImageToolProperty::buildModalSpecifics(tgui::Panel::Ptr& panel) {
+	const float SCROLLBAR_WIDTH = 20.f;
+
 	const float IMAGE_SIZE = panel->getSize().x / 4.f;
 	const unsigned VERTICAL_OFFSET = 20;
 
@@ -96,6 +162,12 @@ void ImageToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) {
 	imagePanel->getRenderer()->setTextureBackground(imageTexture);
 	panel->add(imagePanel);
 
+	auto sp = tgui::ScrollablePanel::create();
+	sp->getRenderer()->setScrollbarWidth(SCROLLBAR_WIDTH);
+	sp->setPosition("0%", IMAGE_SIZE + 2 * VERTICAL_OFFSET);
+	sp->setSize("100%", panel->getSize().y - (IMAGE_SIZE + 2 * VERTICAL_OFFSET));
+	panel->add(sp);
+
 	// Do property specific stuff
-	buildModalSpecifics(panel, VERTICAL_OFFSET, IMAGE_SIZE + 2 * VERTICAL_OFFSET);
+	buildModalSpecifics(sp);
 }

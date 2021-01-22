@@ -7,23 +7,40 @@ class Tool;
 
 class ToolProperty {
 protected:
-    const unsigned LABEL_FONT_SIZE = 15;
-    const unsigned ROW_HEIGHT = 20;
-    const std::string LABEL_WIDTH = "40%";
-    const std::string EDIT_WIDTH = "10%";
-    const std::string LABEL_LEFT_MARGIN = "25%";
-    const std::string EDIT_LEFT_MARGIN = "65%";
+    using TargetPanel = tgui::ScrollablePanel::Ptr;
 
+private:
+    const sf::Color ROW_BGR_DARK = sf::Color(222, 222, 222);
+    const sf::Color ROW_BGR_LIGHT = sf::Color(255, 255, 255);
+    const unsigned LABEL_FONT_SIZE = 20;
+    const unsigned ROW_HEIGHT = 25;
+    const std::string LABEL_LEFT_MARGIN = "20%";
+    const std::string LABEL_WIDTH = "40%";
+    const std::string VALUE_LEFT_MARGIN = "60%";
+    const std::string VALUE_WIDTH = "20%";
+
+    bool formValid = true;
+
+    template<typename T>
+    void addOptionUint(TargetPanel& target, const std::string& label, const std::string& tooltip, T& val, unsigned ypos, bool enabled = true);
+
+protected:
     tgui::Gui& gui;
     Tool* parent;
 
-    virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) = 0;
+    virtual void buildModalSpecifics(tgui::Panel::Ptr& panel) = 0;
 
-    void addLabel(tgui::ScrollablePanel::Ptr& target, const std::string& text, unsigned y);
+    tgui::Panel::Ptr getRowBackground(unsigned y, const std::string& tooltip);
 
-    void addBoolEdit(tgui::ScrollablePanel::Ptr& target, const std::string& label, unsigned y, bool &var, bool enabled = true);
+    tgui::Label::Ptr getLabel(const std::string& label);
 
-    void addIntEdit(tgui::ScrollablePanel::Ptr& target, const std::string& label, unsigned y, uint32_t& var, bool enabled = true);
+    void addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, bool& val, unsigned ypos, bool enabled = true);
+
+    void addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, uint32_t& val, unsigned ypos, bool enabled = true);
+
+    void addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, uint16_t& val, unsigned ypos, bool enabled = true);
+
+    void addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, std::string& val, unsigned ypos, bool enabled = true);
 
 public:
     void buildModal();
@@ -37,9 +54,9 @@ public:
 
 class ImageToolProperty : public ToolProperty {
 protected:
-    virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) override;
+    virtual void buildModalSpecifics(tgui::Panel::Ptr& panel) override;
 
-    virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel, const unsigned VERTICAL_OFFSET, const unsigned START_YPOS) = 0;
+    virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) = 0;
 
 public:
     tgui::Texture imageTexture;

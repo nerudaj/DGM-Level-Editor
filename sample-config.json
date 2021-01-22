@@ -15,17 +15,17 @@
 		"items": [
 			{
 				"texture": {
-					"path": "C:/Users/doomista/Desktop/Github/DGM/examples/resources/gas.png",
+					"path": "C:/Users/doomista/Documents/GitHub/DGM/examples/resources/gas.png",
 					"clip": [0, 0, 16, 16]
 				}
 			}, {
 				"texture": {
-					"path": "C:/Users/doomista/Desktop/Github/DGM/examples/resources/soldier.png",
+					"path": "C:/Users/doomista/Documents/GitHub/DGM/examples/resources/soldier.png",
 					"clip": [0, 0, 80, 68]
 				}
 			}, {
 				"texture": {
-					"path": "C:/Users/doomista/Desktop/Github/DGM/examples/resources/gas.png",
+					"path": "C:/Users/doomista/Documents/GitHub/DGM/examples/resources/gas.png",
 					"clip": [16, 0, 32, 16]
 				}
 			}

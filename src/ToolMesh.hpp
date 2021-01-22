@@ -6,7 +6,7 @@
 
 class MeshToolProperty : public ImageToolProperty {
 protected:
-    virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel, const unsigned VERTICAL_OFFSET, const unsigned START_YPOS) override;
+    virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) override;
 
 public:
     uint32_t tileX;

@@ -4,7 +4,7 @@
 
 class ItemToolProperty : public ImageToolProperty {
 	// Dìdí se pøes ImageToolProperty.
-	virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel, const unsigned VERTICAL_OFFSET, const unsigned START_YPOS) override;
+	virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) override;
 
 public:
 	std::size_t itemId;
