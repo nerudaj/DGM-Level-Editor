@@ -79,11 +79,11 @@ void ToolItem::resize(unsigned width, unsigned height) {
 }
 
 void ToolItem::saveTo(LevelD& lvd) {
-	Log::write("ToolItem::saveTo: Not implemented");
+	lvd.things = items;
 }
 
 void ToolItem::loadFrom(const LevelD& lvd) {
-	Log::write("ToolItem::loadFrom: Not implemented");
+	items = lvd.things;
 }
 
 void ToolItem::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) {
