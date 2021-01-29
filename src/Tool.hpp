@@ -51,10 +51,11 @@ public:
 
 	virtual void drawTo(tgui::Canvas::Ptr &canvas, uint8_t opacity) = 0;
 
-	virtual void penDown() = 0;
-    virtual void penPosition(const sf::Vector2i &position) = 0;
-	virtual void penUp() = 0;
-    virtual void penCancel() = 0;
+	virtual void penDown() = 0; // When LMB is pressed
+    virtual void penPosition(const sf::Vector2i &position) = 0; // called each frame with current mouse pos
+	virtual void penUp() = 0; // When LMB is released
+    virtual void penCancel() = 0; // executed when Escape is pressed
+    virtual void penDelete() = 0; // executed when Del is pressed
 
 	// Returns nullptr if no property can be returned
 	virtual ToolProperty &getProperty() = 0;

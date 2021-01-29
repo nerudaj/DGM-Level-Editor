@@ -26,6 +26,7 @@ void Editor::handleEvent(const sf::Event& event, const sf::Vector2i& mousePos) {
 		else if (event.key.code == sf::Keyboard::Down) camera.move(DOWN_VEC);
 		else if (event.key.code == sf::Keyboard::Right) camera.move(RIGHT_VEC);
 		else if (event.key.code == sf::Keyboard::Escape) stateMgr.getTool().penCancel();
+		else if (event.key.code == sf::Keyboard::Delete) stateMgr.getTool().penDelete();
 	}
 	else if (event.type == sf::Event::MouseWheelScrolled && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
 		camera.zoom(event.mouseWheelScroll.delta * -0.25f);

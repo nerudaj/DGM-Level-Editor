@@ -39,6 +39,7 @@ protected:
 	std::vector<LevelD::Thing> items;
 	std::vector<ItemRenderData> renderData;
 	ItemToolProperty itemProperty = ItemToolProperty(gui, this);
+	std::set<unsigned> selectedItems;
 
 	sf::Vector2u tileSize;
 	sf::Vector2i levelSize;
@@ -84,6 +85,8 @@ public:
 	virtual void penUp() override;
 
 	virtual void penCancel() override;
+
+	virtual void penDelete() override;
 
 	virtual ToolProperty& getProperty() override;
 

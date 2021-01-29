@@ -87,11 +87,28 @@ void ToolItem::loadFrom(const LevelD& lvd) {
 }
 
 void ToolItem::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) {
+	unsigned index = 0;
+	sf::RectangleShape outline;
+	outline.setOutlineColor(sf::Color::Red);
+	outline.setOutlineThickness(2);
+	outline.setFillColor(sf::Color::Transparent);
+
 	for (auto &item : items) {
 		auto& clip = renderData[item.id].clip;
+		auto position = sf::Vector2f(float(item.x - clip.width / 2), float(item.y - clip.height / 2));
 		renderData[item.id].sprite.setColor(sf::Color(255, 255, 255, opacity));
-		renderData[item.id].sprite.setPosition(float(item.x - clip.width / 2), float(item.y - clip.height / 2));
+		renderData[item.id].sprite.setPosition(position);
+
 		canvas->draw(renderData[item.id].sprite);
+
+		// Outline for selected items
+		if (selectedItems.count(index) > 0) {
+			outline.setPosition(position);
+			outline.setSize({ float(clip.width), float(clip.height) });
+			canvas->draw(outline);
+		}
+
+		index++;
 	}
 }
 
@@ -99,13 +116,19 @@ void ToolItem::penDown() {
 	Log::write("ToolItem::penDown");
 	penDownPos = penPos;
 
-	if (!isValidPenPosForDrawing(penPos)) return;
+	if (!isValidPenPosForDrawing(penPos)) {
+		selectedItems.clear();
+		return;
+	}
 	if ((draggedItemId = getItemFromPosition(penPos)) != -1) {
 		dragging = true;
+		selectedItems.insert(draggedItemId);
 		auto& item = items[draggedItemId];
 		dragOffset = sf::Vector2i(item.x, item.y) - penPos;
 		return;
 	}
+
+	selectedItems.clear();
 
 	LevelD::Thing item;
 	item.id = penValue;
@@ -135,9 +158,24 @@ void ToolItem::penUp() {
 
 void ToolItem::penCancel() {
 	Log::write("ToolItem::penCancel");
-	dragging = false;
-	items[draggedItemId].x = penDownPos.x + dragOffset.x;
-	items[draggedItemId].y = penDownPos.y + dragOffset.y;
+
+	selectedItems.clear();
+
+	if (dragging) {
+		dragging = false;
+		items[draggedItemId].x = penDownPos.x + dragOffset.x;
+		items[draggedItemId].y = penDownPos.y + dragOffset.y;
+	}
+}
+
+void ToolItem::penDelete() {
+	unsigned less = 0;
+	for (auto index : selectedItems) {
+		index -= less;
+		items.erase(items.begin() + index);
+		less++;
+	}
+	selectedItems.clear();
 }
 
 ToolProperty& ToolItem::getProperty() {

@@ -95,6 +95,8 @@ public:
         drawing = false;
     }
 
+    virtual void penDelete() override {}
+
     virtual ToolProperty &getProperty() override;
 
     virtual void setProperty(const ToolProperty &prop) override;
