@@ -27,6 +27,7 @@ public:
 	enum class EditMode : std::size_t {
 		ModeDraw, ModeErase
 	};
+	const sf::Vector2i NULL_VECTOR = sf::Vector2i(-1, -1);
 
 protected:
 	struct ItemRenderData {
@@ -43,11 +44,13 @@ protected:
 
 	sf::Vector2u tileSize;
 	sf::Vector2i levelSize;
-	sf::Vector2i penDownPos;
-	sf::Vector2i penPos;
+	sf::Vector2i penDownPos = NULL_VECTOR;
+	sf::Vector2i penPos = NULL_VECTOR;
+
 
 	EditMode editMode = EditMode::ModeDraw;
 	bool dragging = false;
+	bool selecting = false;
 	std::size_t draggedItemId = 0;
 	sf::Vector2i dragOffset;
 
@@ -55,6 +58,10 @@ protected:
 
 	bool isValidPenPosForDrawing(const sf::Vector2i& pos) const {
 		return !(pos.x < 0 || pos.y < 0 || pos.x >= levelSize.x || pos.y >= levelSize.y);
+	}
+
+	bool isPenDown() const {
+		return !(penDownPos.x == -1 && penDownPos.y == -1);
 	}
 
 	virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const override {
@@ -66,6 +73,26 @@ protected:
 	}
 
 	std::size_t getItemFromPosition(const sf::Vector2i &vec) const;
+
+	sf::Vector2i getSelectedAreaStart() const {
+		return {
+			penDownPos.x < penPos.x ? penDownPos.x : penPos.x,
+			penDownPos.y < penPos.y ? penDownPos.y : penPos.y
+		};
+	}
+
+	sf::Vector2i getSelectedAreaSize() const {
+		return {
+			std::abs(penDownPos.x - penPos.x),
+			std::abs(penDownPos.y - penPos.y)
+		};
+	}
+
+	void addNewItem();
+
+	void selectItemsInArea(sf::IntRect& selectedArea);
+
+	void moveSelectedItemsTo(const sf::Vector2i& vec);
 
 public:
 	virtual void configure(nlohmann::json& config) override;

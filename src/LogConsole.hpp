@@ -19,6 +19,8 @@ public:
 
 	static void write(const std::string& text);
 
+	static void write(const std::string& label, const sf::Vector2i &vec);
+
 	void init(tgui::Gui *gui) {
 		Log::gui = gui;
 	}

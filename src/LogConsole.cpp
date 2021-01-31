@@ -41,3 +41,7 @@ void Log::write(const std::string& message) {
 	auto logger = ctx.gui->get<tgui::ChatBox>("LogConsole");
 	logger->addLine(message);
 }
+
+void Log::write(const std::string& label, const sf::Vector2i& vec) {
+	write(label + ": [" + std::to_string(vec.x) + ", " + std::to_string(vec.y) + "]");
+}

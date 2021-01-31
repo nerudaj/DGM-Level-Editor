@@ -95,7 +95,7 @@ void ToolItem::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) {
 
 	for (auto &item : items) {
 		auto& clip = renderData[item.id].clip;
-		auto position = sf::Vector2f(float(item.x - clip.width / 2), float(item.y - clip.height / 2));
+		auto position = sf::Vector2f(float(int(item.x) - clip.width / 2), float(int(item.y) - clip.height / 2));
 		renderData[item.id].sprite.setColor(sf::Color(255, 255, 255, opacity));
 		renderData[item.id].sprite.setPosition(position);
 
@@ -109,6 +109,12 @@ void ToolItem::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) {
 		}
 
 		index++;
+	}
+
+	if (selecting) {
+		outline.setPosition(sf::Vector2f(getSelectedAreaStart()));
+		outline.setSize(sf::Vector2f(getSelectedAreaSize()));
+		canvas->draw(outline);
 	}
 }
 
@@ -127,8 +133,44 @@ void ToolItem::penDown() {
 		dragOffset = sf::Vector2i(item.x, item.y) - penPos;
 		return;
 	}
+}
+
+void ToolItem::penPosition(const sf::Vector2i& position) {
+	penPos = position;
+
+	if (not isPenDown() or not isValidPenPosForDrawing(penPos)) return;
+
+	if (dragging) {
+		moveSelectedItemsTo(penPos);
+	} else if (dgm::Math::vectorSize(sf::Vector2f(penPos) - sf::Vector2f(penDownPos)) > 5) {
+		selecting = true;
+	}
+}
+
+void ToolItem::penUp() {
+	if (not isPenDown()) return;
+	Log::write("ToolItem::penUp: " + std::string(dragging ? "dragging " : " ") + std::string(selecting ? "selecting" : "") );
 
 	selectedItems.clear();
+
+	// If selecting then find all items that are inside selected area
+	// and add them to selected
+	if (selecting) {
+		sf::IntRect selectedArea(getSelectedAreaStart(), getSelectedAreaSize());
+		selectItemsInArea(selectedArea);
+	}
+
+	if (not dragging and not selecting) {
+		addNewItem();
+	}
+
+	dragging = false;
+	selecting = false;
+	penDownPos = NULL_VECTOR;
+}
+
+void ToolItem::addNewItem() {
+	if (not isValidPenPosForDrawing(penPos)) return;
 
 	LevelD::Thing item;
 	item.id = penValue;
@@ -139,21 +181,26 @@ void ToolItem::penDown() {
 	item.metadata = "";
 
 	items.push_back(item);
-	Log::write("[" + std::to_string(penPos.x) + ", " + std::to_string(penPos.y) + "]");
+	Log::write("New item pos", penPos);
 }
 
-void ToolItem::penPosition(const sf::Vector2i& position) {
-	penPos = position;
-
-	if (dragging && isValidPenPosForDrawing(penPos)) {
-		items[draggedItemId].x = penPos.x + dragOffset.x;
-		items[draggedItemId].y = penPos.y + dragOffset.y;
+void ToolItem::selectItemsInArea(sf::IntRect& selectedArea) {
+	for (std::size_t i = 0; i < items.size(); i++) {
+		sf::IntRect item(items[i].x, items[i].y, 1, 1);
+		if (selectedArea.contains(int(items[i].x), int(items[i].y))) {
+			selectedItems.insert(i);
+		}
 	}
 }
 
-void ToolItem::penUp() {
-	Log::write("ToolItem::penUp");
-	dragging = false;
+void ToolItem::moveSelectedItemsTo(const sf::Vector2i& vec) {
+	const sf::Vector2i offset = vec + dragOffset;
+	const sf::Vector2i forward = offset - sf::Vector2i(items[draggedItemId].x, items[draggedItemId].y);
+
+	for (auto& index : selectedItems) {
+		items[index].x = dgm::Math::clamp(items[index].x + forward.x, 0, levelSize.x);
+		items[index].y = dgm::Math::clamp(items[index].y + forward.y, 0, levelSize.y);
+	}
 }
 
 void ToolItem::penCancel() {
@@ -162,10 +209,12 @@ void ToolItem::penCancel() {
 	selectedItems.clear();
 
 	if (dragging) {
-		dragging = false;
-		items[draggedItemId].x = penDownPos.x + dragOffset.x;
-		items[draggedItemId].y = penDownPos.y + dragOffset.y;
+		moveSelectedItemsTo(penDownPos);
 	}
+
+	dragging = false;
+	selecting = false;
+	penDownPos = NULL_VECTOR;
 }
 
 void ToolItem::penDelete() {
