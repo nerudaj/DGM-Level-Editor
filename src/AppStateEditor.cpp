@@ -31,6 +31,12 @@ void AppStateEditor::input() {
 				if (keyShortcut == 1) saveLevel(); // save
 				else if (keyShortcut == 3) saveLevel(true); // save as
 			}
+			else if (event.key.code == sf::Keyboard::Enter) {
+				if (dialogNewLevel.isOpen()) {
+					newLevelDialogCallback();
+					dialogNewLevel.close();
+				}
+			}
 			else if (event.key.code == sf::Keyboard::O && keyShortcut == 1) {
 				loadLevel();
 			}

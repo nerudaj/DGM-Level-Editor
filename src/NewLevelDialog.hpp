@@ -19,6 +19,7 @@ private:
 	const std::string INPUT_LEVEL_WIDTH_ID = "InputLevelWidth";
 	const std::string INPUT_LEVEL_HEIGHT_ID = "InputLevelHeight";
 	const std::string INPUT_LEVEL_CONFIG_ID = "InputLevelConfig";
+	const std::string WIDGET_NAME = "ModalNewLevel";
 
 	tgui::Gui& gui;
 	cfg::Ini& ini;
@@ -37,6 +38,8 @@ public:
 	std::string getConfigPath() const {
 		return gui.get<tgui::EditBox>(INPUT_LEVEL_CONFIG_ID)->getText().toAnsiString();
 	}
+
+	bool isOpen() const;
 
 	NewLevelDialog(tgui::Gui& gui, cfg::Ini &ini) : gui(gui), ini(ini) {}
 };

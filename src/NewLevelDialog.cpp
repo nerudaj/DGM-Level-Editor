@@ -5,7 +5,8 @@ void NewLevelDialog::open(std::function<void()> confirmCallback) {
 	auto modal = tgui::ChildWindow::create("New level");
 	modal->setSize("30%", "50%");
 	modal->setPosition("35%", "25%");
-	gui.add(modal, "ModalNewLevel");
+	modal->connect("EscapeKeyPressed", [this]() { close(); });
+	gui.add(modal, WIDGET_NAME);
 
 	const auto ROW_HEIGHT = "6%";
 	const auto ROW_Y_OFFSET = 2;
@@ -79,6 +80,10 @@ void NewLevelDialog::open(std::function<void()> confirmCallback) {
 }
 
 void NewLevelDialog::close() {
-	auto modal = gui.get<tgui::ChildWindow>("ModalNewLevel");
-	modal->close();
+	auto modal = gui.get<tgui::ChildWindow>(WIDGET_NAME);
+	gui.remove(modal);
+}
+
+bool NewLevelDialog::isOpen() const {
+	return gui.get<tgui::ChildWindow>(WIDGET_NAME) != nullptr;
 }
