@@ -21,10 +21,10 @@ void Editor::handleEvent(const sf::Event& event, const sf::Vector2i& mousePos) {
 	stateMgr.getTool().penPosition(sf::Vector2i(realMousePos));
 
 	if (event.type == sf::Event::KeyPressed) {
-		if (event.key.code == sf::Keyboard::Left) camera.move(LEFT_VEC);
-		else if (event.key.code == sf::Keyboard::Up) camera.move(UP_VEC);
-		else if (event.key.code == sf::Keyboard::Down) camera.move(DOWN_VEC);
-		else if (event.key.code == sf::Keyboard::Right) camera.move(RIGHT_VEC);
+		if (event.key.code == sf::Keyboard::Left && canScroll()) camera.move(LEFT_VEC);
+		else if (event.key.code == sf::Keyboard::Up && canScroll()) camera.move(UP_VEC);
+		else if (event.key.code == sf::Keyboard::Down && canScroll()) camera.move(DOWN_VEC);
+		else if (event.key.code == sf::Keyboard::Right && canScroll()) camera.move(RIGHT_VEC);
 		else if (event.key.code == sf::Keyboard::Escape) stateMgr.getTool().penCancel();
 		else if (event.key.code == sf::Keyboard::Delete) stateMgr.getTool().penDelete();
 	}
@@ -61,11 +61,12 @@ void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& 
 	// Configure canvas callbacks
 	canvas->connect("RightMousePressed", [this] () {
 		Log::write("RMB down");
-		auto &prop = stateMgr.getTool().getProperty();
-		if (!prop.isEmpty()) prop.buildModal();
 	});
 	canvas->connect("RightMouseReleased", [this] () {
-		Log::write("RMB up"); 
+		Log::write("RMB up");
+		if (not canOpenPropertyDialog()) return;
+		auto& prop = stateMgr.getTool().getProperty();
+		if (!prop.isEmpty()) prop.buildModal();
 	});
 	canvas->connect("MousePressed", [this] () { stateMgr.getTool().penDown(); });
 	canvas->connect("MouseReleased", [this] () { stateMgr.getTool().penUp(); });

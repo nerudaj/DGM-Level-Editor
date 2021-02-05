@@ -24,6 +24,7 @@ void ToolMesh::configure(nlohmann::json &config) {
 	clip = dgm::Clip(tileDims, bounds, 0, tileOffs);
 	tilemap.init(texture, clip);
 	tilemap.mesh.setVoxelSize(clip.getFrameSize());
+	tilemap.overlay.init();
 
 	rectShape.setOutlineColor(sf::Color(255, 0, 0, 128));
 	rectShape.setOutlineThickness(2.f);
@@ -34,6 +35,7 @@ void ToolMesh::configure(nlohmann::json &config) {
 void ToolMesh::resize(unsigned width, unsigned height) {
 	bgr.build({ width, height }, clip.getFrameSize());
 	tilemap.build(clip.getFrameSize(), std::vector<int>(width * height, 0), { width, height });
+	tilemap.overlay.map.build(clip.getFrameSize(), std::vector<int>(width * height, 0), { width, height });
 	tilemap.mesh.setDataSize(width, height);
 }
 
@@ -61,11 +63,14 @@ void ToolMesh::loadFrom(const LevelD &lvd) {
 
 	tilemap.build(lvd.mesh, 0);
 	tilemap.mesh = dgm::Mesh(lvd.mesh, 0);
+	tilemap.build(lvd.mesh, 0);
 }
 
 void ToolMesh::drawTo(tgui::Canvas::Ptr &canvas, uint8_t) {
 	canvas->draw(tilemap);
 	bgr.draw(canvas);
+
+	if (enableOverlay) canvas->draw(tilemap.overlay.map);
 
 	if (drawing) {
 		if (mode == DrawMode::RectEdge || mode == DrawMode::RectFill) {
@@ -145,10 +150,12 @@ void ToolMesh::buildCtxMenu(tgui::MenuBar::Ptr &menu) {
 	const std::string OPTION_PENCIL = "Pencil Mode (Shift+P)";
 	const std::string OPTION_FILL = "Rect-fill Mode (Shift+F)";
 	const std::string OPTION_EDGE = "Rect-edge Mode (Shift+E)";
+	const std::string OPTION_OVERLAY = "Toggle overlay (Shift+O)";
 
 	addCtxMenuItem(menu, OPTION_PENCIL, [this]() { changeDrawingMode(DrawMode::Pencil); }, sf::Keyboard::P);
 	addCtxMenuItem(menu, OPTION_FILL, [this]() { changeDrawingMode(DrawMode::RectFill); }, sf::Keyboard::F);
 	addCtxMenuItem(menu, OPTION_EDGE, [this]() { changeDrawingMode(DrawMode::RectEdge); }, sf::Keyboard::E);
+	addCtxMenuItem(menu, OPTION_OVERLAY, [this]() { enableOverlay = !enableOverlay; }, sf::Keyboard::O);
 }
 
 void ToolMesh::changeDrawingMode(ToolMesh::DrawMode newMode) {

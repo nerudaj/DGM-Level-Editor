@@ -128,6 +128,7 @@ void ToolProperty::buildModal() {
 	auto close = [this]() {
 		auto modal = gui.get<tgui::ChildWindow>("ToolPropertyModal");
 		modal->close();
+		gui.remove(modal);
 	};
 
 	auto btn = tgui::Button::create("Ok");

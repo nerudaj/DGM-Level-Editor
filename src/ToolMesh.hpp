@@ -49,6 +49,7 @@ private:
     std::vector<bool> defaultBlocks;
 
     bool drawing = false;
+    bool enableOverlay = false;
     sf::Vector2i penDownPos;
     sf::Vector2i penPos;
 

@@ -43,7 +43,7 @@ void AppStateEditor::input() {
 			else if (event.key.code == sf::Keyboard::N && keyShortcut == 1) {
 				dialogNewLevel.open([this] () { newLevelDialogCallback(); });
 			}
-			else if (editorShortcuts.count(event.key.code)) {
+			else if (editorShortcuts.count(event.key.code) && editor.isInitialized()) {
 				editorShortcuts[event.key.code]();
 			}
 		} else if (event.type == sf::Event::KeyReleased) {

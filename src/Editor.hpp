@@ -21,7 +21,21 @@ private:
 
 	bool isMouseWithinBoundaries(const sf::Vector2f &mousePos) const;
 
+	bool canScroll() const {
+		// If property window is opened, prevent scrolling
+		return gui.get<tgui::ChildWindow>("ToolPropertyModal") == nullptr;
+	}
+
+	bool canOpenPropertyDialog() const {
+		// If property window is opened, do not open new one
+		return canScroll();
+	}
+
 public:
+	bool isInitialized() const {
+		return initialized;
+	}
+
 	void handleEvent(const sf::Event& event, const sf::Vector2i &mousePos);
 
 	void draw();

@@ -1,5 +1,6 @@
 #include "NewLevelDialog.hpp"
 #include "FileApi.hpp"
+#include "LogConsole.hpp"
 
 void NewLevelDialog::open(std::function<void()> confirmCallback) {
 	auto modal = tgui::ChildWindow::create("New level");
@@ -20,6 +21,7 @@ void NewLevelDialog::open(std::function<void()> confirmCallback) {
 
 	for (unsigned i = 0; i < labels.size(); i++) {
 		auto label = tgui::Label::create(labels[i]);
+		Log::write("Can label gain focus: " + std::to_string(label->canGainFocus()));
 		label->setSize("26%", ROW_HEIGHT);
 		label->setPosition("2%", std::to_string(i * 10 + ROW_Y_OFFSET) + "%");
 		label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);

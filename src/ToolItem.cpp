@@ -243,6 +243,8 @@ ToolProperty& ToolItem::getProperty() {
 
 void ToolItem::setProperty(const ToolProperty&) {
 	items[itemProperty.itemId] = itemProperty.data;
+	items[itemProperty.itemId].x = dgm::Math::clamp(items[itemProperty.itemId].x, 0, levelSize.x);
+	items[itemProperty.itemId].y = dgm::Math::clamp(items[itemProperty.itemId].y, 0, levelSize.y);
 }
 
 void ToolItem::buildCtxMenu(tgui::MenuBar::Ptr& menu) {
