@@ -84,6 +84,11 @@ void ToolItem::saveTo(LevelD& lvd) {
 
 void ToolItem::loadFrom(const LevelD& lvd) {
 	items = lvd.things;
+
+	// Update tags
+	for (auto& item : items) {
+		PropertyTag::get().updateTag(item.tag);
+	}
 }
 
 void ToolItem::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) {
@@ -245,6 +250,7 @@ void ToolItem::setProperty(const ToolProperty&) {
 	items[itemProperty.itemId] = itemProperty.data;
 	items[itemProperty.itemId].x = dgm::Math::clamp(items[itemProperty.itemId].x, 0, levelSize.x);
 	items[itemProperty.itemId].y = dgm::Math::clamp(items[itemProperty.itemId].y, 0, levelSize.y);
+	PropertyTag::get().updateTag(items[itemProperty.itemId].tag);
 }
 
 void ToolItem::buildCtxMenu(tgui::MenuBar::Ptr& menu) {
@@ -263,7 +269,7 @@ void ItemToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& dst) {
 	addOption(dst, "Item ID:", "Unique identifier of the object", data.id, 0, DISABLED);
 	addOption(dst, "X coordinate:", "Measured in pixels from top-left corner", data.x, 1);
 	addOption(dst, "Y coordinate:", "Measured in pixels from top-left corner", data.y, 2);
-	addOption(dst, "Tag:", "Value used to group related objects", data.tag, 3); // TODO: New tag
+	addOption(dst, "Tag:", "Value used to group related objects", data.tag, 3, true, true);
 	addOption(dst, "Flags:", "16 bit value to alter behaviour of this object", data.flags, 4);
 	addOption(dst, "Metadata:", "Text field for custom data", data.metadata, 5);
 }

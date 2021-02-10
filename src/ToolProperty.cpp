@@ -42,7 +42,7 @@ void ToolProperty::addOption(TargetPanel& target, const std::string& label, cons
 
 
 template<typename T>
-inline void ToolProperty::addOptionUint(TargetPanel& target, const std::string& label, const std::string& tooltip, T& val, unsigned ypos, bool enabled) {
+inline void ToolProperty::addOptionUint(TargetPanel& target, const std::string& label, const std::string& tooltip, T& val, unsigned ypos, bool enabled, bool tag) {
 	auto row = getRowBackground(ypos, tooltip);
 	target->add(row);
 
@@ -75,16 +75,28 @@ inline void ToolProperty::addOptionUint(TargetPanel& target, const std::string& 
 		});
 	}
 
+	if (tag) {
+		auto btn = tgui::Button::create("New tag");
+		btn->setSize(VALUE_WIDTH, "100%");
+		btn->setPosition(TAG_LEFT_MARGIN, "0%");
+		btn->setEnabled(enabled);
+		btn->connect("pressed", [this, label]() {
+			auto edit = gui.get<tgui::EditBox>("EditBox" + label);
+			edit->setText(std::to_string(PropertyTag::get().getNewTag()));
+		});
+		row->add(btn);
+	}
+
 	row->add(edit, "EditBox" + label);
 }
 
 
-void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, uint32_t& val, unsigned ypos, bool enabled) {
-	addOptionUint(target, label, tooltip, val, ypos, enabled);
+void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, uint32_t& val, unsigned ypos, bool enabled, bool tag) {
+	addOptionUint(target, label, tooltip, val, ypos, enabled, tag);
 }
 
 void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, uint16_t& val, unsigned ypos, bool enabled) {
-	addOptionUint(target, label, tooltip, val, ypos, enabled);
+	addOptionUint(target, label, tooltip, val, ypos, enabled, false);
 }
 
 void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, std::string& val, unsigned ypos, bool enabled) {

@@ -104,7 +104,7 @@ bool AppStateEditor::init() {
 const std::string FILE_CTX_NEW = "New (Ctrl+N)";
 const std::string FILE_CTX_LOAD = "Load (Ctrl+O)";
 const std::string FILE_CTX_SAVE = "Save (Ctrl+S)";
-const std::string FILE_CTX_SAVE_AS = "Save (Ctrl+Shift+S)";
+const std::string FILE_CTX_SAVE_AS = "Save as (Ctrl+Shift+S)";
 const std::string FILE_CTX_EXIT = "Exit";
 
 void AppStateEditor::buildLayout() {

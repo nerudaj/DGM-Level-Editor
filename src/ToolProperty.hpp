@@ -5,6 +5,32 @@
 
 class Tool;
 
+class PropertyTag {
+private:
+    uint32_t value = 0;
+
+    PropertyTag() {}
+    PropertyTag(const PropertyTag &other) = delete;
+    PropertyTag(PropertyTag&& other) = delete;
+    PropertyTag& operator=(const PropertyTag& other) = delete;
+
+public:
+    static PropertyTag& get() {
+        static PropertyTag instance;
+        return instance;
+    }
+
+    void updateTag(uint32_t val) {
+        if (value < val) value = val;
+    }
+
+    uint32_t getNewTag() {
+        return ++value;
+    }
+
+    ~PropertyTag() {}
+};
+
 class ToolProperty {
 protected:
     using TargetPanel = tgui::ScrollablePanel::Ptr;
@@ -14,15 +40,16 @@ private:
     const sf::Color ROW_BGR_LIGHT = sf::Color(255, 255, 255);
     const unsigned LABEL_FONT_SIZE = 20;
     const unsigned ROW_HEIGHT = 25;
-    const std::string LABEL_LEFT_MARGIN = "20%";
+    const std::string LABEL_LEFT_MARGIN = "10%";
     const std::string LABEL_WIDTH = "40%";
-    const std::string VALUE_LEFT_MARGIN = "60%";
+    const std::string VALUE_LEFT_MARGIN = "50%";
     const std::string VALUE_WIDTH = "20%";
+    const std::string TAG_LEFT_MARGIN = "70%";
 
     bool formValid = true;
 
     template<typename T>
-    void addOptionUint(TargetPanel& target, const std::string& label, const std::string& tooltip, T& val, unsigned ypos, bool enabled = true);
+    void addOptionUint(TargetPanel& target, const std::string& label, const std::string& tooltip, T& val, unsigned ypos, bool enabled, bool tag);
 
 protected:
     tgui::Gui& gui;
@@ -36,7 +63,7 @@ protected:
 
     void addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, bool& val, unsigned ypos, bool enabled = true);
 
-    void addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, uint32_t& val, unsigned ypos, bool enabled = true);
+    void addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, uint32_t& val, unsigned ypos, bool enabled = true, bool tag = false);
 
     void addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, uint16_t& val, unsigned ypos, bool enabled = true);
 
