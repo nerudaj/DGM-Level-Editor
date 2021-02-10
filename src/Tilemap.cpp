@@ -14,10 +14,15 @@ unsigned Tilemap::getTile(unsigned tileX, unsigned tileY) {
 }
 
 void Tilemap::drawArea(const sf::Vector2i& start, const sf::Vector2i& end, bool fill, unsigned tileValue, bool blocking) {
-	unsigned startX = start.x / mesh.getVoxelSize().x;
-	unsigned startY = start.y / mesh.getVoxelSize().y;
-	unsigned endX = end.x / mesh.getVoxelSize().x;
-	unsigned endY = end.y / mesh.getVoxelSize().y;
+	const unsigned aX = start.x / mesh.getVoxelSize().x;
+	const unsigned aY = start.y / mesh.getVoxelSize().y;
+	const unsigned bX = end.x / mesh.getVoxelSize().x;
+	const unsigned bY = end.y / mesh.getVoxelSize().y;
+
+	const unsigned startX = std::min(aX, bX);
+	const unsigned startY = std::min(aY, bY);
+	const unsigned endX = std::max(aX, bX);
+	const unsigned endY = std::max(aY, bY);
 
 	Log::write("drawArea [" + std::to_string(startX) + ", " + std::to_string(startY) + "] -> [" +
 		std::to_string(endX) + ", " + std::to_string(endY) + "]");
