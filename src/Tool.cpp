@@ -87,13 +87,19 @@ void ToolWithSprites::buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tg
 }
 
 void ToolWithSprites::buildSpriteIdSelectionModal(tgui::Gui& gui, tgui::Theme& theme) {
-	const float SCROLLBAR_WIDTH = 20.f;
+	constexpr float SCROLLBAR_WIDTH = 20.f;
+
+	if (gui.get<tgui::ChildWindow>("ToolSelection")) return;
 
 	// Create wrapper window
 	auto modal = tgui::ChildWindow::create("Tile Selection");
 	modal->setSize("50%", "50%");
 	modal->setPosition("25%", "25%");
 	gui.add(modal, "ToolSelection");
+
+	modal->connect("Closed", [&gui]() {
+		gui.remove(gui.get<tgui::ChildWindow>("ToolSelection"));
+	});
 
 	// Create scrollable group inside of this window
 	auto group = tgui::ScrollablePanel::create();
@@ -114,10 +120,10 @@ void ToolWithSprites::buildSpriteIdSelectionModal(tgui::Gui& gui, tgui::Theme& t
 
 		// User chosen a particular tile
 		btn->connect("pressed", [this, i, &gui, &theme]() {
+			changePenValue(i, gui, theme);
 			auto modal = gui.get<tgui::ChildWindow>("ToolSelection");
 			modal->close();
-			changePenValue(i, gui, theme);
-			});
+		});
 
 		group->add(btn);
 
