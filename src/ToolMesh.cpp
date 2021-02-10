@@ -85,13 +85,6 @@ void ToolMesh::penDown() {
 	drawing = true;
 	penDownPos = penPos;
 	rectShape.setPosition(sf::Vector2f(penDownPos));
-
-	if (mode == DrawMode::RectEdge) {
-		rectShape.setFillColor(sf::Color::Transparent);
-	}
-	else if (mode == DrawMode::RectFill) {
-		rectShape.setFillColor(sf::Color(128, 0, 0, 128));
-	}
 }
 
 void ToolMesh::penPosition(const sf::Vector2i &position) {
@@ -161,6 +154,12 @@ void ToolMesh::buildCtxMenu(tgui::MenuBar::Ptr &menu) {
 void ToolMesh::changeDrawingMode(ToolMesh::DrawMode newMode) {
 	Log::write("Mesh: Changing draw mode to " + std::to_string(newMode));
 	mode = newMode;
+	if (mode == DrawMode::RectEdge) {
+		rectShape.setFillColor(sf::Color::Transparent);
+	}
+	else if (mode == DrawMode::RectFill) {
+		rectShape.setFillColor(sf::Color(128, 0, 0, 128));
+	}
 }
 
 std::string std::to_string(ToolMesh::DrawMode mode) {
