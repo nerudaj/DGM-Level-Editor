@@ -76,11 +76,9 @@ void ToolWithSprites::buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tg
 
 		btn->connect("clicked", [this, &gui, &theme, tileId]() { changePenValue(tileId, gui, theme); });
 
-		/*
-		if (history.getActive() != i) {
-			btn->getRenderer()->setOpacity(0.2f);
+		if (yPos != 2 * OFFSET + BUTTON_SIZE) {
+			btn->getRenderer()->setOpacity(0.25f);
 		}
-		*/
 
 		yPos += OFFSET + BUTTON_SIZE;
 	}

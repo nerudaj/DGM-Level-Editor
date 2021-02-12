@@ -7,13 +7,14 @@ void ToolItem::changeEditMode(EditMode mode) {
 	editMode = mode;
 }
 
-std::size_t ToolItem::getItemFromPosition(const sf::Vector2i& vec) const {
+std::size_t ToolItem::getItemFromPosition(const sf::Vector2f& vec) const {
 	for (std::size_t i = 0; i < items.size(); i++) {
-		auto clip = renderData[items[i].id].clip;
-		if ((items[i].x - clip.width / 2) <= uint32_t(vec.x) &&
-			(items[i].y - clip.height / 2) <= uint32_t(vec.y) &&
-			(items[i].x + clip.width / 2) > uint32_t(vec.x) &&
-			(items[i].y + clip.height / 2) > uint32_t(vec.y)) return i;
+		const auto clip = renderData[items[i].id].clip;
+		const float x = items[i].x;
+		const float y = items[i].y;
+		const float wh = clip.width / 2.f;
+		const float hh = clip.height / 2.f;
+		if ((x - wh) < vec.x && vec.x < (x + wh) && (y - hh) < vec.y && vec.y < (y + hh)) return i;
 	}
 
 	return -1;
@@ -83,6 +84,8 @@ void ToolItem::saveTo(LevelD& lvd) {
 }
 
 void ToolItem::loadFrom(const LevelD& lvd) {
+	resize(lvd.mesh.layerWidth, lvd.mesh.layerHeight);
+
 	items = lvd.things;
 
 	// Update tags
@@ -131,7 +134,7 @@ void ToolItem::penDown() {
 		selectedItems.clear();
 		return;
 	}
-	if ((draggedItemId = getItemFromPosition(penPos)) != -1) {
+	if ((draggedItemId = getItemFromPosition(sf::Vector2f(penPos))) != -1) {
 		dragging = true;
 		selectedItems.insert(draggedItemId);
 		auto& item = items[draggedItemId];
@@ -236,7 +239,7 @@ ToolProperty& ToolItem::getProperty() {
 	itemProperty.clear();
 
 	std::size_t itemId = 0;
-	if ((itemId = getItemFromPosition(penPos)) != -1) {
+	if ((itemId = getItemFromPosition(sf::Vector2f(penPos))) != -1) {
 		itemProperty.imageTexture = getSpriteAsTexture(items[itemId].id);
 		itemProperty.empty = false;
 		itemProperty.data = items[itemId];

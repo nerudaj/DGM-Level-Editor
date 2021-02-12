@@ -147,8 +147,9 @@ void AppStateEditor::buildLayout() {
 		menu->connectMenuItem("Editor", label, callback);
 		editorShortcuts[shortcut] = callback;
 	};
-	addEditorMenuItem("Mesh mode (T)", [this]() { editor.switchTool("mesh"); }, sf::Keyboard::M);
-	addEditorMenuItem("Items mode (I)", [this]() { editor.switchTool("item"); }, sf::Keyboard::I);
+	addEditorMenuItem("Mesh mode (M)", [this]() { editor.switchTool(Editor::ToolType::Mesh); }, sf::Keyboard::M);
+	addEditorMenuItem("Items mode (I)", [this]() { editor.switchTool(Editor::ToolType::Item); }, sf::Keyboard::I);
+	addEditorMenuItem("Trigger mode (T)", [this]() { editor.switchTool(Editor::ToolType::Trigger); }, sf::Keyboard::T);
 
 	gui.add(menu, "TopMenuBar");
 

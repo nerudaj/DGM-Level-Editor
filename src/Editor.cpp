@@ -8,6 +8,15 @@ const sf::Vector2f UP_VEC(0.f, -24.f);
 const sf::Vector2f DOWN_VEC(0.f, 24.f);
 const sf::Vector2f RIGHT_VEC(24.f, 0.f);
 
+namespace std {
+	constexpr const char *to_string(const Editor::ToolType type) {
+		if (type == Editor::ToolType::Mesh) return "mesh";
+		else if (type == Editor::ToolType::Item) return "item";
+		else if (type == Editor::ToolType::Trigger) return "trigger";
+		return "error";
+	}
+}
+
 bool Editor::isMouseWithinBoundaries(const sf::Vector2f& mousePos) const {
 	return mousePos.x < 0.f && mousePos.y < 0.f;
 }
@@ -75,11 +84,11 @@ void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& 
 	Editor::configPath = configPath; // Remember this and export to leveld later
 
 	// By default selecting mesh tool
-	switchTool("mesh");
+	switchTool(ToolType::Mesh);
 }
 
-void Editor::switchTool(const std::string &tool) {
-	stateMgr.changeState(tool);
+void Editor::switchTool(const ToolType tool) {
+	stateMgr.changeState(std::to_string(tool));
 	stateMgr.getTool().buildSidebar(theme);
 
 	auto menu = gui.get<tgui::MenuBar>("TopMenuBar");
@@ -107,8 +116,9 @@ void Editor::saveToFile(const std::string &filename) {
 
 Editor::Editor(tgui::Gui &gui, tgui::Theme &theme, tgui::Canvas::Ptr& canvas) : gui(gui), theme(theme), canvas(canvas) {
 	// Instantiate all EditorTools here
-	stateMgr.addState("mesh", new ToolMesh(gui));
-	stateMgr.addState("item", new ToolItem(gui));
+	stateMgr.addState(std::to_string(ToolType::Mesh), new ToolMesh(gui));
+	stateMgr.addState(std::to_string(ToolType::Item), new ToolItem(gui));
+	stateMgr.addState(std::to_string(ToolType::Trigger), new ToolTrigger(gui));
 
 	// Bootstrapping mouse indicator
 	mouseIndicator.setRadius(8.f);

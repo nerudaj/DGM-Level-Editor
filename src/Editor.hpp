@@ -6,6 +6,7 @@
 #include "EditorState.hpp"
 #include "ToolMesh.hpp"
 #include "ToolItem.hpp"
+#include "ToolTrigger.hpp"
 
 class Editor {
 private:
@@ -32,6 +33,10 @@ private:
 	}
 
 public:
+	enum class ToolType : std::size_t {
+		Mesh, Item, Trigger
+	};
+
 	bool isInitialized() const {
 		return initialized;
 	}
@@ -47,7 +52,7 @@ public:
 	 */
 	void init(unsigned levelWidth, unsigned levelHeight, const std::string& configPath);
 
-	void switchTool(const std::string &tool);
+	void switchTool(const ToolType tool);
 
 	/*void selectToolProperty(tgui::Gui& gui) {
 		stateMgr.getTool().getTool().buildPropertySelectionModal(gui);

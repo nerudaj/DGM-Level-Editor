@@ -147,6 +147,7 @@ set ( SOURCE_FILES
 	src/ToolProperty.cpp
 	src/ToolMesh.cpp
 	src/ToolItem.cpp
+	src/ToolTrigger.cpp
 	src/Tilemap.cpp
 )
 
@@ -165,6 +166,7 @@ set ( HEADER_FILES
 	src/ToolProperty.hpp
 	src/ToolMesh.hpp
 	src/ToolItem.hpp
+	src/ToolTrigger.hpp
 	src/Tilemap.hpp
 )
 

@@ -72,7 +72,7 @@ protected:
 		return renderData.size();
 	}
 
-	std::size_t getItemFromPosition(const sf::Vector2i &vec) const;
+	std::size_t getItemFromPosition(const sf::Vector2f &vec) const;
 
 	sf::Vector2i getSelectedAreaStart() const {
 		return {
