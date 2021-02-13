@@ -159,7 +159,7 @@ void ToolItem::penUp() {
 	if (not isPenDown()) return;
 	Log::write("ToolItem::penUp: " + std::string(dragging ? "dragging " : " ") + std::string(selecting ? "selecting" : "") );
 
-	selectedItems.clear();
+	//selectedItems.clear();
 
 	// If selecting then find all items that are inside selected area
 	// and add them to selected
@@ -170,6 +170,7 @@ void ToolItem::penUp() {
 
 	if (not dragging and not selecting) {
 		addNewItem();
+		selectedItems.clear();
 	}
 
 	dragging = false;
