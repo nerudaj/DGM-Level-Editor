@@ -50,8 +50,6 @@ private:
 
     bool drawing = false;
     bool enableOverlay = false;
-    sf::Vector2i penDownPos;
-    sf::Vector2i penPos;
 
     void changeDrawingMode(DrawMode newMode);
 
@@ -75,6 +73,12 @@ private:
         return clip.getFrameCount();
     }
 
+    virtual void penClicked(const sf::Vector2i& position) override;
+    virtual void penDragStarted(const sf::Vector2i& start) override;
+    virtual void penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) override;
+    virtual void penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) override;
+    virtual void penDragCancel(const sf::Vector2i& origin) override;
+
 public:
     virtual void configure(nlohmann::json &config);
 
@@ -86,19 +90,9 @@ public:
 
     virtual void drawTo(tgui::Canvas::Ptr &canvas, uint8_t opacity) override;
 
-    virtual void penDown() override;
-
-    virtual void penPosition(const sf::Vector2i &position) override;
-
-    virtual void penUp() override;
-
-    virtual void penCancel() override {
-        drawing = false;
-    }
-
     virtual void penDelete() override {}
 
-    virtual ToolProperty &getProperty() override;
+    virtual ToolProperty &getProperty(const sf::Vector2i& pos) override;
 
     virtual void setProperty(const ToolProperty &prop) override;
 

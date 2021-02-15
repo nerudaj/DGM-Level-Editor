@@ -139,3 +139,36 @@ void ToolWithSprites::changePenValue(unsigned value, tgui::Gui& gui, tgui::Theme
 	penHistory.insert(penValue);
 	Tool::buildSidebar(theme);
 }
+
+void Tool::penDown() {
+	penDownPos = penPos;
+}
+
+void Tool::penPosition(const sf::Vector2i& position) {
+	penPos = position;
+
+	if (isPenDragging()) {
+		penDragStarted(penDownPos);
+	}
+}
+
+void Tool::penUp() {
+	if (isPenDragging()) {
+		penDragEnded(penDownPos, penPos);
+	} else {
+		penClicked(penDownPos);
+	}
+}
+
+void Tool::penCancel() {
+	penDragCancel(penDownPos);
+	penDownPos = NULL_VECTOR;
+}
+
+sf::Vector2i Helper::minVector(const sf::Vector2i& a, const sf::Vector2i& b) {
+	return sf::Vector2i(std::min(a.x, b.x), std::min(a.y, b.y));
+}
+
+sf::Vector2i Helper::maxVector(const sf::Vector2i& a, const sf::Vector2i& b) {
+	return sf::Vector2i(std::max(a.x, b.x), std::max(a.y, b.y));
+}

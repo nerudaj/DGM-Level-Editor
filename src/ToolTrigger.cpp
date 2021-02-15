@@ -2,6 +2,22 @@
 #include "JsonHelper.hpp"
 #include "LogConsole.hpp"
 
+std::size_t ToolTrigger::getTriggerFromPosition(const sf::Vector2i& pos) const {
+    for (unsigned i = 0; i < triggers.size(); i++) {
+        const sf::Vector2i tpos(triggers[i].x, triggers[i].y);
+        if (triggers[i].areaType == PenType::Circle) {
+            if (dgm::Math::vectorSize(sf::Vector2f(pos - tpos)) < triggers[i].radius) {
+                return i;
+            }
+        }
+        else if (triggers[i].areaType == PenType::Rectangle) {
+            /* TODO: this */
+        }
+    }
+
+    return -1;
+}
+
 void ToolTrigger::buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) {
     const float SIDEBAR_WIDTH = sidebar->getSize().x;
     const float OFFSET = 10.f;
@@ -79,6 +95,7 @@ void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) {
 
     for (const auto& trig : triggers) {
         if (trig.areaType == LevelD::Trigger::AreaType::Circle) {
+            circShape.setOrigin(float(trig.radius), float(trig.radius));
             circShape.setPosition(float(trig.x), float(trig.y));
             circShape.setRadius(float(trig.radius));
             canvas->draw(circShape);
@@ -92,8 +109,10 @@ void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) {
 
     if (isDrawing(penDownPos) && !clickedNotDrawn(penDownPos)) {
         if (penType == PenType::Circle) {
+            const float radius = dgm::Math::vectorSize(sf::Vector2f(penPos - penDownPos));
+            circMarker.setOrigin(radius, radius);
             circMarker.setPosition(sf::Vector2f(penDownPos));
-            circMarker.setRadius(dgm::Math::vectorSize(sf::Vector2f(penPos - penDownPos)));
+            circMarker.setRadius(radius);
             canvas->draw(circMarker);
         }
         else if (penType == PenType::Rectangle) {
@@ -121,14 +140,16 @@ void ToolTrigger::penUp() {
     if (clickedNotDrawn(downPos)) return;
 
     LevelD::Trigger trigger;
-    trigger.x = downPos.x;
-    trigger.y = downPos.y;
     trigger.areaType = penType;
 
     if (penType == PenType::Circle) {
+        trigger.x = downPos.x;
+        trigger.y = downPos.y;
         trigger.radius = dgm::Math::vectorSize(sf::Vector2f(penPos - downPos));
     }
     else if (penType == PenType::Rectangle) {
+        trigger.x = std::min(downPos.x, penPos.x);
+        trigger.y = std::min(downPos.y, penPos.y);
         trigger.width = std::abs(penPos.x - downPos.x);
         trigger.height = std::abs(penPos.y - downPos.y);
     }

@@ -120,77 +120,10 @@ void ToolItem::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) {
 	}
 
 	if (selecting) {
-		outline.setPosition(sf::Vector2f(getSelectedAreaStart()));
-		outline.setSize(sf::Vector2f(getSelectedAreaSize()));
+		//outline.setPosition(sf::Vector2f(getSelectedAreaStart()));
+		//outline.setSize(sf::Vector2f(getSelectedAreaSize()));
 		canvas->draw(outline);
 	}
-}
-
-void ToolItem::penDown() {
-	Log::write("ToolItem::penDown");
-	penDownPos = penPos;
-
-	if (!isValidPenPosForDrawing(penPos)) {
-		selectedItems.clear();
-		return;
-	}
-	if ((draggedItemId = getItemFromPosition(sf::Vector2f(penPos))) != -1) {
-		dragging = true;
-		selectedItems.insert(draggedItemId);
-		auto& item = items[draggedItemId];
-		dragOffset = sf::Vector2i(item.x, item.y) - penPos;
-		return;
-	}
-}
-
-void ToolItem::penPosition(const sf::Vector2i& position) {
-	penPos = position;
-
-	if (not isPenDown() or not isValidPenPosForDrawing(penPos)) return;
-
-	if (dragging) {
-		moveSelectedItemsTo(penPos);
-	} else if (dgm::Math::vectorSize(sf::Vector2f(penPos) - sf::Vector2f(penDownPos)) > 5) {
-		selecting = true;
-	}
-}
-
-void ToolItem::penUp() {
-	if (not isPenDown()) return;
-	Log::write("ToolItem::penUp: " + std::string(dragging ? "dragging " : " ") + std::string(selecting ? "selecting" : "") );
-
-	//selectedItems.clear();
-
-	// If selecting then find all items that are inside selected area
-	// and add them to selected
-	if (selecting) {
-		sf::IntRect selectedArea(getSelectedAreaStart(), getSelectedAreaSize());
-		selectItemsInArea(selectedArea);
-	}
-
-	if (not dragging and not selecting) {
-		addNewItem();
-		selectedItems.clear();
-	}
-
-	dragging = false;
-	selecting = false;
-	penDownPos = NULL_VECTOR;
-}
-
-void ToolItem::addNewItem() {
-	if (not isValidPenPosForDrawing(penPos)) return;
-
-	LevelD::Thing item;
-	item.id = penValue;
-	item.x = penPos.x;
-	item.y = penPos.y;
-	item.tag = 0;
-	item.flags = 0;
-	item.metadata = "";
-
-	items.push_back(item);
-	Log::write("New item pos", penPos);
 }
 
 void ToolItem::selectItemsInArea(sf::IntRect& selectedArea) {
@@ -212,18 +145,81 @@ void ToolItem::moveSelectedItemsTo(const sf::Vector2i& vec) {
 	}
 }
 
-void ToolItem::penCancel() {
-	Log::write("ToolItem::penCancel");
+void ToolItem::penClicked(const sf::Vector2i& position) {
+	/*
+	* If pen is outside level bounds, exit
+	* If pen is over item, select it, exit
+	* Else create new item and clear selected
+	*/
 
+	if (not isValidPenPosForDrawing(position)) return;
+	std::size_t itemId;
+	if ((itemId = getItemFromPosition(sf::Vector2f(position))) != -1) {
+		selectedItems.insert(itemId);
+		return;
+	}
+
+	LevelD::Thing item;
+	item.id = penValue;
+	item.x = position.x;
+	item.y = position.y;
+	item.tag = 0;
+	item.flags = 0;
+	item.metadata = "";
+
+	items.push_back(item);
+	Log::write("New item pos", position);
+
+	selectedItems.clear();
+}
+
+void ToolItem::penDragStarted(const sf::Vector2i& start) {
+	/* If pen is over item, then select it and commence dragging
+	*  Else selecting
+	*/
+
+	if ((draggedItemId = getItemFromPosition(sf::Vector2f(start))) != -1) {
+		dragging = true;
+		selectedItems.insert(draggedItemId);
+		auto& item = items[draggedItemId];
+		dragOffset = sf::Vector2i(item.x, item.y) - start;
+	} else {
+		selecting = true;
+	}
+}
+
+void ToolItem::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) {
+	/* If dragging, move all items to new position
+	*/
+	if (dragging && isValidPenPosForDrawing(end)) {
+		moveSelectedItemsTo(end);
+	}
+}
+
+void ToolItem::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) {
+	/* If selecting, select all items in area
+	*  Clear dragging and selecting flags
+	*/
+	if (selecting) {
+		sf::IntRect selectedArea(
+			Helper::minVector(start, end),
+			Helper::maxVector(start, end));
+		selectItemsInArea(selectedArea);
+	}
+
+	selecting = false;
+	dragging = false;
+}
+
+void ToolItem::penDragCancel(const sf::Vector2i& origin) {
 	selectedItems.clear();
 
 	if (dragging) {
-		moveSelectedItemsTo(penDownPos);
+		moveSelectedItemsTo(origin);
 	}
 
 	dragging = false;
 	selecting = false;
-	penDownPos = NULL_VECTOR;
 }
 
 void ToolItem::penDelete() {
@@ -236,11 +232,11 @@ void ToolItem::penDelete() {
 	selectedItems.clear();
 }
 
-ToolProperty& ToolItem::getProperty() {
+ToolProperty& ToolItem::getProperty(const sf::Vector2i& pos) {
 	itemProperty.clear();
 
 	std::size_t itemId = 0;
-	if ((itemId = getItemFromPosition(sf::Vector2f(penPos))) != -1) {
+	if ((itemId = getItemFromPosition(sf::Vector2f(pos))) != -1) {
 		itemProperty.imageTexture = getSpriteAsTexture(items[itemId].id);
 		itemProperty.empty = false;
 		itemProperty.data = items[itemId];

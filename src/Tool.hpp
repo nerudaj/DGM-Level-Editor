@@ -24,9 +24,14 @@
  */
 class Tool {
 private:
-    virtual void buildSidebar(tgui::Gui &gui, tgui::Group::Ptr &sidebar, tgui::Theme &theme) = 0;
+    virtual void buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) = 0;
     std::map<sf::Keyboard::Key, std::function<void(void)>> callbacks;
     bool shiftPressed = false;
+
+    const sf::Vector2i NULL_VECTOR = sf::Vector2i(-1, -1);
+    const float DRAG_THRESHOLD = 3.f; // move by at least 3 pixels to trigger dragging
+    sf::Vector2i penPos = NULL_VECTOR;
+    sf::Vector2i penDownPos = NULL_VECTOR;
 
 protected:
     const std::string CTX_MENU_NAME = "Tool";
@@ -37,7 +42,31 @@ protected:
         callbacks.clear();
     }
 
-    void addCtxMenuItem(tgui::MenuBar::Ptr& menu, const std::string &label, std::function<void(void)> callback, sf::Keyboard::Key shortcutKey);
+    void addCtxMenuItem(tgui::MenuBar::Ptr& menu, const std::string& label, std::function<void(void)> callback, sf::Keyboard::Key shortcutKey);
+
+    const sf::Vector2i& getPenPosition() const {
+        assert(not 0xdeadc0de);
+        return penPos;
+    }
+
+    const sf::Vector2i& getPenDragStart() const {
+        assert(not 0xdeadc0de);
+        return penDownPos;
+    }
+
+    bool isPenDragging() const {
+        return penDownPos != NULL_VECTOR && dgm::Math::vectorSize(sf::Vector2f(penPos - penDownPos)) > DRAG_THRESHOLD;
+    };
+
+    virtual void penClicked(const sf::Vector2i& position) = 0;
+    virtual void penDragStarted(const sf::Vector2i& start) {
+        /* this function can be unused */
+    }
+    virtual void penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) {
+        /* this function can be unused */
+    }
+    virtual void penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) = 0;
+    virtual void penDragCancel(const sf::Vector2i& origin) = 0;
 
 public:
     void handleShortcuts(const sf::Event& event);
@@ -51,14 +80,15 @@ public:
 
 	virtual void drawTo(tgui::Canvas::Ptr &canvas, uint8_t opacity) = 0;
 
-	virtual void penDown() = 0; // When LMB is pressed
-    virtual void penPosition(const sf::Vector2i &position) = 0; // called each frame with current mouse pos
-	virtual void penUp() = 0; // When LMB is released
-    virtual void penCancel() = 0; // executed when Escape is pressed
+	virtual void penDown() final; // When LMB is pressed
+    virtual void penPosition(const sf::Vector2i &position) final; // called each frame with current mouse pos
+	virtual void penUp() final; // When LMB is released
+
+    virtual void penCancel() final; // executed when Escape is pressed
     virtual void penDelete() = 0; // executed when Del is pressed
 
 	// Returns nullptr if no property can be returned
-	virtual ToolProperty &getProperty() = 0;
+	virtual ToolProperty &getProperty(const sf::Vector2i& pos) = 0;
 	virtual void setProperty(const ToolProperty &prop) = 0;
 
     virtual void buildCtxMenu(tgui::MenuBar::Ptr& menu);
@@ -115,3 +145,9 @@ public:
 
     ToolWithSprites(tgui::Gui& gui) : Tool(gui) {}
 };
+
+namespace Helper {
+    sf::Vector2i minVector(const sf::Vector2i& a, const sf::Vector2i& b);
+
+    sf::Vector2i maxVector(const sf::Vector2i& a, const sf::Vector2i& b);
+}

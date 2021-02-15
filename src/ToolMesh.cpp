@@ -2,6 +2,35 @@
 #include "JsonHelper.hpp"
 #include "LogConsole.hpp"
 
+void ToolMesh::penClicked(const sf::Vector2i& position) {
+	auto tilePos = worldToTilePos(position);
+	if (isPositionValid(tilePos)) {
+		tilemap.drawArea(position, position, true, penValue, defaultBlocks[penValue]);
+	}
+}
+
+void ToolMesh::penDragStarted(const sf::Vector2i& start) {
+	rectShape.setPosition(sf::Vector2f(start));
+}
+
+void ToolMesh::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) {
+	if (mode == DrawMode::Pencil) {
+		penClicked(end);
+	} else {
+		rectShape.setSize(sf::Vector2f(start - end));
+	}
+}
+
+void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) {
+	if (mode == DrawMode::RectEdge) {
+		tilemap.drawArea(start, end, false, penValue, defaultBlocks[penValue]);
+	} else if (mode == DrawMode::RectFill) {
+		tilemap.drawArea(start, end, true, penValue, defaultBlocks[penValue]);
+	}
+}
+
+void ToolMesh::penDragCancel(const sf::Vector2i&) {}
+
 void ToolMesh::configure(nlohmann::json &config) {
 	const std::string TOOL_STR = "toolMesh";
 
@@ -72,54 +101,17 @@ void ToolMesh::drawTo(tgui::Canvas::Ptr &canvas, uint8_t) {
 
 	if (enableOverlay) canvas->draw(tilemap.overlay.map);
 
-	if (drawing) {
+	if (isPenDragging()) {
 		if (mode == DrawMode::RectEdge || mode == DrawMode::RectFill) {
 			canvas->draw(rectShape);
 		}
 	}
 }
 
-void ToolMesh::penDown() {
-	Log::write("penDown");
-
-	drawing = true;
-	penDownPos = penPos;
-	rectShape.setPosition(sf::Vector2f(penDownPos));
-}
-
-void ToolMesh::penPosition(const sf::Vector2i &position) {
-	penPos = position;
-
-	if (mode != DrawMode::Pencil) {
-		rectShape.setSize(sf::Vector2f(position - penDownPos));
-	}
-
-	if (!(drawing && mode == DrawMode::Pencil)) return;
-	Log::write("penPosition && drawing");
-
-	auto tilePos = worldToTilePos(position);
-	if (isPositionValid(tilePos)) {
-		tilemap.drawArea(position, position, true, penValue, defaultBlocks[penValue]);
-	}
-}
-
-void ToolMesh::penUp() {
-	if (!drawing) return;
-
-	Log::write("penUp");
-	drawing = false;
-
-	if (mode == DrawMode::RectEdge) {
-		tilemap.drawArea(penDownPos, penPos, false, penValue, defaultBlocks[penValue]);
-	} else if (mode == DrawMode::RectFill) {
-		tilemap.drawArea(penDownPos, penPos, true, penValue, defaultBlocks[penValue]);
-	}
-}
-
-ToolProperty &ToolMesh::getProperty() {
+ToolProperty &ToolMesh::getProperty(const sf::Vector2i& pos) {
 	tileProperty.clear();
 
-	auto tilePos = worldToTilePos(penPos);
+	auto tilePos = worldToTilePos(pos);
 	if (not isPositionValid(tilePos)) return tileProperty; // returning null property
 
 	tileProperty.tileX = tilePos.x;

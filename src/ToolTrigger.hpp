@@ -32,6 +32,8 @@ private:
 	sf::Vector2i penDownPos = NULL_VECTOR;
 	sf::Vector2i penPos = NULL_VECTOR;
 	PenType penType = PenType::Circle;
+	
+	std::size_t getTriggerFromPosition(const sf::Vector2i& pos) const;
 
 	bool isValidPenPosForDrawing(const sf::Vector2i& pos) const {
 		return !(pos.x < 0 || pos.y < 0 || pos.x >= levelSize.x || pos.y >= levelSize.y);
@@ -39,6 +41,11 @@ private:
 
 	bool isDrawing(const sf::Vector2i &downPos) const {
 		return downPos != NULL_VECTOR;
+	}
+
+	/* returns true if pen is down and is being moved */
+	bool isPenDragged(const sf::Vector2i &downPos) const {
+		return !clickedNotDrawn(downPos);
 	}
 
 	bool clickedNotDrawn(const sf::Vector2i& downPos) const {
