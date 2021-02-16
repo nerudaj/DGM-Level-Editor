@@ -17,7 +17,7 @@ void ToolMesh::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end)
 	if (mode == DrawMode::Pencil) {
 		penClicked(end);
 	} else {
-		rectShape.setSize(sf::Vector2f(start - end));
+		rectShape.setSize(sf::Vector2f(end - start));
 	}
 }
 
@@ -108,7 +108,9 @@ void ToolMesh::drawTo(tgui::Canvas::Ptr &canvas, uint8_t) {
 	}
 }
 
-ToolProperty &ToolMesh::getProperty(const sf::Vector2i& pos) {
+ToolProperty &ToolMesh::getProperty() {
+	auto pos = getPenPosition();
+
 	tileProperty.clear();
 
 	auto tilePos = worldToTilePos(pos);

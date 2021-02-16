@@ -92,7 +92,7 @@ public:
 
     virtual void penDelete() override {}
 
-    virtual ToolProperty &getProperty(const sf::Vector2i& pos) override;
+    virtual ToolProperty &getProperty() override;
 
     virtual void setProperty(const ToolProperty &prop) override;
 

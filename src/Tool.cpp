@@ -148,20 +148,28 @@ void Tool::penPosition(const sf::Vector2i& position) {
 	penPos = position;
 
 	if (isPenDragging()) {
-		penDragStarted(penDownPos);
+		if (dragging) penDragUpdate(penDownPos, position);
+		else {
+			dragging = true;
+			penDragStarted(penDownPos);
+		}
 	}
 }
 
 void Tool::penUp() {
 	if (isPenDragging()) {
 		penDragEnded(penDownPos, penPos);
+		dragging = false;
+		penDownPos = NULL_VECTOR;
 	} else {
 		penClicked(penDownPos);
 	}
+	dragging = false;
 }
 
 void Tool::penCancel() {
 	penDragCancel(penDownPos);
+	dragging = false;
 	penDownPos = NULL_VECTOR;
 }
 

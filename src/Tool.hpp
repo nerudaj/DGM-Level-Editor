@@ -32,6 +32,7 @@ private:
     const float DRAG_THRESHOLD = 3.f; // move by at least 3 pixels to trigger dragging
     sf::Vector2i penPos = NULL_VECTOR;
     sf::Vector2i penDownPos = NULL_VECTOR;
+    bool dragging = false;
 
 protected:
     const std::string CTX_MENU_NAME = "Tool";
@@ -45,7 +46,6 @@ protected:
     void addCtxMenuItem(tgui::MenuBar::Ptr& menu, const std::string& label, std::function<void(void)> callback, sf::Keyboard::Key shortcutKey);
 
     const sf::Vector2i& getPenPosition() const {
-        assert(not 0xdeadc0de);
         return penPos;
     }
 
@@ -88,7 +88,7 @@ public:
     virtual void penDelete() = 0; // executed when Del is pressed
 
 	// Returns nullptr if no property can be returned
-	virtual ToolProperty &getProperty(const sf::Vector2i& pos) = 0;
+	virtual ToolProperty &getProperty() = 0;
 	virtual void setProperty(const ToolProperty &prop) = 0;
 
     virtual void buildCtxMenu(tgui::MenuBar::Ptr& menu);
