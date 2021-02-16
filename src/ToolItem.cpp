@@ -232,7 +232,9 @@ void ToolItem::penDelete() {
 	selectedItems.clear();
 }
 
-ToolProperty& ToolItem::getProperty(const sf::Vector2i& pos) {
+ToolProperty& ToolItem::getProperty() {
+	auto pos = getPenPosition();
+
 	itemProperty.clear();
 
 	std::size_t itemId = 0;
