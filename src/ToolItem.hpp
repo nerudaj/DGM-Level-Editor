@@ -40,7 +40,8 @@ protected:
 	std::vector<LevelD::Thing> items;
 	std::vector<ItemRenderData> renderData;
 	ItemToolProperty itemProperty = ItemToolProperty(gui, this);
-	std::set<unsigned> selectedItems;
+	std::set<std::size_t> selectedItems;
+	sf::RectangleShape selectRect;
 
 	sf::Vector2u tileSize;
 	sf::Vector2i levelSize;
@@ -66,20 +67,6 @@ protected:
 	}
 
 	std::size_t getItemFromPosition(const sf::Vector2f &vec) const;
-
-	/*sf::Vector2i getSelectedAreaStart() const {
-		return {
-			penDownPos.x < penPos.x ? penDownPos.x : penPos.x,
-			penDownPos.y < penPos.y ? penDownPos.y : penPos.y
-		};
-	}
-
-	sf::Vector2i getSelectedAreaSize() const {
-		return {
-			std::abs(penDownPos.x - penPos.x),
-			std::abs(penDownPos.y - penPos.y)
-		};
-	}*/
 
 	void selectItemsInArea(sf::IntRect& selectedArea);
 

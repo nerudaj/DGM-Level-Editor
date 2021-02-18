@@ -18,6 +18,21 @@ std::size_t ToolTrigger::getTriggerFromPosition(const sf::Vector2i& pos) const {
     return -1;
 }
 
+void ToolTrigger::penClicked(const sf::Vector2i& position) {
+}
+
+void ToolTrigger::penDragStarted(const sf::Vector2i& start) {
+}
+
+void ToolTrigger::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) {
+}
+
+void ToolTrigger::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) {
+}
+
+void ToolTrigger::penDragCancel(const sf::Vector2i& origin) {
+}
+
 void ToolTrigger::buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) {
     const float SIDEBAR_WIDTH = sidebar->getSize().x;
     const float OFFSET = 10.f;
@@ -123,7 +138,7 @@ void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) {
     }
 }
 
-void ToolTrigger::penDown() {
+/*void ToolTrigger::penDown() {
     if (!isValidPenPosForDrawing(penPos)) return;
     penDownPos = penPos;
 }
@@ -161,7 +176,7 @@ void ToolTrigger::penUp() {
 
 void ToolTrigger::penCancel() {
     penDownPos = NULL_VECTOR;
-}
+}*/
 
 void ToolTrigger::penDelete() {
     Log::write("ToolTrigger::penDelete: NOT IMPLEMENTED!");

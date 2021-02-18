@@ -51,6 +51,12 @@ private:
 	bool clickedNotDrawn(const sf::Vector2i& downPos) const {
 		return dgm::Math::vectorSize(sf::Vector2f(penPos - downPos)) < DRAW_THRESHOLD;
 	}
+	
+	virtual void penClicked(const sf::Vector2i& position) override;
+	virtual void penDragStarted(const sf::Vector2i& start) override;
+	virtual void penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) override;
+	virtual void penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) override;
+	virtual void penDragCancel(const sf::Vector2i& origin) override;
 
 public:
 	virtual void buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) override;
@@ -59,10 +65,6 @@ public:
 	virtual void saveTo(LevelD& lvd) override;
 	virtual void loadFrom(const LevelD& lvd) override;
 	virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
-	virtual void penDown() override;
-	virtual void penPosition(const sf::Vector2i& position) override;
-	virtual void penUp() override;
-	virtual void penCancel() override;
 	virtual void penDelete() override;
 	virtual ToolProperty& getProperty() override;
 	virtual void setProperty(const ToolProperty& prop) override;
