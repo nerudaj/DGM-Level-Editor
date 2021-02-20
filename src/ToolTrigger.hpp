@@ -22,34 +22,23 @@ private:
 	ToolTriggerProperty property = ToolTriggerProperty(gui, this);
 
 	std::vector<LevelD::Trigger> triggers;
-	sf::RectangleShape rectShape, rectMarker;
+	sf::RectangleShape rectShape, rectMarker, selectMarker;
 	sf::CircleShape circShape, circMarker;
+	sf::Vector2i drawStart;
+	bool drawing = false, selecting = false;
 
 	sf::Vector2u tileSize;
 	sf::Vector2i levelSize;
 
 	using PenType = LevelD::Trigger::AreaType;
-	sf::Vector2i penDownPos = NULL_VECTOR;
-	sf::Vector2i penPos = NULL_VECTOR;
 	PenType penType = PenType::Circle;
 	
+	std::set<std::size_t> selectedItems;
+
 	std::size_t getTriggerFromPosition(const sf::Vector2i& pos) const;
 
 	bool isValidPenPosForDrawing(const sf::Vector2i& pos) const {
 		return !(pos.x < 0 || pos.y < 0 || pos.x >= levelSize.x || pos.y >= levelSize.y);
-	}
-
-	bool isDrawing(const sf::Vector2i &downPos) const {
-		return downPos != NULL_VECTOR;
-	}
-
-	/* returns true if pen is down and is being moved */
-	bool isPenDragged(const sf::Vector2i &downPos) const {
-		return !clickedNotDrawn(downPos);
-	}
-
-	bool clickedNotDrawn(const sf::Vector2i& downPos) const {
-		return dgm::Math::vectorSize(sf::Vector2f(penPos - downPos)) < DRAW_THRESHOLD;
 	}
 	
 	virtual void penClicked(const sf::Vector2i& position) override;

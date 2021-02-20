@@ -11,7 +11,10 @@ std::size_t ToolTrigger::getTriggerFromPosition(const sf::Vector2i& pos) const {
             }
         }
         else if (triggers[i].areaType == PenType::Rectangle) {
-            /* TODO: this */
+            if (triggers[i].x <= pos.x && pos.x < triggers[i].x + triggers[i].width &&
+                triggers[i].y <= pos.y && pos.y < triggers[i].y + triggers[i].height) {
+                return i;
+            }
         }
     }
 
@@ -19,18 +22,59 @@ std::size_t ToolTrigger::getTriggerFromPosition(const sf::Vector2i& pos) const {
 }
 
 void ToolTrigger::penClicked(const sf::Vector2i& position) {
+    std::size_t id;
+
+    if (!isValidPenPosForDrawing(position)) return;
+    if ((id = getTriggerFromPosition(position)) != -1) {
+        if (selectedItems.count(id) > 0) selectedItems.erase(id);
+        else selectedItems.insert(id);
+        return;
+    }
+
+    if (drawing) {
+        LevelD::Trigger trigger;
+        trigger.areaType = penType;
+
+        if (penType == PenType::Circle) {
+            trigger.x = drawStart.x;
+            trigger.y = drawStart.y;
+            trigger.radius = dgm::Math::vectorSize(sf::Vector2f(position - drawStart));
+        }
+        else if (penType == PenType::Rectangle) {
+            trigger.x = std::min(drawStart.x, position.x);
+            trigger.y = std::min(drawStart.y, position.y);
+            trigger.width = std::abs(position.x - drawStart.x);
+            trigger.height = std::abs(position.y - drawStart.y);
+        }
+
+        triggers.push_back(trigger);
+
+        Log::write("Trigger added. Nof triggers: " + std::to_string(triggers.size()));
+    }  else {
+        drawStart = position;
+    }
+
+    drawing = !drawing;
 }
 
 void ToolTrigger::penDragStarted(const sf::Vector2i& start) {
+    selecting = true;
+    selectMarker.setPosition(sf::Vector2f(start));
 }
 
 void ToolTrigger::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) {
+    selectMarker.setSize(sf::Vector2f(end - start));
 }
 
 void ToolTrigger::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) {
+    // TODO: Select everything between start and end
+    selecting = false;
 }
 
 void ToolTrigger::penDragCancel(const sf::Vector2i& origin) {
+    drawing = false;
+    selecting = false;
+    selectedItems.clear();
 }
 
 void ToolTrigger::buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) {
@@ -77,6 +121,10 @@ void ToolTrigger::configure(nlohmann::json& config) {
     rectMarker.setOutlineColor(sf::Color::Red);
     rectMarker.setOutlineThickness(2.f);
     rectMarker.setFillColor(sf::Color::Transparent);
+
+    selectMarker.setOutlineColor(sf::Color::Red);
+    selectMarker.setOutlineThickness(2.f);
+    selectMarker.setFillColor(sf::Color::Transparent);
 }
 
 void ToolTrigger::resize(unsigned width, unsigned height) {
@@ -108,78 +156,60 @@ void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) {
     rectShape.setFillColor(sf::Color(128, 0, 255, 128 * opacityFactor));
     rectShape.setOutlineColor(sf::Color(128, 0, 255, 255 * opacityFactor));
 
-    for (const auto& trig : triggers) {
+    for (std::size_t i = 0; i < triggers.size(); i++) {
+        auto& trig = triggers[i];
         if (trig.areaType == LevelD::Trigger::AreaType::Circle) {
             circShape.setOrigin(float(trig.radius), float(trig.radius));
             circShape.setPosition(float(trig.x), float(trig.y));
             circShape.setRadius(float(trig.radius));
             canvas->draw(circShape);
+
+            if (selectedItems.count(i) > 0) {
+                circMarker.setOrigin(float(trig.radius), float(trig.radius));
+                circMarker.setPosition(float(trig.x), float(trig.y));
+                circMarker.setRadius(float(trig.radius));
+                canvas->draw(circMarker);
+            }
         }
         else if (trig.areaType == LevelD::Trigger::AreaType::Rectangle) {
             rectShape.setPosition(float(trig.x), float(trig.y));
             rectShape.setSize({ float(trig.width), float(trig.height) });
             canvas->draw(rectShape);
+
+            if (selectedItems.count(i) > 0) {
+                rectMarker.setPosition(float(trig.x), float(trig.y));
+                rectMarker.setSize({ float(trig.width), float(trig.height) });
+                canvas->draw(rectMarker);
+            }
         }
     }
 
-    if (isDrawing(penDownPos) && !clickedNotDrawn(penDownPos)) {
+    if (drawing) {
         if (penType == PenType::Circle) {
-            const float radius = dgm::Math::vectorSize(sf::Vector2f(penPos - penDownPos));
-            circMarker.setOrigin(radius, radius);
-            circMarker.setPosition(sf::Vector2f(penDownPos));
-            circMarker.setRadius(radius);
-            canvas->draw(circMarker);
+            const float radius = dgm::Math::vectorSize(sf::Vector2f(getPenPosition() - drawStart));
+            circShape.setOrigin(radius, radius);
+            circShape.setPosition(sf::Vector2f(drawStart));
+            circShape.setRadius(radius);
+            canvas->draw(circShape);
         }
         else if (penType == PenType::Rectangle) {
-            rectMarker.setPosition(sf::Vector2f(penDownPos));
-            rectMarker.setSize(sf::Vector2f(penPos - penDownPos));
-            canvas->draw(rectMarker);
+            rectShape.setPosition(sf::Vector2f(drawStart));
+            rectShape.setSize(sf::Vector2f(getPenPosition() - drawStart));
+            canvas->draw(rectShape);
         }
     }
-}
 
-/*void ToolTrigger::penDown() {
-    if (!isValidPenPosForDrawing(penPos)) return;
-    penDownPos = penPos;
-}
-
-void ToolTrigger::penPosition(const sf::Vector2i& position) {
-    penPos = position;
-}
-
-void ToolTrigger::penUp() {
-    auto downPos = penDownPos;
-    penDownPos = NULL_VECTOR;
-
-    if (!isDrawing(downPos)) return;
-    if (clickedNotDrawn(downPos)) return;
-
-    LevelD::Trigger trigger;
-    trigger.areaType = penType;
-
-    if (penType == PenType::Circle) {
-        trigger.x = downPos.x;
-        trigger.y = downPos.y;
-        trigger.radius = dgm::Math::vectorSize(sf::Vector2f(penPos - downPos));
+    if (selecting) {
+        canvas->draw(selectMarker);
     }
-    else if (penType == PenType::Rectangle) {
-        trigger.x = std::min(downPos.x, penPos.x);
-        trigger.y = std::min(downPos.y, penPos.y);
-        trigger.width = std::abs(penPos.x - downPos.x);
-        trigger.height = std::abs(penPos.y - downPos.y);
-    }
-
-    triggers.push_back(trigger);
-
-    Log::write("Trigger added. Nof triggers: " + std::to_string(triggers.size()));
 }
-
-void ToolTrigger::penCancel() {
-    penDownPos = NULL_VECTOR;
-}*/
 
 void ToolTrigger::penDelete() {
-    Log::write("ToolTrigger::penDelete: NOT IMPLEMENTED!");
+    for (auto itr = selectedItems.crbegin(); itr != selectedItems.crend(); itr++) {
+        triggers.erase(triggers.begin() + *itr);
+    }
+
+    selectedItems.clear();
 }
 
 ToolProperty& ToolTrigger::getProperty() {

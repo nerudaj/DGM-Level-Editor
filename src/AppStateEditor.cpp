@@ -5,9 +5,6 @@
 #include "NewLevelDialog.hpp"
 #include <iostream>
 
-const float TOPBAR_HEIGHT = 22.f;
-const float SIDEBAR_WIDTH = 100.f;
-
 void AppStateEditor::input() {
 	const sf::Vector2i mousePos = sf::Mouse::getPosition(app->window.getWindowContext());
 	sf::Event event;
@@ -108,19 +105,16 @@ const std::string FILE_CTX_SAVE_AS = "Save as (Ctrl+Shift+S)";
 const std::string FILE_CTX_EXIT = "Exit";
 
 void AppStateEditor::buildLayout() {
-	// Canvas
-	canvas = tgui::Canvas::create();
-	// NOTE: If canvas is getting some "shadow" tile edits out of the view (under sidebar)
-	// it might be because sidebar doesn't stop events from propagating downwards
-	canvas->setSize(app->window.getSize().x, app->window.getSize().y - TOPBAR_HEIGHT);
-	canvas->setPosition(0.f, TOPBAR_HEIGHT);
-	gui.add(canvas, "TilesetCanvas");
+	const std::string TOPBAR_HEIGHT = "3%";
+	const std::string SIDEBAR_WIDTH = "8%";
+	const std::string SIDEBAR_HEIGHT = "&.height - " + TOPBAR_HEIGHT;
+	const std::string SIDEBAR_XPOS = "&.width - " + SIDEBAR_WIDTH;
 
 	// Top bar
 	auto menu = tgui::MenuBar::create();
 	menu->setRenderer(theme.getRenderer("MenuBar"));
 	menu->getRenderer()->setTextColor(sf::Color::Black);
-	menu->setSize("100%", 22.f);
+	menu->setSize("100%", TOPBAR_HEIGHT);
 	menu->addMenu("File");
 	menu->addMenuItem(FILE_CTX_NEW);
 	menu->connectMenuItem("File", FILE_CTX_NEW, [this]() {
@@ -153,15 +147,23 @@ void AppStateEditor::buildLayout() {
 
 	gui.add(menu, "TopMenuBar");
 
+	// Canvas
+	canvas = tgui::Canvas::create();
+	// NOTE: If canvas is getting some "shadow" tile edits out of the view (under sidebar)
+	// it might be because sidebar doesn't stop events from propagating downwards
+	canvas->setSize(app->window.getSize().x, SIDEBAR_HEIGHT);
+	canvas->setPosition(0.f, TOPBAR_HEIGHT);
+	gui.add(canvas, "TilesetCanvas");
+
 	// Side bar - only bootstrap the space it will be sitting in
 	auto sidebar = tgui::Group::create();
-	sidebar->setSize(SIDEBAR_WIDTH, app->window.getSize().y - TOPBAR_HEIGHT);
-	sidebar->setPosition(app->window.getSize().x - SIDEBAR_WIDTH, TOPBAR_HEIGHT);
+	sidebar->setSize(SIDEBAR_WIDTH, SIDEBAR_HEIGHT);
+	sidebar->setPosition(SIDEBAR_XPOS, TOPBAR_HEIGHT);
 	gui.add(sidebar, "Sidebar");
 
 	// Logger console
 	Log::get().init(&gui);
-	Log::get().create(theme, { 0.f, app->window.getSize().y - 200.f });
+	Log::get().create(theme, { "0.5%", "81%" }, {"20%", "15%"});
 }
 
 void AppStateEditor::newLevelDialogCallback() {

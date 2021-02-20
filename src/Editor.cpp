@@ -118,7 +118,7 @@ Editor::Editor(tgui::Gui &gui, tgui::Theme &theme, tgui::Canvas::Ptr& canvas) : 
 	// Instantiate all EditorTools here
 	stateMgr.addState(std::to_string(ToolType::Mesh), new ToolMesh(gui));
 	stateMgr.addState(std::to_string(ToolType::Item), new ToolItem(gui));
-	//stateMgr.addState(std::to_string(ToolType::Trigger), new ToolTrigger(gui));
+	stateMgr.addState(std::to_string(ToolType::Trigger), new ToolTrigger(gui));
 
 	// Bootstrapping mouse indicator
 	mouseIndicator.setRadius(8.f);

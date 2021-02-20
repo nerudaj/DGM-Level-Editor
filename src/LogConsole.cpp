@@ -8,12 +8,13 @@ Log &Log::get() {
 	return *instance;
 }
 
-void Log::create(tgui::Theme &theme, const sf::Vector2f &position) {
+void Log::create(tgui::Theme &theme, const tgui::Layout2d &pos, const tgui::Layout2d& size) {
 	auto child = tgui::ChildWindow::create();
 	child->setRenderer(theme.getRenderer("ChildWindow"));
 	child->setResizable(true);
-	child->setSize(400.f, 200.f);
-	child->setPosition(position);
+	child->getRenderer()->setTitleBarHeight(gui->getView().getSize().y * 0.03f);
+	child->setSize(size);
+	child->setPosition(pos);
 	child->setTitle("Console");
 	child->setTitleButtons(tgui::ChildWindow::TitleButton::Close);
 	child->connect("Closed", [this]() {
@@ -25,7 +26,7 @@ void Log::create(tgui::Theme &theme, const sf::Vector2f &position) {
 	auto console = tgui::ChatBox::create();
 	console->setRenderer(theme.getRenderer("ChatBox"));
 	console->setSize("100%", "100%");
-	console->setTextSize(14);
+	console->setTextSize(gui->getView().getSize().y * 0.015f);
 	console->setLinesStartFromTop();
 	console->addLine("This is a log console");
 	child->add(console, "LogConsole");

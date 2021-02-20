@@ -13,7 +13,7 @@ private:
 public:
 	static Log &get();
 
-	void create(tgui::Theme& theme, const sf::Vector2f& position);
+	void create(tgui::Theme& theme, const tgui::Layout2d& pos, const tgui::Layout2d& size);
 
 	void toggle();
 

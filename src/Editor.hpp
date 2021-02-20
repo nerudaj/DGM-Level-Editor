@@ -6,7 +6,7 @@
 #include "EditorState.hpp"
 #include "ToolMesh.hpp"
 #include "ToolItem.hpp"
-//#include "ToolTrigger.hpp"
+#include "ToolTrigger.hpp"
 
 class Editor {
 private:
