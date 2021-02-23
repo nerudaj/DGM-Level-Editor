@@ -4,10 +4,13 @@
 
 class ToolTriggerProperty : public ToolProperty {
 public:
+	LevelD::Trigger data;
+	std::size_t id = -1;
+
 	// Dìdí se pøes ToolProperty.
 	virtual void buildModalSpecifics(tgui::Panel::Ptr& panel) override;
-	virtual bool isEmpty() override;
-	virtual void clear() override;
+	virtual bool isEmpty() override { return id == -1; }
+	virtual void clear() override { id = -1; }
 
 	ToolTriggerProperty(tgui::Gui& gui, Tool* parent) : ToolProperty(gui, parent) {
 		clear();

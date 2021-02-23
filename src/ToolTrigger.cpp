@@ -213,20 +213,42 @@ void ToolTrigger::penDelete() {
 }
 
 ToolProperty& ToolTrigger::getProperty() {
+    property.clear();
+
+    property.id = getTriggerFromPosition(Tool::getPenPosition());
+    if (property.id == -1) return property;
+
+    property.data = triggers[property.id];
     return property;
 }
 
 void ToolTrigger::setProperty(const ToolProperty &) {
+    triggers[property.id] = property.data;
 }
 
 void ToolTriggerProperty::buildModalSpecifics(tgui::Panel::Ptr& panel) {
-    Log::write("ToolTriggerProperty::buildModalSpecifics: NOT IMPLEMENTED!");
-}
+    auto dst = tgui::ScrollablePanel::create();
+    panel->add(dst);
 
-bool ToolTriggerProperty::isEmpty() {
-    Log::write("ToolTriggerProperty::isEmpty: NOT IMPLEMENTED!");
-    return true;
-}
+    constexpr bool DISABLED = false;
 
-void ToolTriggerProperty::clear() {
+    unsigned row = 0;
+    addOption(dst, "X coordinate:", "Measured in pixels from top-left corner", data.x, row++);
+    addOption(dst, "Y coordinate:", "Measured in pixels from top-left corner", data.y, row++);
+    if (data.areaType == LevelD::Trigger::AreaType::Circle) {
+        addOption(dst, "Radius:", "Measured in pixels", data.radius, row++);
+    }
+    else {
+        addOption(dst, "Width:", "Measured in pixels", data.width, row++);
+        addOption(dst, "Height:", "Measured in pixels", data.height, row++);
+    }
+    addOption(dst, "Trigger type:", "How the trigger should be executed", data.type, row++);
+    addOption(dst, "Tag:", "Value used to group related objects", data.tag, row++, true, true);
+    addOption(dst, "Action ID:", "ID of action to execute", data.id, row++);
+    addOption(dst, "Parameter 1:", "First param of action", data.a1, row++);
+    addOption(dst, "Parameter 2:", "Second param of action", data.a2, row++);
+    addOption(dst, "Parameter 3:", "Third param of action", data.a3, row++);
+    addOption(dst, "Parameter 4:", "Fourth param of action", data.a4, row++);
+    addOption(dst, "Parameter 5:", "Fifth param of action", data.a5, row++);
+    addOption(dst, "Metadata:", "Text field for custom data", data.metadata, row++);
 }
