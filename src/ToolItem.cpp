@@ -133,7 +133,6 @@ void ToolItem::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) {
 
 void ToolItem::selectItemsInArea(sf::IntRect& selectedArea) {
 	for (std::size_t i = 0; i < items.size(); i++) {
-		sf::IntRect item(items[i].x, items[i].y, 1, 1);
 		if (selectedArea.contains(int(items[i].x), int(items[i].y))) {
 			selectedItems.insert(i);
 		}

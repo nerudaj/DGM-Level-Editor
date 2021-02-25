@@ -2,6 +2,7 @@
 #include "JsonHelper.hpp"
 #include "LogConsole.hpp"
 
+/* Helpers */
 std::size_t ToolTrigger::getTriggerFromPosition(const sf::Vector2i& pos) const {
     for (unsigned i = 0; i < triggers.size(); i++) {
         const sf::Vector2i tpos(triggers[i].x, triggers[i].y);
@@ -21,62 +22,42 @@ std::size_t ToolTrigger::getTriggerFromPosition(const sf::Vector2i& pos) const {
     return -1;
 }
 
-void ToolTrigger::penClicked(const sf::Vector2i& position) {
-    std::size_t id;
+void ToolTrigger::selectItemsInArea(sf::IntRect& selectedArea) {
+    for (std::size_t i = 0; i < triggers.size(); i++) {
+        sf::Vector2i itemCenter;
+        itemCenter = triggers[i].areaType == PenType::Circle
+            ? sf::Vector2i(triggers[i].x, triggers[i].y)
+            : sf::Vector2i(triggers[i].x + triggers[i].width / 2,
+                triggers[i].y + triggers[i].height / 2);
 
-    if (!isValidPenPosForDrawing(position)) return;
-    if ((id = getTriggerFromPosition(position)) != -1) {
-        if (selectedItems.count(id) > 0) selectedItems.erase(id);
-        else selectedItems.insert(id);
-        return;
-    }
-
-    if (drawing) {
-        LevelD::Trigger trigger;
-        trigger.areaType = penType;
-
-        if (penType == PenType::Circle) {
-            trigger.x = drawStart.x;
-            trigger.y = drawStart.y;
-            trigger.radius = dgm::Math::vectorSize(sf::Vector2f(position - drawStart));
+        if (selectedArea.contains(itemCenter)) {
+            selectedItems.insert(i);
         }
-        else if (penType == PenType::Rectangle) {
-            trigger.x = std::min(drawStart.x, position.x);
-            trigger.y = std::min(drawStart.y, position.y);
-            trigger.width = std::abs(position.x - drawStart.x);
-            trigger.height = std::abs(position.y - drawStart.y);
-        }
-
-        triggers.push_back(trigger);
-
-        Log::write("Trigger added. Nof triggers: " + std::to_string(triggers.size()));
-    }  else {
-        drawStart = position;
     }
-
-    drawing = !drawing;
 }
 
-void ToolTrigger::penDragStarted(const sf::Vector2i& start) {
-    selecting = true;
-    selectMarker.setPosition(sf::Vector2f(start));
+void ToolTrigger::moveSelectedTriggersTo(const sf::Vector2i& vec) {
+    const sf::Vector2i offset = vec + dragOffset;
+    const sf::Vector2i forward = offset - sf::Vector2i(triggers[draggedItemId].x, triggers[draggedItemId].y);
+
+    for (auto& id : selectedItems) {
+        triggers[id].x = dgm::Math::clamp(triggers[id].x + forward.x, 0, levelSize.x);
+        triggers[id].y = dgm::Math::clamp(triggers[id].y + forward.y, 0, levelSize.y);
+    }
 }
 
-void ToolTrigger::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) {
-    selectMarker.setSize(sf::Vector2f(end - start));
+void ToolTrigger::updateVisForTrigger(sf::CircleShape& vis, const LevelD::Trigger& trig) {
+    vis.setOrigin(float(trig.radius), float(trig.radius));
+    vis.setPosition(float(trig.x), float(trig.y));
+    vis.setRadius(float(trig.radius));
 }
 
-void ToolTrigger::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) {
-    // TODO: Select everything between start and end
-    selecting = false;
+void ToolTrigger::updateVisForTrigger(sf::RectangleShape& vis, const LevelD::Trigger& trig) {
+    vis.setPosition(float(trig.x), float(trig.y));
+    vis.setSize({ float(trig.width), float(trig.height) });
 }
 
-void ToolTrigger::penDragCancel(const sf::Vector2i& origin) {
-    drawing = false;
-    selecting = false;
-    selectedItems.clear();
-}
-
+/* Build & Draw */
 void ToolTrigger::buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) {
     const float SIDEBAR_WIDTH = sidebar->getSize().x;
     const float OFFSET = 10.f;
@@ -156,34 +137,30 @@ void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) {
     rectShape.setFillColor(sf::Color(128, 0, 255, 128 * opacityFactor));
     rectShape.setOutlineColor(sf::Color(128, 0, 255, 255 * opacityFactor));
 
+    // Render all triggers, highlight selected ones
     for (std::size_t i = 0; i < triggers.size(); i++) {
         auto& trig = triggers[i];
         if (trig.areaType == LevelD::Trigger::AreaType::Circle) {
-            circShape.setOrigin(float(trig.radius), float(trig.radius));
-            circShape.setPosition(float(trig.x), float(trig.y));
-            circShape.setRadius(float(trig.radius));
+            updateVisForTrigger(circShape, trig);
             canvas->draw(circShape);
 
             if (selectedItems.count(i) > 0) {
-                circMarker.setOrigin(float(trig.radius), float(trig.radius));
-                circMarker.setPosition(float(trig.x), float(trig.y));
-                circMarker.setRadius(float(trig.radius));
+                updateVisForTrigger(circMarker, trig);
                 canvas->draw(circMarker);
             }
         }
         else if (trig.areaType == LevelD::Trigger::AreaType::Rectangle) {
-            rectShape.setPosition(float(trig.x), float(trig.y));
-            rectShape.setSize({ float(trig.width), float(trig.height) });
+            updateVisForTrigger(rectShape, trig);
             canvas->draw(rectShape);
 
             if (selectedItems.count(i) > 0) {
-                rectMarker.setPosition(float(trig.x), float(trig.y));
-                rectMarker.setSize({ float(trig.width), float(trig.height) });
+                updateVisForTrigger(rectMarker, trig);
                 canvas->draw(rectMarker);
             }
         }
     }
 
+    // If drawing, render preview for drawing
     if (drawing) {
         if (penType == PenType::Circle) {
             const float radius = dgm::Math::vectorSize(sf::Vector2f(getPenPosition() - drawStart));
@@ -204,6 +181,89 @@ void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) {
     }
 }
 
+/* Pen stuff */
+void ToolTrigger::penClicked(const sf::Vector2i& position) {
+    std::size_t id;
+
+    if (!isValidPenPosForDrawing(position)) return;
+    if ((id = getTriggerFromPosition(position)) != -1) {
+        if (selectedItems.count(id) > 0) selectedItems.erase(id);
+        else selectedItems.insert(id);
+        return;
+    }
+
+    if (drawing) {
+        LevelD::Trigger trigger;
+        trigger.areaType = penType;
+
+        if (penType == PenType::Circle) {
+            trigger.x = drawStart.x;
+            trigger.y = drawStart.y;
+            trigger.radius = dgm::Math::vectorSize(sf::Vector2f(position - drawStart));
+        }
+        else if (penType == PenType::Rectangle) {
+            trigger.x = std::min(drawStart.x, position.x);
+            trigger.y = std::min(drawStart.y, position.y);
+            trigger.width = std::abs(position.x - drawStart.x);
+            trigger.height = std::abs(position.y - drawStart.y);
+        }
+
+        triggers.push_back(trigger);
+
+        Log::write("Trigger added. Nof triggers: " + std::to_string(triggers.size()));
+    }
+    else {
+        drawStart = position;
+    }
+
+    drawing = !drawing;
+}
+
+void ToolTrigger::penDragStarted(const sf::Vector2i& start) {
+    // If mouse was pointing to trigger, then we're dragging
+    //   If trigger was already selected, we're moving all selected
+    //   If it was not, then we're moving only this one
+    // Else we're selecting
+    if ((draggedItemId = getTriggerFromPosition(start)) != -1) {
+        dragging = true;
+        if (selectedItems.count(draggedItemId) == 0) selectedItems.clear();
+        selectedItems.insert(draggedItemId);
+        dragOffset = sf::Vector2i(triggers[draggedItemId].x, triggers[draggedItemId].y) - start;
+    }
+    else {
+        selecting = true;
+        selectMarker.setPosition(sf::Vector2f(start));
+    }
+}
+
+void ToolTrigger::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) {
+    selectMarker.setSize(sf::Vector2f(end - start));
+
+    if (dragging) {
+        moveSelectedTriggersTo(end);
+    }
+    // TODO: Drag update
+}
+
+void ToolTrigger::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) {
+    if (selecting) {
+        selectedItems.clear();
+        sf::IntRect selectedArea(
+            Helper::minVector(start, end),
+            { std::abs(start.x - end.x), std::abs(start.y - end.y) });
+        selectItemsInArea(selectedArea);
+    }
+
+    dragging = false;
+    selecting = false;
+}
+
+void ToolTrigger::penDragCancel(const sf::Vector2i& origin) {
+    drawing = false;
+    selecting = false;
+    selectedItems.clear();
+}
+
 void ToolTrigger::penDelete() {
     for (auto itr = selectedItems.crbegin(); itr != selectedItems.crend(); itr++) {
         triggers.erase(triggers.begin() + *itr);
@@ -212,6 +272,7 @@ void ToolTrigger::penDelete() {
     selectedItems.clear();
 }
 
+/* Properties */
 ToolProperty& ToolTrigger::getProperty() {
     property.clear();
 

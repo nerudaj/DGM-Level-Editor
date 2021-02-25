@@ -19,26 +19,36 @@ public:
 
 class ToolTrigger : public Tool {
 private:
+	using PenType = LevelD::Trigger::AreaType;
+
 	const sf::Vector2i NULL_VECTOR = sf::Vector2i(-1, -1);
 	const float DRAW_THRESHOLD = 3.f;
 
+	// Actual data
 	ToolTriggerProperty property = ToolTriggerProperty(gui, this);
-
 	std::vector<LevelD::Trigger> triggers;
+	std::set<std::size_t> selectedItems;
+
+	// Visualization objects
 	sf::RectangleShape rectShape, rectMarker, selectMarker;
 	sf::CircleShape circShape, circMarker;
-	sf::Vector2i drawStart;
-	bool drawing = false, selecting = false;
 
+	// Pen interactions
+	sf::Vector2i drawStart, dragOffset;
+	std::size_t draggedItemId;
+	bool drawing = false, selecting = false, dragging = false;
+	PenType penType = PenType::Circle;
+
+	// Level bounds
 	sf::Vector2u tileSize;
 	sf::Vector2i levelSize;
 
-	using PenType = LevelD::Trigger::AreaType;
-	PenType penType = PenType::Circle;
-	
-	std::set<std::size_t> selectedItems;
-
+	/* Helper funkce */
 	std::size_t getTriggerFromPosition(const sf::Vector2i& pos) const;
+	void selectItemsInArea(sf::IntRect& selectedArea);
+	void moveSelectedTriggersTo(const sf::Vector2i& vec);
+	void updateVisForTrigger(sf::CircleShape& vis, const LevelD::Trigger& trigger);
+	void updateVisForTrigger(sf::RectangleShape& vis, const LevelD::Trigger& trigger);
 
 	bool isValidPenPosForDrawing(const sf::Vector2i& pos) const {
 		return !(pos.x < 0 || pos.y < 0 || pos.x >= levelSize.x || pos.y >= levelSize.y);
