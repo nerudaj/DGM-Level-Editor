@@ -63,7 +63,8 @@ void ToolTrigger::buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::
     const float OFFSET = 10.f;
     const float BUTTON_SIZE = SIDEBAR_WIDTH - 2 * OFFSET;
 
-    auto cbtn = tgui::Button::create("Circle");
+    auto cbtn = tgui::Button::create("Circular\nTrigger");
+    cbtn->setTextSize(0);
     cbtn->setRenderer(theme.getRenderer("Button"));
     cbtn->setSize(BUTTON_SIZE, BUTTON_SIZE);
     cbtn->setPosition(OFFSET, OFFSET);
@@ -74,7 +75,8 @@ void ToolTrigger::buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::
     cbtn->getRenderer()->setOpacity(penType != PenType::Circle ? 0.25f : 1.f); // highlight
     sidebar->add(cbtn);
 
-    auto rbtn = tgui::Button::create("Rectangle");
+    auto rbtn = tgui::Button::create("Rectangular\nTrigger");
+    rbtn->setTextSize(0);
     rbtn->setRenderer(theme.getRenderer("Button"));
     rbtn->setSize(BUTTON_SIZE, BUTTON_SIZE);
     rbtn->setPosition(OFFSET, 2 * OFFSET + BUTTON_SIZE);
@@ -242,7 +244,6 @@ void ToolTrigger::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& e
     if (dragging) {
         moveSelectedTriggersTo(end);
     }
-    // TODO: Drag update
 }
 
 void ToolTrigger::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) {
