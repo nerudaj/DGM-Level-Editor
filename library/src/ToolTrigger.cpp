@@ -12,8 +12,8 @@ std::size_t ToolTrigger::getTriggerFromPosition(const sf::Vector2i& pos) const {
             }
         }
         else if (triggers[i].areaType == PenType::Rectangle) {
-            if (triggers[i].x <= pos.x && pos.x < triggers[i].x + triggers[i].width &&
-                triggers[i].y <= pos.y && pos.y < triggers[i].y + triggers[i].height) {
+            if (int(triggers[i].x) <= pos.x && pos.x < int(triggers[i].x + triggers[i].width) &&
+                int(triggers[i].y) <= pos.y && pos.y < int(triggers[i].y + triggers[i].height)) {
                 return i;
             }
         }
@@ -133,11 +133,11 @@ void ToolTrigger::loadFrom(const LevelD& lvd) {
 void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) {
     const float opacityFactor = opacity / 255.f;
 
-    circShape.setFillColor(sf::Color(64, 255, 0, 128 * opacityFactor));
-    circShape.setOutlineColor(sf::Color(64, 255, 0, 255 * opacityFactor));
+    circShape.setFillColor(sf::Color(64, 255, 0, uint8_t(128 * opacityFactor)));
+    circShape.setOutlineColor(sf::Color(64, 255, 0, uint8_t(255 * opacityFactor)));
 
-    rectShape.setFillColor(sf::Color(128, 0, 255, 128 * opacityFactor));
-    rectShape.setOutlineColor(sf::Color(128, 0, 255, 255 * opacityFactor));
+    rectShape.setFillColor(sf::Color(128, 0, 255, uint8_t(128 * opacityFactor)));
+    rectShape.setOutlineColor(sf::Color(128, 0, 255, uint8_t(255 * opacityFactor)));
 
     // Render all triggers, highlight selected ones
     for (std::size_t i = 0; i < triggers.size(); i++) {
@@ -201,7 +201,7 @@ void ToolTrigger::penClicked(const sf::Vector2i& position) {
         if (penType == PenType::Circle) {
             trigger.x = drawStart.x;
             trigger.y = drawStart.y;
-            trigger.radius = dgm::Math::vectorSize(sf::Vector2f(position - drawStart));
+            trigger.radius = uint16_t(dgm::Math::vectorSize(sf::Vector2f(position - drawStart)));
         }
         else if (penType == PenType::Rectangle) {
             trigger.x = std::min(drawStart.x, position.x);

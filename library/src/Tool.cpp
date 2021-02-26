@@ -63,7 +63,7 @@ void ToolWithSprites::buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tg
 	sidebar->add(addbtn);
 
 	// History buttons
-	const unsigned BUTTON_COUNT = sidebar->getSize().y / (BUTTON_SIZE + OFFSET);
+	const unsigned BUTTON_COUNT = unsigned(sidebar->getSize().y / (BUTTON_SIZE + OFFSET));
 	penHistory.prune(BUTTON_COUNT);
 
 	float yPos = 2 * OFFSET + BUTTON_SIZE;

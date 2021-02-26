@@ -26,7 +26,7 @@ void Log::create(tgui::Theme &theme, const tgui::Layout2d &pos, const tgui::Layo
 	auto console = tgui::ChatBox::create();
 	console->setRenderer(theme.getRenderer("ChatBox"));
 	console->setSize("100%", "100%");
-	console->setTextSize(gui->getView().getSize().y * 0.015f);
+	console->setTextSize(unsigned(gui->getView().getSize().y * 0.015f));
 	console->setLinesStartFromTop();
 	console->addLine("This is a log console");
 	child->add(console, "LogConsole");

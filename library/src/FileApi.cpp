@@ -5,8 +5,7 @@
 #include <locale>
 #include <codecvt>
 
-std::string FileApi::resolveAppdata()
-{
+std::string FileApi::resolveAppdata() {
 	PWSTR raw;
 	std::wstring result;
 	if (SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &raw) == S_OK) {

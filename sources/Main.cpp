@@ -1,7 +1,7 @@
 #include <DGM/dgm.hpp>
 
-#include "AppStateEditor.hpp"
-#include "FileApi.hpp"
+#include <AppStateEditor.hpp>
+#include <FileApi.hpp>
 
 int main(int argc, char *argv[]) {
 	std::string rootDir = "..";

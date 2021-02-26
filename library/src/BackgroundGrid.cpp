@@ -4,8 +4,8 @@ void BackgroundGrid::build(const sf::Vector2u& gridSize, const sf::Vector2u& til
 	sf::Image image;
 	image.create(tileSize.x * 2, tileSize.y);
 
-	for (int y = 0; y < tileSize.y; y++) {
-		for (int x = 0; x < tileSize.x; x++) {
+	for (unsigned y = 0; y < tileSize.y; y++) {
+		for (unsigned x = 0; x < tileSize.x; x++) {
 			image.setPixel(x, y, sf::Color::Transparent);
 			image.setPixel(x + tileSize.x, y, sf::Color(255, 255, 255, 16));
 		}
