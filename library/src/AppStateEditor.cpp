@@ -144,6 +144,7 @@ void AppStateEditor::buildLayout() {
 	addEditorMenuItem("Mesh mode (M)", [this]() { editor.switchTool(Editor::ToolType::Mesh); }, sf::Keyboard::M);
 	addEditorMenuItem("Items mode (I)", [this]() { editor.switchTool(Editor::ToolType::Item); }, sf::Keyboard::I);
 	addEditorMenuItem("Trigger mode (T)", [this]() { editor.switchTool(Editor::ToolType::Trigger); }, sf::Keyboard::T);
+	addEditorMenuItem("Resize level (R)", [this] () { editor.resizeDialog(); }, sf::Keyboard::R);
 
 	gui.add(menu, "TopMenuBar");
 

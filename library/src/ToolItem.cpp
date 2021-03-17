@@ -79,6 +79,19 @@ void ToolItem::configure(nlohmann::json& config) {
 }
 
 void ToolItem::resize(unsigned width, unsigned height) {
+	if (levelSize.x / tileSize.x > width || levelSize.y / tileSize.y > height) return;
+
+	const auto tilesX = levelSize.x / tileSize.x;
+	const auto tilesY = levelSize.y / tileSize.y;
+	auto offset = (sf::Vector2u(width, height) - sf::Vector2u(tilesX, tilesY)) / 2u;
+	offset.x *= tileSize.x;
+	offset.y *= tileSize.y;
+
+	for (auto& item : items) {
+		item.x += offset.x;
+		item.y += offset.y;
+	}
+
 	levelSize.x = int(tileSize.x * width);
 	levelSize.y = int(tileSize.y * height);
 }

@@ -55,6 +55,8 @@ void Editor::draw() {
 }
 
 void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& configPath) {
+	levelSize = { levelWidth, levelHeight };
+
 	// Load json config and configure all tools
 	auto config = JsonHelper::loadFromFile(configPath);
 	stateMgr.forallStates([levelWidth, levelHeight, &config] (Tool &tool) {
@@ -112,6 +114,16 @@ void Editor::saveToFile(const std::string &filename) {
 		tool.saveTo(lvd);
 	});
 	lvd.saveToFile(filename);
+}
+
+void Editor::resizeDialog() {
+	dialog.open([this] () {
+		unsigned width = dialog.getLevelWidth();
+		unsigned height = dialog.getLevelHeight();
+		stateMgr.forallStates([&] (Tool& tool) {
+			tool.resize(width, height);
+		});
+	});
 }
 
 Editor::Editor(tgui::Gui &gui, tgui::Theme &theme, tgui::Canvas::Ptr& canvas) : gui(gui), theme(theme), canvas(canvas) {

@@ -7,18 +7,21 @@
 #include "ToolMesh.hpp"
 #include "ToolItem.hpp"
 #include "ToolTrigger.hpp"
+#include "NewLevelDialog.hpp"
 
 class Editor {
 private:
 	tgui::Gui &gui;
 	tgui::Theme &theme;
 	tgui::Canvas::Ptr& canvas;
+	ResizeDialog dialog = ResizeDialog(gui);
 	Camera camera = Camera(canvas);
 	EditorStateManager stateMgr;
 	sf::CircleShape mouseIndicator;
 
 	bool initialized = false;
 	std::string configPath;
+	sf::Vector2u levelSize;
 
 	bool isMouseWithinBoundaries(const sf::Vector2f &mousePos) const;
 
@@ -54,13 +57,11 @@ public:
 
 	void switchTool(const ToolType tool);
 
-	/*void selectToolProperty(tgui::Gui& gui) {
-		stateMgr.getTool().getTool().buildPropertySelectionModal(gui);
-	}*/
-
 	void loadFromFile(const std::string &filename);
 
 	void saveToFile(const std::string &filename);
+
+	void resizeDialog();
 
 	Editor(tgui::Gui &gui, tgui::Theme &theme, tgui::Canvas::Ptr& canvas);
 };

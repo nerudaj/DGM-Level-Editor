@@ -51,9 +51,9 @@ void ToolMesh::configure(nlohmann::json &config) {
 	}
 
 	clip = dgm::Clip(tileDims, bounds, 0, tileOffs);
-	tilemap.init(texture, clip);
+	/*tilemap.init(texture, clip);
 	tilemap.mesh.setVoxelSize(clip.getFrameSize());
-	tilemap.overlay.init();
+	tilemap.overlay.init();*/
 
 	rectShape.setOutlineColor(sf::Color(255, 0, 0, 128));
 	rectShape.setOutlineThickness(2.f);
@@ -63,9 +63,27 @@ void ToolMesh::configure(nlohmann::json &config) {
 
 void ToolMesh::resize(unsigned width, unsigned height) {
 	bgr.build({ width, height }, clip.getFrameSize());
-	tilemap.build(clip.getFrameSize(), std::vector<int>(width * height, 0), { width, height });
-	tilemap.overlay.map.build(clip.getFrameSize(), std::vector<int>(width * height, 0), { width, height });
-	tilemap.mesh.setDataSize(width, height);
+	
+	decltype(tilemap) cpy;
+	cpy.init(texture, clip);
+	cpy.mesh.setVoxelSize(clip.getFrameSize());
+	cpy.overlay.init();
+	cpy.buildAll(width, height, clip.getFrameSize());
+
+	// Copy and center data
+	if (not tilemap.empty() && tilemap.mesh.getDataSize().x <= width && tilemap.mesh.getDataSize().y <= height) {
+		auto offset = (sf::Vector2u(width, height) - tilemap.mesh.getDataSize()) / 2u;
+
+		for (unsigned y = 0; y < tilemap.mesh.getDataSize().y; y++) {
+			for (unsigned x = 0; x < tilemap.mesh.getDataSize().x; x++) {
+				auto value = tilemap.getTile(x, y);
+				bool blocking = tilemap.getTileBlock(x, y);
+				cpy.setTile(x + offset.x, y + offset.y, value, blocking);
+			}
+		}
+	}
+
+	tilemap = cpy;
 }
 
 void ToolMesh::saveTo(LevelD &lvd) {

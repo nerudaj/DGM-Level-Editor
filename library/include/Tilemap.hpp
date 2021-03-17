@@ -39,4 +39,18 @@ public:
     }
 
     void drawArea(const sf::Vector2i& start, const sf::Vector2i& end, bool fill, unsigned tileValue, bool blocking);
+
+    void buildAll(unsigned width, unsigned height, const sf::Vector2u& frameSize) {
+        build(frameSize, std::vector<int>(width * height, 0), { width, height });
+        overlay.map.build(frameSize, std::vector<int>(width * height, 0), { width, height });
+        mesh.setDataSize(width, height);
+    }
+
+    bool empty() {
+        return !(mesh.getDataSize().x * mesh.getDataSize().y);
+    }
+
+    Tilemap() {
+        mesh.setDataSize(0, 0);
+    }
 };
