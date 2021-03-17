@@ -108,12 +108,7 @@ configure_file (
 # Installation
 #----------------------------------------------------------
 install (
-    DIRECTORY    audio
-    DESTINATION  .
-)
-
-install (
-    DIRECTORY    graphics
+    DIRECTORY    resources
     DESTINATION  .
 )
 
