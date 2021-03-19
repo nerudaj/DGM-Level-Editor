@@ -1,3 +1,9 @@
+DGM Level Editor v1.0.0 changelog:
+ * Uses LevelD v3 format
+ * Supports resizable Mesh (with only 1 layer)
+ * Supports Items
+ * Supports Triggers
+
 DGM Level Editor v0.2.6 changelog:
  * Fixed issue when save/loading levels of different sizes
  * Fixed options that were disabled by error in previous version
