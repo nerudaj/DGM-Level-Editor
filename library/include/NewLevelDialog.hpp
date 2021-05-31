@@ -18,6 +18,7 @@ protected:
 	virtual std::string getDialogId() const = 0;
 	virtual std::vector<OptionLine> getLines() const = 0;
 	virtual void customOpenCode() = 0;
+	virtual std::string getDialogTitle() const = 0;
 
 public:
 	void open(std::function<void()> confirmCallback);
@@ -55,6 +56,9 @@ private:
 	virtual std::string getDialogId() const {
 		return "ModalNewLevel";
 	}
+	virtual std::string getDialogTitle() const override {
+		return "New Level";
+	}
 
 	virtual std::vector<OptionLine> getLines() const;
 	virtual void customOpenCode();
@@ -79,6 +83,9 @@ protected:
 	const std::string INPUT_LEVEL_HEIGHT_ID = "InputLevelHeight";
 
 	virtual std::string getDialogId() const;
+	virtual std::string getDialogTitle() const override {
+		return "Resize Level";
+	}
 	virtual std::vector<OptionLine> getLines() const;
 	virtual void customOpenCode();
 

@@ -1,4 +1,5 @@
 #include "Tool.hpp"
+#include "Globals.hpp"
 
 void Tool::buildCtxMenu(tgui::MenuBar::Ptr& menu) {
 	menu->removeMenu(CTX_MENU_NAME);
@@ -85,14 +86,14 @@ void ToolWithSprites::buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tg
 }
 
 void ToolWithSprites::buildSpriteIdSelectionModal(tgui::Gui& gui, tgui::Theme& theme) {
-	constexpr float SCROLLBAR_WIDTH = 20.f;
+	constexpr float SCROLLBAR_WIDTH = 40.f;
 
 	if (gui.get<tgui::ChildWindow>("ToolSelection")) return;
 
 	// Create wrapper window
-	auto modal = tgui::ChildWindow::create("Tile Selection");
-	modal->setSize("50%", "50%");
-	modal->setPosition("25%", "25%");
+	auto modal = createNewChildWindow("Tile Selection");
+	modal->setSize("70%", "70%");
+	modal->setPosition("15%", "15%");
 	gui.add(modal, "ToolSelection");
 
 	modal->connect("Closed", [&gui]() {
@@ -101,12 +102,14 @@ void ToolWithSprites::buildSpriteIdSelectionModal(tgui::Gui& gui, tgui::Theme& t
 
 	// Create scrollable group inside of this window
 	auto group = tgui::ScrollablePanel::create();
-	group->getRenderer()->setScrollbarWidth(SCROLLBAR_WIDTH);
+	group->getRenderer()->setScrollbarWidth(40.f);
 	modal->add(group);
 
 	// Compute button widths when there are 4 buttons per row
-	const unsigned BUTTONS_PER_ROW = 4;
-	const float BUTTON_SIZE_OUTER = (gui.getView().getSize().x * 0.5f - SCROLLBAR_WIDTH) / BUTTONS_PER_ROW;
+	const unsigned BUTTONS_PER_ROW = 6;
+	// Must be same as string in modal->setSize
+	const float MODAL_WIDTH = 0.7f;
+	const float BUTTON_SIZE_OUTER = (gui.getView().getSize().x * MODAL_WIDTH - SCROLLBAR_WIDTH) / BUTTONS_PER_ROW;
 	const float BUTTON_MARGIN = 10.f;
 
 	unsigned x = 0, y = 0;

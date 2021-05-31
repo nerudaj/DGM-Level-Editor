@@ -84,6 +84,8 @@ void ToolMesh::resize(unsigned width, unsigned height) {
 	}
 
 	tilemap = cpy;
+	// Must init again, because sf::Texture gets invalidated during copying
+	tilemap.overlay.init();
 }
 
 void ToolMesh::saveTo(LevelD &lvd) {

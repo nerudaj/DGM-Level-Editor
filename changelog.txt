@@ -1,3 +1,10 @@
+DGM Level Editor v1.0.6 changelog:
+ * Bigger Tile selection dialog
+ * Bigger titlebars of all dialogs
+ * Fixed bad title for resize dialog
+ * Fixed rendering of context menus
+ * Fixed broken overlay
+
 DGM Level Editor v1.0.0 changelog:
  * Uses LevelD v3 format
  * Supports resizable Mesh (with only 1 layer)

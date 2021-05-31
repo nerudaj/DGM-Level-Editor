@@ -1,11 +1,12 @@
 #include "NewLevelDialog.hpp"
 #include "FileApi.hpp"
 #include "LogConsole.hpp"
+#include "Globals.hpp"
 
 void GenericSettingsDialog::open(std::function<void()> confirmCallback) {
 	if (isOpen()) return;
 
-	auto modal = tgui::ChildWindow::create("New level");
+	auto modal = createNewChildWindow(getDialogTitle());
 	modal->setSize("30%", "50%");
 	modal->setPosition("35%", "25%");
 	modal->connect("EscapeKeyPressed", [this] () { close(); });

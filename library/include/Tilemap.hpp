@@ -13,7 +13,11 @@ public:
         img.create(2, 1);
         img.setPixel(0, 0, sf::Color::Transparent);
         img.setPixel(1, 0, sf::Color(0, 0, 255, 96));
-        texture.loadFromImage(img);
+        img.saveToFile("pokus.png");
+        
+        if (!texture.loadFromImage(img)) {
+            throw std::runtime_error("Cannot build overlay texture");
+        }
 
         clip.init({ 1, 1 }, { 0, 0, 2, 1 });
 

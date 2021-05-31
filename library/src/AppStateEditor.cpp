@@ -110,6 +110,14 @@ void AppStateEditor::buildLayout() {
 	const std::string SIDEBAR_HEIGHT = "&.height - " + TOPBAR_HEIGHT;
 	const std::string SIDEBAR_XPOS = "&.width - " + SIDEBAR_WIDTH;
 
+	// Canvas
+	canvas = tgui::Canvas::create();
+	// NOTE: If canvas is getting some "shadow" tile edits out of the view (under sidebar)
+	// it might be because sidebar doesn't stop events from propagating downwards
+	canvas->setSize(app->window.getSize().x, SIDEBAR_HEIGHT);
+	canvas->setPosition(0.f, TOPBAR_HEIGHT);
+	gui.add(canvas, "TilesetCanvas");
+
 	// Top bar
 	auto menu = tgui::MenuBar::create();
 	menu->setRenderer(theme.getRenderer("MenuBar"));
@@ -146,15 +154,8 @@ void AppStateEditor::buildLayout() {
 	addEditorMenuItem("Trigger mode (T)", [this]() { editor.switchTool(Editor::ToolType::Trigger); }, sf::Keyboard::T);
 	addEditorMenuItem("Resize level (R)", [this] () { editor.resizeDialog(); }, sf::Keyboard::R);
 
+	// Must be added AFTER canvas, otherwise canvas blocks pop-up menus
 	gui.add(menu, "TopMenuBar");
-
-	// Canvas
-	canvas = tgui::Canvas::create();
-	// NOTE: If canvas is getting some "shadow" tile edits out of the view (under sidebar)
-	// it might be because sidebar doesn't stop events from propagating downwards
-	canvas->setSize(app->window.getSize().x, SIDEBAR_HEIGHT);
-	canvas->setPosition(0.f, TOPBAR_HEIGHT);
-	gui.add(canvas, "TilesetCanvas");
 
 	// Side bar - only bootstrap the space it will be sitting in
 	auto sidebar = tgui::Group::create();
