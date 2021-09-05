@@ -1,3 +1,6 @@
+DGM Level Editor v1.0.7 changelog:
+ * Bump to DGM v2.7.5
+
 DGM Level Editor v1.0.6 changelog:
  * Bigger Tile selection dialog
  * Bigger titlebars of all dialogs
