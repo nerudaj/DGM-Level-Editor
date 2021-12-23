@@ -1,3 +1,6 @@
+DGM Level Editor v2.0.0 changelog:
+ * Moved to dgm-sdk (new project structure, updated dgm-lib)
+
 DGM Level Editor v1.0.7 changelog:
  * Bump to DGM v2.7.5
 
