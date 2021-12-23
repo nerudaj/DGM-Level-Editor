@@ -1,92 +1,38 @@
-# DGM Project Template
+# Readme
 
-This is a project template to quickly get you on track when building new games with DGM.
+This project serves as a quickstart for development with dgm-lib so you can start prototyping games fast and easy. It comes with simple main menu, options for setting resolution, fullscreen and game audio, simple game loop and also a pause screen.
 
-## Prerequisities
+There are also some handy primitives already implemented such as event queue.
 
- * Visual Studio 15 (2017) or newer
- * CMake 3.14 or newer
+The environment also comes with prepared unit testing infrastructure as well as simple benchmarking sandbox.
 
-## How to start
+## Dependencies
 
-This project build system is governed by cmake. Simply type these commands to generate solution for Visual Studio:
+ * cmake 3.19 - Newer versions might have some issues with FetchContent
+ * newest Visual Studio
 
-```sh
-mkdir build
-cd build
+All required dependencies (dgm-lib, SFML, TGUI, etc) are automatically downloaded and linked via CMake. If you want to bump any of them, update `cmake/dependencies.cmake` file. First couple of lines contains versions of those dependencies. Just bumping the version should be sufficient to update it.
+
+## How to configure and build
+
+Configuring is easy, if you have cmake in `%PATH%`:
+
+```
+mkdir vsbuild
+cd vsbuild
 cmake ..
 ```
 
-This will produce solution file `build/Template.sln`, download all dependencies (DGM, SFML and TGUI by default), copy all DLLs to appropriate folders and link all dependencies.
+Following commands will produce a `vsbuild` folder with `Example.sln` which you can open in Visual Studio and start developing. There is also a handy script `MakeRelease.bat` which performs full cleanup, configuration and build in release mode and prepares ready to ship zipfile with your game in `RELEASE` folder.
 
-You can launch the solution file, build it and launch it immediately.
+## How to customize
 
-### How to work with this template
+Open file `cmake/settings.cmake` where you find bunch of variables that you can customize and will affect name of the output binary, of the solution file and release package name.
 
-There are three important components to this project:
+## How to bump dependencies
 
- * AppStateMainMenu - This is the screen you are greeted with. It contains button for launching the game, accessing options and exiting the application. You can change the application title here.
- * AppStateOptions - This screen allows you to set volume of sound, resolution and toggle fullscreen. Add more options as needed.
- * AppStateIngame - Top component of the game itself. The class contains some members to showcase how some components can be retrieved and used. While the `Actor` subclass is only there to showcase animation, the `Soundbox` class might be useful for you.
+Open file `cmake/dependencies.cmake` and simply change the version numbers at the beginning of the file of libraries that you need to update.
 
-If you are new to this template, I recommend to build it, launch it and just play with it to see all what it can do, then consult the code.
+## How to change version numbers
 
-If you are familiar with it, simply purge the Actor from AppStateIngame and start developing!
-
-### Renaming the project
-
-In order to rename your project to something else (like `Example`), you have to first change:
-
-```
-# Project setup
-#----------------------------------------------------------
-project ( Template
-	LANGUAGES CXX
-)
-```
-
-in file `CMakeLists.txt` to:
-
-```
-# Project setup
-#----------------------------------------------------------
-project ( Example
-	LANGUAGES CXX
-)
-```
-
-and then update variables in script `prepare-release.bat` from:
-
-```bat
-rem Set these variables to your liking
-set BUILDDIR=vsbuild
-set SOLUTION=Example.sln
-set RELDIR=RELEASE
-set PROJECT_NAME=Example
-```
-
-to:
-
-```bat
-rem Set these variables to your liking
-set BUILDDIR=vsbuild
-set SOLUTION=Example.sln
-set RELDIR=RELEASE
-set PROJECT_NAME=Example
-```
-
-These changes will affect output binary name, solution name and release package name. To change title on the main menu screen, edit file `AppStateMainMenu.cpp`, namely function `buildLayout`, where you can make line:
-
-```c++
-tgui::Label::Ptr title = tgui::Label::create("Project Name");
-```
-
-to use a different string for project title (or rewrite the code so it displays an image with a logo).
-
-## Releasing
-
-For your convenience, this template supports packaging whole project using ZIP cpack generator. Unless you need to add new files/dependencies to `CMakeLists.txt`, the release process is pretty straightforward:
-
- 1. Bump version number in file `version.cmake`
- 2. Run `prepare-release.bat`
- 3. Wait until folder `RELEASE` is produced. It should contain ZIP file with complete release of your application
+Edit file `cmake/version.cmake`
