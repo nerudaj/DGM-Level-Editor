@@ -98,7 +98,7 @@ public:
 
     virtual void buildCtxMenu(tgui::MenuBar::Ptr &menu) override;
 
-    ToolMesh(tgui::Gui& gui) : ToolWithSprites(gui) {}
+    ToolMesh(tgui::Gui& gui, std::function<void(void)> onStateChanged) : ToolWithSprites(gui, onStateChanged) {}
 };
 
 namespace std {

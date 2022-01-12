@@ -90,7 +90,7 @@ AppStateEditor::AppStateEditor(dgm::App& app, cfg::Ini& ini, const std::string& 
 
 	buildLayout();
 
-	setWindowTitle();
+	updateWindowTitle();
 }
 
 const std::string FILE_CTX_NEW = "New (Ctrl+N)";
@@ -165,7 +165,7 @@ void AppStateEditor::buildLayout() {
 
 void AppStateEditor::newLevelDialogCallback() {
 	savePath = "";
-	setWindowTitle();
+	updateWindowTitle();
 
 	// Get settings from modal
 	unsigned levelWidth = dialogNewLevel.getLevelWidth();
@@ -187,8 +187,10 @@ void AppStateEditor::loadLevel() {
 	// The load path becomes save path for subsequent saves
 
 	try {
+		filePath = savePath;
+		unsavedChanges = false;
 		editor.loadFromFile(savePath);
-		setWindowTitle(savePath);
+		updateWindowTitle();
 	}
 	catch (std::exception &e) {
 		Log::write(e.what());
@@ -203,8 +205,10 @@ void AppStateEditor::saveLevel(bool forceNewPath) {
 	}
 
 	try {
+		filePath = savePath;
+		unsavedChanges = false;
 		editor.saveToFile(savePath);
-		setWindowTitle(savePath);
+		updateWindowTitle();
 	}
 	catch (std::exception & e) {
 		Log::write(e.what());

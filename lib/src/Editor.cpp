@@ -126,11 +126,11 @@ void Editor::resizeDialog() {
 	});
 }
 
-Editor::Editor(tgui::Gui &gui, tgui::Theme &theme, tgui::Canvas::Ptr& canvas) : gui(gui), theme(theme), canvas(canvas) {
+Editor::Editor(tgui::Gui &gui, tgui::Theme &theme, tgui::Canvas::Ptr& canvas, std::function<void(void)> onStateChanged) : gui(gui), theme(theme), canvas(canvas) {
 	// Instantiate all EditorTools here
-	stateMgr.addState(std::to_string(ToolType::Mesh), new ToolMesh(gui));
-	stateMgr.addState(std::to_string(ToolType::Item), new ToolItem(gui));
-	stateMgr.addState(std::to_string(ToolType::Trigger), new ToolTrigger(gui));
+	stateMgr.addState(std::to_string(ToolType::Mesh), new ToolMesh(gui, onStateChanged));
+	stateMgr.addState(std::to_string(ToolType::Item), new ToolItem(gui, onStateChanged));
+	stateMgr.addState(std::to_string(ToolType::Trigger), new ToolTrigger(gui, onStateChanged));
 
 	// Bootstrapping mouse indicator
 	mouseIndicator.setRadius(8.f);

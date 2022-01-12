@@ -63,5 +63,5 @@ public:
 
 	void resizeDialog();
 
-	Editor(tgui::Gui &gui, tgui::Theme &theme, tgui::Canvas::Ptr& canvas);
+	Editor(tgui::Gui &gui, tgui::Theme &theme, tgui::Canvas::Ptr& canvas, std::function<void(void)> onStateChanged);
 };

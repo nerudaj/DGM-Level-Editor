@@ -37,6 +37,7 @@ private:
 protected:
     const std::string CTX_MENU_NAME = "Tool";
     tgui::Gui& gui;
+    std::function<void(void)> onStateChangedCallback;
 
     void registerShortcut(sf::Keyboard::Key key, std::function<void(void)> callback);
     void clearShortcuts() {
@@ -67,8 +68,13 @@ protected:
     }
     virtual void penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) = 0;
     virtual void penDragCancel(const sf::Vector2i& origin) = 0;
+    
+    void signalStateChanged() {
+        onStateChangedCallback();
+    }
 
 public:
+
     void handleShortcuts(const sf::Event& event);
 
 	virtual void configure(nlohmann::json &config) = 0;
@@ -98,7 +104,7 @@ public:
 
     void buildSidebar(tgui::Theme &theme);
 
-    Tool(tgui::Gui& gui) : gui(gui) {}
+    Tool(tgui::Gui& gui, std::function<void(void)> onStateChanged) : gui(gui), onStateChangedCallback(onStateChanged) {}
 };
 
 class ToolMeshHistory {
@@ -143,7 +149,7 @@ public:
     virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const = 0;
     virtual std::size_t getSpriteCount() const = 0;
 
-    ToolWithSprites(tgui::Gui& gui) : Tool(gui) {}
+    ToolWithSprites(tgui::Gui& gui, std::function<void(void)> onStateChanged) : Tool(gui, onStateChanged) {}
 };
 
 namespace Helper {

@@ -177,6 +177,9 @@ void ToolItem::penClicked(const sf::Vector2i& position) {
 		return;
 	}
 
+	// Creating new item
+	signalStateChanged();
+
 	LevelD::Thing item;
 	item.id = penValue;
 	item.x = position.x;
@@ -224,6 +227,8 @@ void ToolItem::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end)
 }
 
 void ToolItem::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) {
+	signalStateChanged();
+
 	Log::write("penDragEnded");
 	/* If selecting, select all items in area (clear everything previously selected)
 	*  Clear dragging and selecting flags
@@ -252,6 +257,9 @@ void ToolItem::penDragCancel(const sf::Vector2i& origin) {
 }
 
 void ToolItem::penDelete() {
+	if (not selectedItems.empty())
+		signalStateChanged();
+
 	unsigned less = 0;
 	for (auto index : selectedItems) {
 		index -= less;
@@ -278,6 +286,8 @@ ToolProperty& ToolItem::getProperty() {
 }
 
 void ToolItem::setProperty(const ToolProperty&) {
+	signalStateChanged();
+
 	items[itemProperty.itemId] = itemProperty.data;
 	items[itemProperty.itemId].x = std::clamp<unsigned>(items[itemProperty.itemId].x, 0, levelSize.x);
 	items[itemProperty.itemId].y = std::clamp<unsigned>(items[itemProperty.itemId].y, 0, levelSize.y);

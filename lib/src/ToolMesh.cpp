@@ -3,6 +3,8 @@
 #include "include/LogConsole.hpp"
 
 void ToolMesh::penClicked(const sf::Vector2i& position) {
+	signalStateChanged();
+
 	auto tilePos = worldToTilePos(position);
 	if (isPositionValid(tilePos)) {
 		tilemap.drawArea(position, position, true, penValue, defaultBlocks[penValue]);
@@ -22,6 +24,8 @@ void ToolMesh::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end)
 }
 
 void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) {
+	signalStateChanged();
+
 	if (mode == DrawMode::RectEdge) {
 		tilemap.drawArea(start, end, false, penValue, defaultBlocks[penValue]);
 	} else if (mode == DrawMode::RectFill) {
@@ -62,6 +66,8 @@ void ToolMesh::configure(nlohmann::json &config) {
 }
 
 void ToolMesh::resize(unsigned width, unsigned height) {
+	signalStateChanged();
+
 	bgr.build({ width, height }, clip.getFrameSize());
 	
 	decltype(tilemap) cpy;
@@ -149,6 +155,7 @@ ToolProperty &ToolMesh::getProperty() {
 
 void ToolMesh::setProperty(const ToolProperty &) {
 	tilemap.setTile(tileProperty.tileX, tileProperty.tileY, tileProperty.tileValue, tileProperty.blocking);
+	signalStateChanged();
 }
 
 void ToolMesh::buildCtxMenu(tgui::MenuBar::Ptr &menu) {

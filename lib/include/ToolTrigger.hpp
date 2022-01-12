@@ -71,5 +71,5 @@ public:
 	virtual ToolProperty& getProperty() override;
 	virtual void setProperty(const ToolProperty& prop) override;
 
-	ToolTrigger(tgui::Gui& gui) : Tool(gui) {}
+	ToolTrigger(tgui::Gui& gui, std::function<void(void)> onStateChanged) : Tool(gui, onStateChanged) {}
 };

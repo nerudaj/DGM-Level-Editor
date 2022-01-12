@@ -18,6 +18,8 @@ private:
 	dgm::ResourceManager resmgr;
 	tgui::Theme theme;
 	std::string rootDir;
+	std::string filePath;
+	bool unsavedChanges = false;
 
 	// Gui
 	tgui::Gui gui;
@@ -25,7 +27,10 @@ private:
 	NewLevelDialog dialogNewLevel = NewLevelDialog(gui, ini);
 
 	// Editor
-	Editor editor = Editor(gui, theme, canvas);
+	Editor editor = Editor(gui, theme, canvas, [&] () {
+		unsavedChanges = true;
+		updateWindowTitle();
+	});
 
 	std::string savePath;
 	std::map<sf::Keyboard::Key, std::function<void(void)>> editorShortcuts;
@@ -33,8 +38,8 @@ private:
 	// Build functions
 	void buildLayout();
 
-	void setWindowTitle(const std::string appendix = "") {
-		app.window.getWindowContext().setTitle("DGM Level Editor" + (appendix.empty() ? "" : " - " + appendix));
+	void updateWindowTitle() {
+		app.window.getWindowContext().setTitle("DGM Level Editor" + (filePath.empty() ? "" : " - " + filePath) + (unsavedChanges ? " *" : ""));
 	}
 
 	// IO
