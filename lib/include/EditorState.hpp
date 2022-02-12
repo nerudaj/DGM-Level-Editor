@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <map>
-#include "Tool.hpp"
+#include "Tools/Tool.hpp"
 
 class EditorState {
 private:

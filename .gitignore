@@ -15,3 +15,5 @@ project-template/vsbuild-release/*
 project-template/cmake/cpp.cmake
 project-template/cmake/utils.cmake
 project-template/lib/benchmarks/googlebench/*
+
+lib/benchmarks/googlebench/*

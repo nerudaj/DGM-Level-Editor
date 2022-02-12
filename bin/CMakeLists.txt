@@ -20,7 +20,7 @@ add_executable ( ${PROJECT_NAME} WIN32
 )
 
 target_link_libraries ( ${PROJECT_NAME}
-	game-lib
+	editor-lib
 )
 
 set_target_properties ( ${PROJECT_NAME} PROPERTIES

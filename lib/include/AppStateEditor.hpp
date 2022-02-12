@@ -3,7 +3,7 @@
 #include <DGM/dgm.hpp>
 #include <TGUI/TGUI.hpp>
 #include "Camera.hpp"
-#include "NewLevelDialog.hpp"
+#include "Dialogs/NewLevelDialog.hpp"
 #include "LogConsole.hpp"
 #include "Editor.hpp"
 
@@ -39,7 +39,10 @@ private:
 	void buildLayout();
 
 	void updateWindowTitle() {
-		app.window.getWindowContext().setTitle("DGM Level Editor" + (filePath.empty() ? "" : " - " + filePath) + (unsavedChanges ? " *" : ""));
+		app.window.getWindowContext().setTitle(
+			"DGM Level Editor"
+			+ (filePath.empty() ? "" : " - " + filePath)
+			+ (unsavedChanges ? " *" : ""));
 	}
 
 	// IO

@@ -8,7 +8,7 @@ class Log {
 private:
 	tgui::Gui *gui = nullptr;
 
-	Log() {}
+	Log() = default;
 
 public:
 	static Log &get();
@@ -29,4 +29,7 @@ public:
 	void init(tgui::Gui *gui) {
 		Log::gui = gui;
 	}
+
+	Log(const Log&) = delete;
+	Log(Log&&) = default;
 };

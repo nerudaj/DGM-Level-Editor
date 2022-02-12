@@ -1,6 +1,6 @@
 cmake_minimum_required ( VERSION 3.19 )
 
-project ( game-lib )
+project ( editor-lib )
 
 set ( HEADER_FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/AppStateEditor.hpp"
@@ -12,13 +12,7 @@ set ( HEADER_FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/Globals.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/JsonHelper.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/LogConsole.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/NewLevelDialog.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/Tilemap.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/Tool.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/ToolItem.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/ToolMesh.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/ToolProperty.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/ToolTrigger.hpp"
 )
 
 set ( SOURCE_FILES
@@ -30,17 +24,63 @@ set ( SOURCE_FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/FileApi.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/JsonHelper.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/LogConsole.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/NewLevelDialog.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/Tilemap.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/Tool.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/ToolItem.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/ToolMesh.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/ToolProperty.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/ToolTrigger.cpp"
 )
+
+set ( CONFIGS_HEADER_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/include/Configs" )
+set ( CONFIGS_SOURCE_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/src/Configs" )
+
+set ( CONFIGS_HEADERS
+	"${CONFIGS_HEADER_PREFIX}/Sizers.hpp"
+)
+
+set ( CONFIGS_SOURCES
+	"${CONFIGS_SOURCE_PREFIX}/Sizers.cpp"
+)
+
+set ( TOOLS_HEADER_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/include/Tools" )
+set ( TOOLS_SOURCE_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/src/Tools" )
+
+set ( TOOLS_HEADERS
+	"${TOOLS_HEADER_PREFIX}/Tool.hpp"
+	"${TOOLS_HEADER_PREFIX}/ToolItem.hpp"
+	"${TOOLS_HEADER_PREFIX}/ToolMesh.hpp"
+	"${TOOLS_HEADER_PREFIX}/ToolProperty.hpp"
+	"${TOOLS_HEADER_PREFIX}/ToolTrigger.hpp"
+)
+
+set ( TOOLS_SOURCES
+	"${TOOLS_SOURCE_PREFIX}/Tool.cpp"
+	"${TOOLS_SOURCE_PREFIX}/ToolItem.cpp"
+	"${TOOLS_SOURCE_PREFIX}/ToolMesh.cpp"
+	"${TOOLS_SOURCE_PREFIX}/ToolProperty.cpp"
+	"${TOOLS_SOURCE_PREFIX}/ToolTrigger.cpp"
+)
+
+set ( DIALOGS_HEADER_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/include/Dialogs" )
+set ( DIALOGS_SOURCE_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/src/Dialogs" )
+
+set ( DIALOGS_HEADERS
+	"${DIALOGS_HEADER_PREFIX}/DialogBase.hpp"
+	"${DIALOGS_HEADER_PREFIX}/NewLevelDialog.hpp"
+	"${DIALOGS_HEADER_PREFIX}/ResizeLevelDialog.hpp"
+)
+
+set ( DIALOGS_SOURCES
+	"${DIALOGS_SOURCE_PREFIX}/DialogBase.cpp"
+	"${DIALOGS_SOURCE_PREFIX}/NewLevelDialog.cpp"
+	"${DIALOGS_SOURCE_PREFIX}/ResizeLevelDialog.cpp"
+)
+
+source_group ( "Configs" FILES ${CONFIGS_HEADERS} ${CONFIGS_SOURCES} )
+source_group ( "Tools" FILES ${TOOLS_HEADERS} ${TOOLS_SOURCES} )
+source_group ( "Dialogs" FILES ${DIALOGS_HEADERS} ${DIALOGS_SOURCES} )
 
 add_library ( ${PROJECT_NAME} STATIC
 	${HEADER_FILES} ${SOURCE_FILES}
+	${CONFIGS_HEADERS} ${CONFIGS_SOURCES}
+	${TOOLS_HEADERS} ${TOOLS_SOURCES}
+	${DIALOGS_HEADERS} ${DIALOGS_SOURCES}
 	"${CMAKE_CURRENT_SOURCE_DIR}/.editorconfig"
 )
 

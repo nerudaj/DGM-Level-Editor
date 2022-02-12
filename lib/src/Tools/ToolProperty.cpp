@@ -1,5 +1,5 @@
-#include "include/ToolProperty.hpp"
-#include "include/Tool.hpp"
+#include "include/Tools/ToolProperty.hpp"
+#include "include/Tools/Tool.hpp"
 
 tgui::Panel::Ptr ToolProperty::getRowBackground(unsigned y, const std::string& tooltip) {
 	auto tt = tgui::Label::create(tooltip);

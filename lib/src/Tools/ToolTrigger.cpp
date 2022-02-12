@@ -1,4 +1,4 @@
-#include "include/ToolTrigger.hpp"
+#include "include/Tools/ToolTrigger.hpp"
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
 

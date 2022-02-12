@@ -1,4 +1,4 @@
-#include "include/Tool.hpp"
+#include "include/Tools/Tool.hpp"
 #include "include/Globals.hpp"
 
 void Tool::buildCtxMenu(tgui::MenuBar::Ptr& menu) {

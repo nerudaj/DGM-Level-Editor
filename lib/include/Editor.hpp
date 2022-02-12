@@ -4,10 +4,10 @@
 #include <TGUI/TGUI.hpp>
 #include "Camera.hpp"
 #include "EditorState.hpp"
-#include "ToolMesh.hpp"
-#include "ToolItem.hpp"
-#include "ToolTrigger.hpp"
-#include "NewLevelDialog.hpp"
+#include "Tools/ToolMesh.hpp"
+#include "Tools/ToolItem.hpp"
+#include "Tools/ToolTrigger.hpp"
+#include "Dialogs/ResizeLevelDialog.hpp"
 
 class Editor {
 private:

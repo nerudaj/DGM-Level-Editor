@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Tool.hpp"
-#include "BackgroundGrid.hpp"
-#include "Tilemap.hpp"
+#include "../BackgroundGrid.hpp"
+#include "../Tilemap.hpp"
 
 class MeshToolProperty : public ImageToolProperty {
 protected:

@@ -2,18 +2,26 @@
 
 #include "include/AppStateEditor.hpp"
 #include "include/FileApi.hpp"
-#include "include/NewLevelDialog.hpp"
+#include "include/Dialogs/NewLevelDialog.hpp"
+#include "include/Configs/Sizers.hpp"
 #include <iostream>
 
 void AppStateEditor::input() {
-	const sf::Vector2i mousePos = sf::Mouse::getPosition(app.window.getWindowContext());
+	const sf::Vector2i mousePos = sf::Mouse::getPosition(
+		app.window.getWindowContext());
+
 	sf::Event event;
 	while (app.window.pollEvent(event)) {
 		if (event.type == sf::Event::Closed) {
 			app.exit();
 		}
 		else if (event.type == sf::Event::Resized) {
-			app.window.getWindowContext().setView(sf::View(sf::FloatRect(0.f, 0.f, static_cast<float>(event.size.width), static_cast<float>(event.size.height))));
+			app.window.getWindowContext().setView(
+				sf::View(
+					sf::FloatRect(
+						0.f, 0.f, 
+						static_cast<float>(event.size.width), 
+						static_cast<float>(event.size.height))));
 			gui.removeAllWidgets();
 			gui.setView(app.window.getWindowContext().getView());
 			buildLayout();
@@ -70,7 +78,15 @@ void AppStateEditor::draw() {
 	gui.draw();
 }
 
-AppStateEditor::AppStateEditor(dgm::App& app, cfg::Ini& ini, const std::string& rootDir) : dgm::AppState(app), ini(ini), rootDir(rootDir) {
+AppStateEditor::AppStateEditor(
+	dgm::App& app, 
+	cfg::Ini& ini, 
+	const std::string& rootDir) 
+: 
+	dgm::AppState(app), 
+	ini(ini), 
+	rootDir(rootDir)
+{
 	try {
 		resmgr.loadResource<sf::Font>(rootDir + "/resources/cruft.ttf");
 	}
@@ -93,14 +109,14 @@ AppStateEditor::AppStateEditor(dgm::App& app, cfg::Ini& ini, const std::string& 
 	updateWindowTitle();
 }
 
-const std::string FILE_CTX_NEW = "New (Ctrl+N)";
-const std::string FILE_CTX_LOAD = "Load (Ctrl+O)";
-const std::string FILE_CTX_SAVE = "Save (Ctrl+S)";
-const std::string FILE_CTX_SAVE_AS = "Save as (Ctrl+Shift+S)";
-const std::string FILE_CTX_EXIT = "Exit";
+constexpr const char* FILE_CTX_NEW = "New (Ctrl+N)";
+constexpr const char* FILE_CTX_LOAD = "Load (Ctrl+O)";
+constexpr const char* FILE_CTX_SAVE = "Save (Ctrl+S)";
+constexpr const char* FILE_CTX_SAVE_AS = "Save as (Ctrl+Shift+S)";
+constexpr const char* FILE_CTX_EXIT = "Exit";
 
 void AppStateEditor::buildLayout() {
-	const std::string TOPBAR_HEIGHT = "3%";
+	const std::string TOPBAR_HEIGHT = std::to_string(Sizers::GetMenuBarHeight());
 	const std::string SIDEBAR_WIDTH = "8%";
 	const std::string SIDEBAR_HEIGHT = "&.height - " + TOPBAR_HEIGHT;
 	const std::string SIDEBAR_XPOS = "&.width - " + SIDEBAR_WIDTH;
@@ -115,6 +131,7 @@ void AppStateEditor::buildLayout() {
 
 	// Top bar
 	auto menu = tgui::MenuBar::create();
+	menu->setTextSize(Sizers::GetMenuBarTextHeight());
 	menu->setRenderer(theme.getRenderer("MenuBar"));
 	menu->getRenderer()->setTextColor(sf::Color::Black);
 	menu->setSize("100%", TOPBAR_HEIGHT);
@@ -137,17 +154,29 @@ void AppStateEditor::buildLayout() {
 	menu->connectMenuItem("View", "Console", [this]() { Log::get().toggle(); });
 
 	menu->addMenu("Editor");
-	auto addEditorMenuItem = [this, &menu](const std::string& label,
-										   std::function<void(void)> callback,
-										   sf::Keyboard::Key shortcut) {
+	auto addEditorMenuItem = [this, &menu](
+		const std::string& label, 
+		std::function<void(void)> callback,
+		sf::Keyboard::Key shortcut)
+	{
 		menu->addMenuItem(label);
 		menu->connectMenuItem("Editor", label, callback);
 		editorShortcuts[shortcut] = callback;
 	};
-	addEditorMenuItem("Mesh mode (M)", [this]() { editor.switchTool(Editor::ToolType::Mesh); }, sf::Keyboard::M);
-	addEditorMenuItem("Items mode (I)", [this]() { editor.switchTool(Editor::ToolType::Item); }, sf::Keyboard::I);
-	addEditorMenuItem("Trigger mode (T)", [this]() { editor.switchTool(Editor::ToolType::Trigger); }, sf::Keyboard::T);
-	addEditorMenuItem("Resize level (R)", [this] () { editor.resizeDialog(); }, sf::Keyboard::R);
+
+	addEditorMenuItem(
+		"Mesh mode (M)",
+		[this]() { editor.switchTool(Editor::ToolType::Mesh); }, 
+		sf::Keyboard::M);
+	addEditorMenuItem("Items mode (I)",
+		[this]() { editor.switchTool(Editor::ToolType::Item); },
+		sf::Keyboard::I);
+	addEditorMenuItem("Trigger mode (T)", 
+		[this]() { editor.switchTool(Editor::ToolType::Trigger); }, 
+		sf::Keyboard::T);
+	addEditorMenuItem("Resize level (R)", 
+		[this] () { editor.resizeDialog(); }, 
+		sf::Keyboard::R);
 
 	// Must be added AFTER canvas, otherwise canvas blocks pop-up menus
 	gui.add(menu, "TopMenuBar");
