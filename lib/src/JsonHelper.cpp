@@ -7,7 +7,5 @@ nlohmann::json JsonHelper::loadFromFile(const std::string& path) {
 	load.close();
 	load.clear();
 
-	// TODO: result["baseDir"] = path to config without dir
-
 	return result;
 }

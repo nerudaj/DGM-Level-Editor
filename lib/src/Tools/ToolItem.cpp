@@ -1,6 +1,7 @@
 #include "include/Tools/ToolItem.hpp"
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
+#include <filesystem>
 
 void ToolItem::changeEditMode(EditMode mode) {
 	Log::write("Changing ToolItem editMode to " + std::to_string(mode));
@@ -26,6 +27,7 @@ void ToolItem::configure(nlohmann::json& config) {
 	penHistory.clear();
 
 	const std::string TOOL_STR = "toolItem";
+	const auto rootPath = std::filesystem::path(config["configFolder"].get<std::string>());
 
 	tileSize = JsonHelper::arrayToVector2u(config["toolMesh"]["texture"]["tileDimensions"]);
 
@@ -33,11 +35,14 @@ void ToolItem::configure(nlohmann::json& config) {
 	for (auto &item : items) {
 		renderData.push_back(ItemRenderData());
 		auto &rd = renderData.back();
-		auto texturePath = item["texture"]["path"].get<std::string>();
+		auto texturePath = std::filesystem::path(item["texture"]["path"].get<std::string>());
+		if (texturePath.is_relative())
+			texturePath = rootPath / texturePath;
+
 		rd.clip = JsonHelper::arrayToIntRect(item["texture"]["clip"]);
 
-		if (!rd.texture.loadFromFile(texturePath)) {
-			Log::write("Could not load texture: " + texturePath);
+		if (!rd.texture.loadFromFile(texturePath.string())) {
+			Log::write("Could not load texture: " + texturePath.string());
 			continue;
 		}
 	}

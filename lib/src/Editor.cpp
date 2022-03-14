@@ -2,6 +2,7 @@
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
 #include <fstream>
+#include <filesystem>
 
 const sf::Vector2f LEFT_VEC(-24.f, 0.f);
 const sf::Vector2f UP_VEC(0.f, -24.f);
@@ -59,6 +60,7 @@ void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& 
 
 	// Load json config and configure all tools
 	auto config = JsonHelper::loadFromFile(configPath);
+	config["configFolder"] = std::filesystem::path(configPath).parent_path().string();
 	stateMgr.forallStates([levelWidth, levelHeight, &config] (Tool &tool) {
 		tool.configure(config);
 		tool.resize(levelWidth, levelHeight);

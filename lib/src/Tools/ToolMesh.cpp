@@ -1,6 +1,7 @@
 #include "include/Tools/ToolMesh.hpp"
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
+#include <filesystem>
 
 void ToolMesh::penClicked(const sf::Vector2i& position) {
 	signalStateChanged();
@@ -37,11 +38,14 @@ void ToolMesh::penDragCancel(const sf::Vector2i&) {}
 
 void ToolMesh::configure(nlohmann::json &config) {
 	const std::string TOOL_STR = "toolMesh";
+	const auto rootPath = std::filesystem::path(config["configFolder"].get<std::string>());
 
-	std::string texturePath = config[TOOL_STR]["texture"]["path"];
-	if (!texture.loadFromFile(texturePath)) {
-		throw dgm::ResourceException("Cannot load texture file: " + texturePath);
-	}
+	auto texturePath = std::filesystem::path(config[TOOL_STR]["texture"]["path"].get<std::string>());
+	if (texturePath.is_relative())
+		texturePath = rootPath / texturePath;
+
+	if (!texture.loadFromFile(texturePath.string()))
+		throw dgm::ResourceException("Cannot load texture file: " + texturePath.string());
 
 	sf::Vector2u tileDims = JsonHelper::arrayToVector2u(config[TOOL_STR]["texture"]["tileDimensions"]);
 	sf::Vector2u tileOffs = JsonHelper::arrayToVector2u(config[TOOL_STR]["texture"]["tileOffsets"]);
