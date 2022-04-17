@@ -5,6 +5,22 @@
 #include "include/Configs/Sizers.hpp"
 #include <iostream>
 
+std::optional<std::string> AppStateEditor::getNewSavePath()
+{
+	try
+	{
+		auto result = fileApi->getSaveFileName("LevelD Files\0*.lvd\0Any File\0*.*\0");
+
+		if (not result.ends_with(".lvd"))
+			return result + ".lvd";
+		return result;
+	}
+	catch (...)
+	{
+		return std::nullopt;
+	}
+}
+
 void AppStateEditor::input()
 {
 	const sf::Vector2i mousePos = sf::Mouse::getPosition(
@@ -261,15 +277,10 @@ void AppStateEditor::saveLevel(bool forceNewPath)
 {
 	if (savePath.empty() || forceNewPath)
 	{
-		try
-		{
-			savePath = fileApi->getSaveFileName("LevelD Files\0*.lvd\0Any File\0*.*\0");
-			if (not savePath.ends_with(".lvd"))
-			{
-				savePath += ".lvd";
-			}
-		}
-		catch (...) { return; } // User cancel
+		if (auto str = getNewSavePath())
+			savePath = *str;
+		else // user cancelled
+			return;
 	}
 
 	try
