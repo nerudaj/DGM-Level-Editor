@@ -3,18 +3,24 @@
 #include "include/AppStateEditor.hpp"
 #include "include/FileApi.hpp"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
 	std::string rootDir = "..";
-	if (argc == 2) {
+	if (argc == 2)
+	{
 		rootDir = argv[1];
 	}
 
-	const auto APPDATA = FileApi::resolveAppdata();
+	auto fileApi = std::make_unique<FileApi>();
+	const auto APPDATA = fileApi->resolveAppdata();
 
 	cfg::Ini ini;
-	try {
+	try
+	{
 		ini.loadFromFile(APPDATA + "/leveld-editor.ini");
-	} catch (...) {
+	}
+	catch (...)
+	{
 		ini["Window"]["title"] = "LevelD file editor";
 		ini["Window"]["width"] = 1280;
 		ini["Window"]["height"] = 720;
@@ -22,8 +28,8 @@ int main(int argc, char *argv[]) {
 
 	dgm::Window window(ini);
 	dgm::App app(window);
-	
-	app.pushState<AppStateEditor>(ini, rootDir);
+
+	app.pushState<AppStateEditor>(ini, rootDir, std::move(fileApi));
 	app.run();
 
 	window.close(ini);

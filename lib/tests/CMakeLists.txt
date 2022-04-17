@@ -2,9 +2,12 @@ cmake_minimum_required ( VERSION 3.19 )
 
 project ( lib-tests )
 
+set ( HEADERS
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/FileApiMock.hpp"
+)
+
 set ( SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp"
-	
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/ToolMeshTest.cpp"
 )
 

@@ -13,12 +13,8 @@
  *  made and modal is confirmed, associated callback is fired. Then the
  *  getter functions can be used. Modal is closed automatically.
  */
-class NewLevelDialog final : public DialogInterface {
-private:
-	/*const std::string INPUT_LEVEL_WIDTH_ID = "InputLevelWidth";
-	const std::string INPUT_LEVEL_HEIGHT_ID = "InputLevelHeight";
-	const std::string INPUT_LEVEL_CONFIG_ID = "InputLevelConfig";*/
-
+class NewLevelDialog final : public DialogInterface
+{
 private:
 	cfg::Ini& ini;
 

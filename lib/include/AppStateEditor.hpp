@@ -6,6 +6,7 @@
 #include "Dialogs/NewLevelDialog.hpp"
 #include "LogConsole.hpp"
 #include "Editor.hpp"
+#include "include/FileApi.hpp"
 
 /**
  *  This class is responsible for drawing top level gui - topbar, canvas, console, bootstrapping
@@ -20,6 +21,7 @@ private:
 	std::string rootDir;
 	std::string filePath;
 	bool unsavedChanges = false;
+	std::unique_ptr<FileApiInterface> fileApi;
 
 	// Gui
 	tgui::Gui gui;
@@ -62,5 +64,5 @@ public:
 		return false;
 	}
 
-	AppStateEditor(dgm::App& app, cfg::Ini& ini, const std::string& rootDir);
+	AppStateEditor(dgm::App& app, cfg::Ini& ini, const std::string& rootDir, std::unique_ptr<FileApiInterface> fileApi);
 };
