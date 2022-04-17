@@ -16,6 +16,8 @@ configure_file (
 
 set ( HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/FileApiMock.hpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/EditorMock.hpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/YesNoCancelDialogMock.hpp"
 )
 
 set ( SOURCES

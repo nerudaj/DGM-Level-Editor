@@ -3,7 +3,29 @@
 #include "include/AppStateEditor.hpp"
 #include "include/Dialogs/NewLevelDialog.hpp"
 #include "include/Configs/Sizers.hpp"
+#include "include/Globals.hpp"
 #include <iostream>
+
+void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
+{
+	if (unsavedChanges)
+	{
+		confirmExitDialog.open(DIALOG_TITLE_WARNING, DIALOG_TEXT_UNSAVED_EXIT, [&] (UserChoice choice)
+			{
+				if (choice == UserChoice::Cancelled)
+					return;
+				else if (choice == UserChoice::Confirmed)
+					saveLevel();
+				else
+					unsavedChanges = false;
+				handleExit(confirmExitDialog);
+			});
+	}
+	else
+	{
+		app.exit();
+	}
+}
 
 std::optional<std::string> AppStateEditor::getNewSavePath()
 {
@@ -31,7 +53,7 @@ void AppStateEditor::input()
 	{
 		if (event.type == sf::Event::Closed)
 		{
-			app.exit();
+			handleExit(dialogConfirmExit);
 		}
 		else if (event.type == sf::Event::Resized)
 		{
@@ -76,7 +98,7 @@ void AppStateEditor::input()
 			{
 				dialogNewLevel.open([this] () { newLevelDialogCallback(); });
 			}
-			else if (editorShortcuts.count(event.key.code) && editor.isInitialized())
+			else if (editorShortcuts.count(event.key.code) && editor->isInitialized())
 			{
 				editorShortcuts[event.key.code]();
 			}
@@ -94,7 +116,7 @@ void AppStateEditor::input()
 		}
 
 		gui.handleEvent(event);
-		editor.handleEvent(event, mousePos);
+		editor->handleEvent(event, mousePos);
 	}
 }
 
@@ -105,7 +127,7 @@ void AppStateEditor::draw()
 	// Drawing canvas
 	canvas->clear();
 
-	editor.draw();
+	editor->draw();
 
 	canvas->display();
 
@@ -136,6 +158,12 @@ AppStateEditor::AppStateEditor(
 
 	// Setup resources
 	sf::Font& font = resmgr.get<sf::Font>("cruft.ttf");
+
+	editor = std::make_unique<Editor>(gui, theme, canvas, [&] ()
+	{
+		unsavedChanges = true;
+		updateWindowTitle();
+	});
 
 	// Gui setup
 	theme.load(rootDir + "/resources/TransparentGrey.txt");
@@ -207,16 +235,16 @@ void AppStateEditor::buildLayout()
 
 	addEditorMenuItem(
 		"Mesh mode (M)",
-		[this] () { editor.switchTool(Editor::ToolType::Mesh); },
+		[this] () { editor->switchTool(Editor::ToolType::Mesh); },
 		sf::Keyboard::M);
 	addEditorMenuItem("Items mode (I)",
-		[this] () { editor.switchTool(Editor::ToolType::Item); },
+		[this] () { editor->switchTool(Editor::ToolType::Item); },
 		sf::Keyboard::I);
 	addEditorMenuItem("Trigger mode (T)",
-		[this] () { editor.switchTool(Editor::ToolType::Trigger); },
+		[this] () { editor->switchTool(Editor::ToolType::Trigger); },
 		sf::Keyboard::T);
 	addEditorMenuItem("Resize level (R)",
-		[this] () { editor.resizeDialog(); },
+		[this] () { editor->resizeDialog(); },
 		sf::Keyboard::R);
 
 	// Must be added AFTER canvas, otherwise canvas blocks pop-up menus
@@ -244,7 +272,7 @@ void AppStateEditor::newLevelDialogCallback()
 	std::string configPath = dialogNewLevel.getConfigPath();
 
 	Log::write("editor.init(" + std::to_string(levelWidth) + ", " + std::to_string(levelHeight) + ", " + configPath + ");");
-	editor.init(levelWidth, levelHeight, configPath);
+	editor->init(levelWidth, levelHeight, configPath);
 	ini["Editor"]["configPath"] = configPath;
 }
 
@@ -264,7 +292,7 @@ void AppStateEditor::loadLevel()
 	{
 		filePath = savePath;
 		unsavedChanges = false;
-		editor.loadFromFile(savePath);
+		editor->loadFromFile(savePath);
 		updateWindowTitle();
 	}
 	catch (std::exception& e)
@@ -287,7 +315,7 @@ void AppStateEditor::saveLevel(bool forceNewPath)
 	{
 		filePath = savePath;
 		unsavedChanges = false;
-		editor.saveToFile(savePath);
+		editor->saveToFile(savePath);
 		updateWindowTitle();
 	}
 	catch (std::exception& e)
@@ -295,3 +323,4 @@ void AppStateEditor::saveLevel(bool forceNewPath)
 		Log::write(e.what());
 	}
 }
+

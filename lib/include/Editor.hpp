@@ -9,10 +9,38 @@
 #include "Tools/ToolTrigger.hpp"
 #include "Dialogs/ResizeLevelDialog.hpp"
 
-class Editor {
+class EditorInterface
+{
+public:
+	enum class ToolType : std::size_t
+	{
+		Mesh, Item, Trigger
+	};
+
+	virtual bool isInitialized() const = 0;
+
+	virtual void draw() = 0;
+
+	virtual void init(unsigned levelWidth, unsigned levelHeight, const std::string& configPath) = 0;
+
+	virtual void handleEvent(const sf::Event& event, const sf::Vector2i& mousePos) = 0;
+
+	virtual void saveToFile(const std::string& filename) = 0;
+
+	virtual void loadFromFile(const std::string& filename) = 0;
+
+	virtual void switchTool(const ToolType tool) = 0;
+
+	virtual void resizeDialog() = 0;
+
+	virtual ~EditorInterface() = default;
+};
+
+class Editor final : public EditorInterface
+{
 private:
-	tgui::Gui &gui;
-	tgui::Theme &theme;
+	tgui::Gui& gui;
+	tgui::Theme& theme;
 	tgui::Canvas::Ptr& canvas;
 	ResizeDialog dialog = ResizeDialog(gui);
 	Camera camera = Camera(canvas);
@@ -23,45 +51,44 @@ private:
 	std::string configPath;
 	sf::Vector2u levelSize;
 
-	bool isMouseWithinBoundaries(const sf::Vector2f &mousePos) const;
+	bool isMouseWithinBoundaries(const sf::Vector2f& mousePos) const;
 
-	bool canScroll() const {
+	bool canScroll() const
+	{
 		// If property window is opened, prevent scrolling
 		return gui.get<tgui::ChildWindow>("ToolPropertyModal") == nullptr;
 	}
 
-	bool canOpenPropertyDialog() const {
+	bool canOpenPropertyDialog() const
+	{
 		// If property window is opened, do not open new one
 		return canScroll();
 	}
 
 public:
-	enum class ToolType : std::size_t {
-		Mesh, Item, Trigger
-	};
-
-	bool isInitialized() const {
+	virtual bool isInitialized() const override
+	{
 		return initialized;
 	}
 
-	void handleEvent(const sf::Event& event, const sf::Vector2i &mousePos);
+	virtual void handleEvent(const sf::Event& event, const sf::Vector2i& mousePos) override;
 
-	void draw();
+	virtual void draw() override;
 
 	/**
 	 *  Initialize Editor object with new level - it has some fixed width and height
 	 *  Also there is path to config json which should be loaded and given to each
 	 *  instantiated Tool.
 	 */
-	void init(unsigned levelWidth, unsigned levelHeight, const std::string& configPath);
+	virtual void init(unsigned levelWidth, unsigned levelHeight, const std::string& configPath) override;
 
-	void switchTool(const ToolType tool);
+	virtual void switchTool(const ToolType tool) override;
 
-	void loadFromFile(const std::string &filename);
+	virtual void loadFromFile(const std::string& filename) override;
 
-	void saveToFile(const std::string &filename);
+	virtual void saveToFile(const std::string& filename) override;
 
-	void resizeDialog();
+	virtual void resizeDialog() override;
 
-	Editor(tgui::Gui &gui, tgui::Theme &theme, tgui::Canvas::Ptr& canvas, std::function<void(void)> onStateChanged);
+	Editor(tgui::Gui& gui, tgui::Theme& theme, tgui::Canvas::Ptr& canvas, std::function<void(void)> onStateChanged);
 };

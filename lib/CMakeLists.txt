@@ -64,12 +64,14 @@ set ( DIALOGS_HEADERS
 	"${DIALOGS_HEADER_PREFIX}/DialogBase.hpp"
 	"${DIALOGS_HEADER_PREFIX}/NewLevelDialog.hpp"
 	"${DIALOGS_HEADER_PREFIX}/ResizeLevelDialog.hpp"
+	"${DIALOGS_HEADER_PREFIX}/YesNoCancelDialog.hpp"
 )
 
 set ( DIALOGS_SOURCES
 	"${DIALOGS_SOURCE_PREFIX}/DialogBase.cpp"
 	"${DIALOGS_SOURCE_PREFIX}/NewLevelDialog.cpp"
 	"${DIALOGS_SOURCE_PREFIX}/ResizeLevelDialog.cpp"
+	"${DIALOGS_SOURCE_PREFIX}/YesNoCancelDialog.cpp"
 )
 
 source_group ( "Configs" FILES ${CONFIGS_HEADERS} ${CONFIGS_SOURCES} )

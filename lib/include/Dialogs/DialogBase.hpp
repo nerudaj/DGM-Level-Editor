@@ -3,13 +3,16 @@
 #include <TGUI/TGUI.hpp>
 #include <functional>
 
-class DialogInterface {
+class DialogInterface
+{
 public:
-	struct OptionLine {
+	struct OptionLine
+	{
 		std::string label;
-		std::string width;
 		std::string id;
 		std::string value;
+		bool addHelperButton = false;
+		std::function<void(void)> helperButtonCallback = [] () {};
 	};
 
 protected:
@@ -22,20 +25,23 @@ protected:
 	virtual void customOpenCode() = 0;
 
 	[[nodiscard]]
-	std::string getEditboxValue(const std::string& boxId) const {
+	std::string getEditboxValue(const std::string& boxId) const
+	{
 		return gui.get<tgui::EditBox>(boxId)->getText().toAnsiString();
 	}
 
 public:
 	void open(std::function<void()> confirmCallback);
 
-	void close() {
+	void close()
+	{
 		auto modal = gui.get<tgui::ChildWindow>(DIALOG_ID);
 		gui.remove(modal);
 	}
 
 	[[nodiscard]]
-	bool isOpen() const {
+	bool isOpen() const
+	{
 		return gui.get<tgui::ChildWindow>(DIALOG_ID) != nullptr;
 	}
 
@@ -48,6 +54,3 @@ public:
 	DialogInterface(DialogInterface&&) = delete;
 	virtual ~DialogInterface() {}
 };
-
-template<class T>
-concept DialogImpl = std::derived_from<T, DialogInterface>;

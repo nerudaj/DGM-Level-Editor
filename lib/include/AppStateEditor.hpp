@@ -4,6 +4,7 @@
 #include <TGUI/TGUI.hpp>
 #include "Camera.hpp"
 #include "Dialogs/NewLevelDialog.hpp"
+#include "include/Dialogs/YesNoCancelDialog.hpp"
 #include "LogConsole.hpp"
 #include "Editor.hpp"
 #include "include/FileApi.hpp"
@@ -28,14 +29,24 @@ protected:
 	// Gui
 	tgui::Gui gui;
 	tgui::Canvas::Ptr canvas;
+
+	/*
+	*  HOW TO MAKE THIS NICER:
+	*  Factor out dialog builder functions to some common base.
+	*  Then implement each dialog as a constructible class without any other method. This will work as "fire and forget" approach. Everything that
+	* concerns a modal can be solved via lambda with tgui::Gui in capture.
+	* each class has its own "submit" callback requirement and every result of
+	* a modal (Yes|No|Cancel, level width/height, ...) will be passed as a parameter
+	* to this callback.
+	*
+	* Each dialog can be then implemented via factory class (types of std::function should be swallowed and not type checked, fingers crossed)
+	* and then the factory class can be injected as a dependency to this class.
+	*/
 	NewLevelDialog dialogNewLevel = NewLevelDialog(gui, ini);
+	YesNoCancelDialog dialogConfirmExit = YesNoCancelDialog(gui);
 
 	// Editor
-	Editor editor = Editor(gui, theme, canvas, [&] ()
- {
-	 unsavedChanges = true;
-	 updateWindowTitle();
-	});
+	std::unique_ptr<EditorInterface> editor;
 
 	std::string savePath;
 	std::map<sf::Keyboard::Key, std::function<void(void)>> editorShortcuts;
@@ -59,6 +70,8 @@ protected:
 	// Shortcut
 	unsigned keyShortcut = 0;
 
+protected:
+	void handleExit(YesNoCancelDialogInterface& dialoConfirmExit);
 	std::optional<std::string> getNewSavePath();
 
 public:
