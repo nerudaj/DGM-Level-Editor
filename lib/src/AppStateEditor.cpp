@@ -230,6 +230,9 @@ void AppStateEditor::saveLevel(bool forceNewPath) {
 	if (savePath.empty() || forceNewPath) {
 		try {
 			savePath = FileApi::getSaveFileName("LevelD Files\0*.lvd\0Any File\0*.*\0");
+			if (not savePath.ends_with(".lvd")) {
+				savePath += ".lvd";
+			}
 		} catch (...) { return; } // User cancel
 	}
 

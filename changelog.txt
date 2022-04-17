@@ -1,6 +1,7 @@
 DGM Level Editor v3.0.0 changelog:
  * Window title shows asterisk (*) when file has unsaved changes
  * Editor config can now contain relative paths
+ * .lvd extension automatically appended to filename in save dialog if not specified
 
 DGM Level Editor v2.0.0 changelog:
  * Moved to dgm-sdk (new project structure, updated dgm-lib)
