@@ -72,9 +72,7 @@ void ToolMesh::configure(nlohmann::json& config)
 	}
 
 	clip = dgm::Clip(tileDims, bounds, 0, tileOffs);
-	/*tilemap.init(texture, clip);
-	tilemap.mesh.setVoxelSize(clip.getFrameSize());
-	tilemap.overlay.init();*/
+	tilemap = Tilemap(texture, clip); // NOTE: The copy probly messes up internal texture (shared_ptr?)
 
 	rectShape.setOutlineColor(sf::Color(255, 0, 0, 128));
 	rectShape.setOutlineThickness(2.f);
@@ -86,32 +84,31 @@ void ToolMesh::resize(unsigned width, unsigned height)
 {
 	signalStateChanged();
 
-	bgr.build({ width, height }, clip.getFrameSize());
-
-	decltype(tilemap) cpy(texture, clip);
-	cpy.mesh.setVoxelSize(clip.getFrameSize());
-	cpy.overlay.init();
-	cpy.buildAll(width, height, clip.getFrameSize());
+	std::vector<int> newTileData(width * height, 0);
+	std::vector<int> newBlockData(width * height, 0);
 
 	// Copy and center data
+	// TODO: Make this testable?
 	if (not tilemap.empty() && tilemap.mesh.getDataSize().x <= width && tilemap.mesh.getDataSize().y <= height)
 	{
-		auto offset = (sf::Vector2u(width, height) - tilemap.mesh.getDataSize()) / 2u;
+		const auto offset = (sf::Vector2u(width, height) - tilemap.mesh.getDataSize()) / 2u;
 
 		for (unsigned y = 0; y < tilemap.mesh.getDataSize().y; y++)
 		{
 			for (unsigned x = 0; x < tilemap.mesh.getDataSize().x; x++)
 			{
-				auto value = tilemap.getTile(x, y);
-				bool blocking = tilemap.getTileBlock(x, y);
-				cpy.setTile(x + offset.x, y + offset.y, value, blocking);
+				const unsigned newDataIndex = (y + offset.y) * tilemap.mesh.getDataSize().x + (x + offset.x);
+
+				newTileData[newDataIndex] = tilemap.getTile(x, y);
+				newBlockData[newDataIndex] = tilemap.getTileBlock(x, y);
 			}
 		}
 	}
 
-	tilemap = cpy;
-	// Must init again, because sf::Texture gets invalidated during copying
-	tilemap.overlay.init();
+	tilemap.buildAll(newTileData, newBlockData, { width, height });
+
+	// TODO: Testing scenario:
+	// resizing (bigger, smaller)
 }
 
 void ToolMesh::saveTo(LevelD& lvd)
@@ -138,26 +135,17 @@ void ToolMesh::saveTo(LevelD& lvd)
 void ToolMesh::loadFrom(const LevelD& lvd)
 {
 	Log::write("ToolMesh::loadFrom");
-	resize(lvd.mesh.layerWidth, lvd.mesh.layerHeight);
 
 	const auto tilemapData = std::vector<int>(
 		lvd.mesh.layers[0].tiles.begin(),
 		lvd.mesh.layers[0].tiles.end());
-	const auto tileSize = sf::Vector2u(lvd.mesh.tileWidth, lvd.mesh.tileHeight);
+	const auto collisionData = std::vector<int>(
+		lvd.mesh.layers[0].blocks.begin(),
+		lvd.mesh.layers[0].blocks.end());
 	const auto dataSize = sf::Vector2u(lvd.mesh.layerWidth, lvd.mesh.layerHeight);
 
-	tilemap.build(tileSize, tilemapData, dataSize);
-	tilemap.mesh = dgm::Mesh(lvd.mesh.layers[0].blocks, dataSize, tileSize);
-
-	// init overlay
-	for (unsigned y = 0; y < lvd.mesh.layerHeight; y++)
-	{
-		for (unsigned x = 0; x < lvd.mesh.layerWidth; x++)
-		{
-			if (lvd.mesh.layers[0].blocks[y * lvd.mesh.layerWidth + x])
-				tilemap.overlay.map.changeTile(x, y, 1);
-		}
-	}
+	bgr.build(dataSize, clip.getFrameSize());
+	tilemap.buildAll(tilemapData, collisionData, dataSize);
 }
 
 void ToolMesh::drawTo(tgui::Canvas::Ptr& canvas, uint8_t)
