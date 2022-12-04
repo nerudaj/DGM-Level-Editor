@@ -1,4 +1,5 @@
 #include <DGM/dgm.hpp>
+#include <Config.hpp>
 
 #include "include/AppStateEditor.hpp"
 #include "include/FileApi.hpp"
@@ -26,13 +27,23 @@ int main(int argc, char* argv[])
 		ini["Window"]["height"] = 720;
 	}
 
-	dgm::Window window(ini);
+	dgm::WindowSettings windowSettings = {
+		.resolution = sf::Vector2u(ini["Window"]["width"].asInt(), ini["Window"]["height"].asInt()),
+		.title = ini["Window"]["title"].asString(),
+		.useFullscreen = false
+	};
+
+	dgm::Window window(windowSettings);
 	dgm::App app(window);
 
 	app.pushState<AppStateEditor>(ini, rootDir, std::move(fileApi));
 	app.run();
 
-	window.close(ini);
+	windowSettings = window.close();
+
+	ini["Window"]["width"] = int(windowSettings.resolution.x);
+	ini["Window"]["height"] = int(windowSettings.resolution.y);
+	ini["Window"]["title"] = windowSettings.title;
 
 	ini.saveToFile(APPDATA + "/leveld-editor.ini");
 

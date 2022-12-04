@@ -1,6 +1,7 @@
 #pragma once
 
 #include <DGM/dgm.hpp>
+#include <Config.hpp>
 #include "DialogBase.hpp"
 
 /**

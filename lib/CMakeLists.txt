@@ -27,51 +27,40 @@ set ( SOURCE_FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/Tilemap.cpp"
 )
 
-set ( CONFIGS_HEADER_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/include/Configs" )
-set ( CONFIGS_SOURCE_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/src/Configs" )
-
-set ( CONFIGS_HEADERS
-	"${CONFIGS_HEADER_PREFIX}/Sizers.hpp"
+file (
+	GLOB CONFIGS_HEADERS
+	CONFIGURE_DEPENDS
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/Configs/*.hpp"
 )
 
-set ( CONFIGS_SOURCES
-	"${CONFIGS_SOURCE_PREFIX}/Sizers.cpp"
+file (
+	GLOB CONFIGS_SOURCES
+	CONFIGURE_DEPENDS
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/Configs/*.cpp"
 )
 
-set ( TOOLS_HEADER_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/include/Tools" )
-set ( TOOLS_SOURCE_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/src/Tools" )
-
-set ( TOOLS_HEADERS
-	"${TOOLS_HEADER_PREFIX}/Tool.hpp"
-	"${TOOLS_HEADER_PREFIX}/ToolItem.hpp"
-	"${TOOLS_HEADER_PREFIX}/ToolMesh.hpp"
-	"${TOOLS_HEADER_PREFIX}/ToolProperty.hpp"
-	"${TOOLS_HEADER_PREFIX}/ToolTrigger.hpp"
+file (
+	GLOB TOOLS_HEADERS
+	CONFIGURE_DEPENDS
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/Tools/*.hpp"
 )
 
-set ( TOOLS_SOURCES
-	"${TOOLS_SOURCE_PREFIX}/Tool.cpp"
-	"${TOOLS_SOURCE_PREFIX}/ToolItem.cpp"
-	"${TOOLS_SOURCE_PREFIX}/ToolMesh.cpp"
-	"${TOOLS_SOURCE_PREFIX}/ToolProperty.cpp"
-	"${TOOLS_SOURCE_PREFIX}/ToolTrigger.cpp"
+file (
+	GLOB TOOLS_SOURCES
+	CONFIGURE_DEPENDS
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/Tools/*.cpp"
 )
 
-set ( DIALOGS_HEADER_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/include/Dialogs" )
-set ( DIALOGS_SOURCE_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/src/Dialogs" )
-
-set ( DIALOGS_HEADERS
-	"${DIALOGS_HEADER_PREFIX}/DialogBase.hpp"
-	"${DIALOGS_HEADER_PREFIX}/NewLevelDialog.hpp"
-	"${DIALOGS_HEADER_PREFIX}/ResizeLevelDialog.hpp"
-	"${DIALOGS_HEADER_PREFIX}/YesNoCancelDialog.hpp"
+file (
+	GLOB DIALOGS_HEADERS
+	CONFIGURE_DEPENDS
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/Dialogs/*.hpp"
 )
 
-set ( DIALOGS_SOURCES
-	"${DIALOGS_SOURCE_PREFIX}/DialogBase.cpp"
-	"${DIALOGS_SOURCE_PREFIX}/NewLevelDialog.cpp"
-	"${DIALOGS_SOURCE_PREFIX}/ResizeLevelDialog.cpp"
-	"${DIALOGS_SOURCE_PREFIX}/YesNoCancelDialog.cpp"
+file (
+	GLOB DIALOGS_SOURCES
+	CONFIGURE_DEPENDS
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/Dialogs/*.cpp"
 )
 
 source_group ( "Configs" FILES ${CONFIGS_HEADERS} ${CONFIGS_SOURCES} )
@@ -88,8 +77,8 @@ add_library ( ${PROJECT_NAME} STATIC
 
 target_include_directories ( ${PROJECT_NAME}
 	PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
-	PUBLIC "${DGM_FOLDER}/include/include"
 	PUBLIC "${DGM_FOLDER}/include"
+	PUBLIC "${DSH_FOLDER}/include"
 	PUBLIC "${SFML_FOLDER}/include"
 	PUBLIC "${TGUI_FOLDER}/include"
 	PUBLIC "${JSON_FOLDER}/single_include/nlohmann"
@@ -97,6 +86,7 @@ target_include_directories ( ${PROJECT_NAME}
 
 target_link_libraries ( ${PROJECT_NAME}
 	${LIB_DGM} ${LIB_SFML} ${LIB_TGUI}
+	${LIB_CFG} ${LIB_LVLD}
 )
 
 target_compile_features( ${PROJECT_NAME}
@@ -107,5 +97,10 @@ target_compile_options ( ${PROJECT_NAME}
 	PRIVATE /MP
 )
 
-add_subdirectory ( benchmarks )
-add_subdirectory ( tests )
+if ( NOT ${DISABLE_BENCHMARKS} )
+	add_subdirectory ( benchmarks )
+endif()
+
+if ( NOT ${DISABLE_TESTING} )
+	add_subdirectory ( tests )
+endif()

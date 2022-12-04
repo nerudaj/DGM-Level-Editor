@@ -88,8 +88,7 @@ void ToolMesh::resize(unsigned width, unsigned height)
 
 	bgr.build({ width, height }, clip.getFrameSize());
 
-	decltype(tilemap) cpy;
-	cpy.init(texture, clip);
+	decltype(tilemap) cpy(texture, clip);
 	cpy.mesh.setVoxelSize(clip.getFrameSize());
 	cpy.overlay.init();
 	cpy.buildAll(width, height, clip.getFrameSize());
@@ -141,8 +140,14 @@ void ToolMesh::loadFrom(const LevelD& lvd)
 	Log::write("ToolMesh::loadFrom");
 	resize(lvd.mesh.layerWidth, lvd.mesh.layerHeight);
 
-	tilemap.build(lvd.mesh, 0);
-	tilemap.mesh = dgm::Mesh(lvd.mesh, 0);
+	const auto tilemapData = std::vector<int>(
+		lvd.mesh.layers[0].tiles.begin(),
+		lvd.mesh.layers[0].tiles.end());
+	const auto tileSize = sf::Vector2u(lvd.mesh.tileWidth, lvd.mesh.tileHeight);
+	const auto dataSize = sf::Vector2u(lvd.mesh.layerWidth, lvd.mesh.layerHeight);
+
+	tilemap.build(tileSize, tilemapData, dataSize);
+	tilemap.mesh = dgm::Mesh(lvd.mesh.layers[0].blocks, dataSize, tileSize);
 
 	// init overlay
 	for (unsigned y = 0; y < lvd.mesh.layerHeight; y++)

@@ -19,7 +19,8 @@ class AppStateEditor : public dgm::AppState
 protected:
 	// Resources
 	cfg::Ini& ini;
-	dgm::ResourceManager resmgr;
+	dgm::JsonLoader loader;
+	dgm::ResourceManager resmgr = dgm::ResourceManager(loader);
 	tgui::Theme theme;
 	std::string rootDir;
 	std::string filePath;
