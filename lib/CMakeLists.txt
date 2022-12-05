@@ -4,7 +4,6 @@ project ( editor-lib )
 
 set ( HEADER_FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/AppStateEditor.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/BackgroundGrid.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/Camera.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/Editor.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/EditorState.hpp"
@@ -12,19 +11,18 @@ set ( HEADER_FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/Globals.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/JsonHelper.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/LogConsole.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/Tilemap.hpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/Utilities.hpp"
 )
 
 set ( SOURCE_FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/AppStateEditor.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/BackgroundGrid.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/Camera.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/Editor.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/EditorState.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/FileApi.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/JsonHelper.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/LogConsole.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/Tilemap.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/Utilities.cpp"
 )
 
 file (
@@ -63,15 +61,43 @@ file (
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/Dialogs/*.cpp"
 )
 
+file (
+	GLOB LEVELMESH_HEADERS
+	CONFIGURE_DEPENDS
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/LevelMesh/*.hpp"
+)
+
+file (
+	GLOB LEVELMESH_SOURCES
+	CONFIGURE_DEPENDS
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/LevelMesh/*.cpp"
+)
+
+file (
+	GLOB COMMANDS_HEADERS
+	CONFIGURE_DEPENDS
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/Commands/*.hpp"
+)
+
+file (
+	GLOB COMMANDS_SOURCES
+	CONFIGURE_DEPENDS
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/Commands/*.cpp"
+)
+
 source_group ( "Configs" FILES ${CONFIGS_HEADERS} ${CONFIGS_SOURCES} )
 source_group ( "Tools" FILES ${TOOLS_HEADERS} ${TOOLS_SOURCES} )
 source_group ( "Dialogs" FILES ${DIALOGS_HEADERS} ${DIALOGS_SOURCES} )
+source_group ( "Level Mesh" FILES ${LEVELMESH_HEADERS} ${LEVELMESH_SOURCES} )
+source_group ( "Commands" FILES ${COMMANDS_HEADERS} ${COMMANDS_SOURCES} )
 
 add_library ( ${PROJECT_NAME} STATIC
 	${HEADER_FILES} ${SOURCE_FILES}
 	${CONFIGS_HEADERS} ${CONFIGS_SOURCES}
 	${TOOLS_HEADERS} ${TOOLS_SOURCES}
 	${DIALOGS_HEADERS} ${DIALOGS_SOURCES}
+	${LEVELMESH_HEADERS} ${LEVELMESH_SOURCES}
+	${COMMANDS_HEADERS} ${COMMANDS_SOURCES}
 	"${CMAKE_CURRENT_SOURCE_DIR}/.editorconfig"
 )
 

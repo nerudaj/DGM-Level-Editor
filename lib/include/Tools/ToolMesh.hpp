@@ -1,106 +1,113 @@
 #pragma once
 
 #include "Tool.hpp"
-#include "../BackgroundGrid.hpp"
-#include "../Tilemap.hpp"
+#include "include/LevelMesh/DrawableLeveldMesh.hpp"
 
-class MeshToolProperty : public ImageToolProperty {
+class MeshToolProperty : public ImageToolProperty
+{
 protected:
-    virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) override;
+	virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) override;
 
 public:
-    uint32_t tileX;
-    uint32_t tileY;
-    uint16_t tileValue;
-    bool blocking;
-    bool defaultBlocking;
-    bool empty;
+	uint32_t tileX;
+	uint32_t tileY;
+	uint16_t tileValue;
+	bool blocking;
+	bool defaultBlocking;
+	bool empty;
 
-    virtual bool isEmpty() override { return empty; }
+	virtual bool isEmpty() override { return empty; }
 
-    virtual void clear() override {
-        tileX = 0;
-        tileY = 0;
-        tileValue = 0;
-        blocking = false;
-        defaultBlocking = false;
-        empty = true;
-    }
+	virtual void clear() override
+	{
+		tileX = 0;
+		tileY = 0;
+		tileValue = 0;
+		blocking = false;
+		defaultBlocking = false;
+		empty = true;
+	}
 
-    MeshToolProperty(tgui::Gui &gui, Tool* parent) : ImageToolProperty(gui, parent) { clear(); }
+	MeshToolProperty(tgui::Gui& gui, Tool* parent) : ImageToolProperty(gui, parent) { clear(); }
 };
 
-class ToolMesh : public ToolWithSprites {
+class ToolMesh : public ToolWithSprites
+{
 public:
-    enum class DrawMode {
-        Pencil, RectFill, RectEdge, Line
-    };
+	enum class DrawMode
+	{
+		Pencil, RectFill, RectEdge, Line
+	};
 
 private:
-    DrawMode mode = DrawMode::Pencil;
-    sf::RectangleShape rectShape;
+	DrawMode mode = DrawMode::Pencil;
+	sf::RectangleShape rectShape;
 
-    BackgroundGrid bgr; // checker pattern for better UX
-    sf::Texture texture; // tileset texture
-    dgm::Clip clip; // how tileset is sliced
-    Tilemap tilemap; // renders tileset
-    MeshToolProperty tileProperty = MeshToolProperty(gui, this);
+	sf::Texture texture; // tileset texture
+	dgm::Clip clip; // how tileset is sliced
+	DrawableLeveldMesh map;
+	MeshToolProperty tileProperty = MeshToolProperty(gui, this);
 
-    std::vector<bool> defaultBlocks;
+	std::vector<bool> defaultBlocks;
 
-    bool drawing = false;
-    bool enableOverlay = false;
+	bool drawing = false;
+	bool enableOverlay = false;
 
-    void changeDrawingMode(DrawMode newMode);
+	void changeDrawingMode(DrawMode newMode);
 
-    sf::Vector2u worldToTilePos(const sf::Vector2i& position) {
-        unsigned tileX = position.x / tilemap.mesh.getVoxelSize().x;
-        unsigned tileY = position.y / tilemap.mesh.getVoxelSize().y;
-        return { tileX, tileY };
-    }
+	sf::Vector2u worldToTilePos(const sf::Vector2i& position)
+	{
+		unsigned tileX = position.x / map.getTileSize().x;
+		unsigned tileY = position.y / map.getTileSize().y;
+		return { tileX, tileY };
+	}
 
-    bool isPositionValid(const sf::Vector2u& tilePos) {
-        return !(tilePos.x < 0 || tilePos.y < 0
-            || tilePos.x >= tilemap.mesh.getDataSize().x
-            || tilePos.y >= tilemap.mesh.getDataSize().y);
-    }
+	bool isPositionValid(const sf::Vector2u& tilePos)
+	{
+		return !(tilePos.x < 0 || tilePos.y < 0
+			|| tilePos.x >= map.getMapDimensions().x
+			|| tilePos.y >= map.getMapDimensions().y);
+	}
 
-    virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const override {
-        return tgui::Texture(texture, clip.getFrame(spriteId));
-    }
+	virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const override
+	{
+		return tgui::Texture(texture, clip.getFrame(spriteId));
+	}
 
-    virtual std::size_t getSpriteCount() const override {
-        return clip.getFrameCount();
-    }
+	virtual std::size_t getSpriteCount() const override
+	{
+		return clip.getFrameCount();
+	}
 
-    virtual void penClicked(const sf::Vector2i& position) override;
-    virtual void penDragStarted(const sf::Vector2i& start) override;
-    virtual void penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) override;
-    virtual void penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) override;
-    virtual void penDragCancel(const sf::Vector2i& origin) override;
+	virtual void penClicked(const sf::Vector2i& position) override;
+	virtual void penDragStarted(const sf::Vector2i& start) override;
+	virtual void penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) override;
+	virtual void penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) override;
+	virtual void penDragCancel(const sf::Vector2i& origin) override;
 
 public:
-    virtual void configure(nlohmann::json &config);
+	virtual void configure(nlohmann::json& config);
 
-    virtual void resize(unsigned width, unsigned height);
+	virtual void resize(unsigned width, unsigned height);
 
-    virtual void saveTo(LevelD &lvd) override;
+	virtual void saveTo(LevelD& lvd) override;
 
-    virtual void loadFrom(const LevelD &lvd);
+	virtual void loadFrom(const LevelD& lvd);
 
-    virtual void drawTo(tgui::Canvas::Ptr &canvas, uint8_t opacity) override;
+	virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
 
-    virtual void penDelete() override {}
+	virtual void penDelete() override {}
 
-    virtual ToolProperty &getProperty() override;
+	virtual ToolProperty& getProperty() override;
 
-    virtual void setProperty(const ToolProperty &prop) override;
+	virtual void setProperty(const ToolProperty& prop) override;
 
-    virtual void buildCtxMenu(tgui::MenuBar::Ptr &menu) override;
+	virtual void buildCtxMenu(tgui::MenuBar::Ptr& menu) override;
 
-    ToolMesh(tgui::Gui& gui, std::function<void(void)> onStateChanged) : ToolWithSprites(gui, onStateChanged) {}
+	ToolMesh(tgui::Gui& gui, std::function<void(void)> onStateChanged) : ToolWithSprites(gui, onStateChanged) {}
 };
 
-namespace std {
-    std::string to_string(ToolMesh::DrawMode mode);
+namespace std
+{
+	std::string to_string(ToolMesh::DrawMode mode);
 }

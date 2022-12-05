@@ -43,8 +43,8 @@ protected:
 	* Each dialog can be then implemented via factory class (types of std::function should be swallowed and not type checked, fingers crossed)
 	* and then the factory class can be injected as a dependency to this class.
 	*/
-	NewLevelDialog dialogNewLevel = NewLevelDialog(gui, ini);
-	YesNoCancelDialog dialogConfirmExit = YesNoCancelDialog(gui);
+	NewLevelDialog dialogNewLevel = NewLevelDialog(gui, theme, ini);
+	YesNoCancelDialog dialogConfirmExit = YesNoCancelDialog(gui, theme);
 
 	// Editor
 	std::unique_ptr<EditorInterface> editor;

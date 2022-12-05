@@ -2,15 +2,19 @@
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
 #include <filesystem>
+#include "include/Commands/SetTileCommand.hpp"
+#include <include/Commands/ResizeCommand.hpp>
 
 void ToolMesh::penClicked(const sf::Vector2i& position)
 {
-	signalStateChanged();
+	signalStateChanged(); // those signals could be handled by commands
 
 	auto tilePos = worldToTilePos(position);
 	if (isPositionValid(tilePos))
 	{
-		tilemap.drawArea(position, position, true, penValue, defaultBlocks[penValue]);
+		SetTileCommand command(map, tilePos, penValue, defaultBlocks[penValue]);
+		// TODO: move evaluation somewhere else
+		std::ignore = command.exec();
 	}
 }
 
@@ -37,11 +41,11 @@ void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 
 	if (mode == DrawMode::RectEdge)
 	{
-		tilemap.drawArea(start, end, false, penValue, defaultBlocks[penValue]);
+		map.setTileArea(start, end, false, penValue, defaultBlocks[penValue]);
 	}
 	else if (mode == DrawMode::RectFill)
 	{
-		tilemap.drawArea(start, end, true, penValue, defaultBlocks[penValue]);
+		map.setTileArea(start, end, true, penValue, defaultBlocks[penValue]);
 	}
 }
 
@@ -72,7 +76,7 @@ void ToolMesh::configure(nlohmann::json& config)
 	}
 
 	clip = dgm::Clip(tileDims, bounds, 0, tileOffs);
-	tilemap = Tilemap(texture, clip); // NOTE: The copy probly messes up internal texture (shared_ptr?)
+	map = DrawableLeveldMesh(texture, clip); // NOTE: The copy probly messes up internal texture (shared_ptr?)
 
 	rectShape.setOutlineColor(sf::Color(255, 0, 0, 128));
 	rectShape.setOutlineThickness(2.f);
@@ -84,28 +88,8 @@ void ToolMesh::resize(unsigned width, unsigned height)
 {
 	signalStateChanged();
 
-	std::vector<int> newTileData(width * height, 0);
-	std::vector<int> newBlockData(width * height, 0);
-
-	// Copy and center data
-	// TODO: Make this testable?
-	if (not tilemap.empty() && tilemap.mesh.getDataSize().x <= width && tilemap.mesh.getDataSize().y <= height)
-	{
-		const auto offset = (sf::Vector2u(width, height) - tilemap.mesh.getDataSize()) / 2u;
-
-		for (unsigned y = 0; y < tilemap.mesh.getDataSize().y; y++)
-		{
-			for (unsigned x = 0; x < tilemap.mesh.getDataSize().x; x++)
-			{
-				const unsigned newDataIndex = (y + offset.y) * tilemap.mesh.getDataSize().x + (x + offset.x);
-
-				newTileData[newDataIndex] = tilemap.getTile(x, y);
-				newBlockData[newDataIndex] = tilemap.getTileBlock(x, y);
-			}
-		}
-	}
-
-	tilemap.buildAll(newTileData, newBlockData, { width, height });
+	ResizeMeshCommand command(map, { width, height });
+	command.exec();
 
 	// TODO: Testing scenario:
 	// resizing (bigger, smaller)
@@ -116,8 +100,8 @@ void ToolMesh::saveTo(LevelD& lvd)
 	Log::write("ToolMesh::saveTo");
 	lvd.mesh.tileWidth = clip.getFrameSize().x;
 	lvd.mesh.tileHeight = clip.getFrameSize().y;
-	lvd.mesh.layerWidth = tilemap.mesh.getDataSize().x;
-	lvd.mesh.layerHeight = tilemap.mesh.getDataSize().y;
+	lvd.mesh.layerWidth = map.getMapDimensions().x;
+	lvd.mesh.layerHeight = map.getMapDimensions().y;
 
 	lvd.mesh.layers.resize(1);
 	lvd.mesh.layers[0].tiles.resize(lvd.mesh.layerWidth * lvd.mesh.layerHeight);
@@ -126,8 +110,8 @@ void ToolMesh::saveTo(LevelD& lvd)
 	{
 		for (unsigned tileX = 0; tileX < lvd.mesh.layerWidth; tileX++, i++)
 		{
-			lvd.mesh.layers[0].tiles[i] = tilemap.getTile(tileX, tileY);
-			lvd.mesh.layers[0].blocks[i] = tilemap.mesh[i];
+			lvd.mesh.layers[0].tiles[i] = map.getTileValue({ tileX, tileY });
+			lvd.mesh.layers[0].blocks[i] = map.isTileSolid({ tileX, tileY });
 		}
 	}
 }
@@ -144,16 +128,12 @@ void ToolMesh::loadFrom(const LevelD& lvd)
 		lvd.mesh.layers[0].blocks.end());
 	const auto dataSize = sf::Vector2u(lvd.mesh.layerWidth, lvd.mesh.layerHeight);
 
-	bgr.build(dataSize, clip.getFrameSize());
-	tilemap.buildAll(tilemapData, collisionData, dataSize);
+	map.build(tilemapData, collisionData, dataSize);
 }
 
 void ToolMesh::drawTo(tgui::Canvas::Ptr& canvas, uint8_t)
 {
-	canvas->draw(tilemap);
-	bgr.draw(canvas);
-
-	if (enableOverlay) canvas->draw(tilemap.overlay.map);
+	map.drawTo(canvas, enableOverlay);
 
 	if (isPenDragging())
 	{
@@ -175,8 +155,8 @@ ToolProperty& ToolMesh::getProperty()
 
 	tileProperty.tileX = tilePos.x;
 	tileProperty.tileY = tilePos.y;
-	tileProperty.tileValue = tilemap.getTile(tilePos.x, tilePos.y);
-	tileProperty.blocking = tilemap.getTileBlock(tilePos.x, tilePos.y);
+	tileProperty.tileValue = map.getTileValue(tilePos);
+	tileProperty.blocking = map.isTileSolid(tilePos);
 	tileProperty.defaultBlocking = defaultBlocks[tileProperty.tileValue];
 	tileProperty.imageTexture = getSpriteAsTexture(tileProperty.tileValue);
 	tileProperty.empty = false;
@@ -186,7 +166,8 @@ ToolProperty& ToolMesh::getProperty()
 
 void ToolMesh::setProperty(const ToolProperty&)
 {
-	tilemap.setTile(tileProperty.tileX, tileProperty.tileY, tileProperty.tileValue, tileProperty.blocking);
+	map.setTileValue({ tileProperty.tileX, tileProperty.tileY }, tileProperty.tileValue);
+	map.setTileValue({ tileProperty.tileX, tileProperty.tileY }, tileProperty.blocking);
 	signalStateChanged();
 }
 
@@ -207,7 +188,7 @@ void ToolMesh::buildCtxMenu(tgui::MenuBar::Ptr& menu)
 
 void ToolMesh::changeDrawingMode(ToolMesh::DrawMode newMode)
 {
-	Log::write("Mesh: Changing draw mode to " + std::to_string(newMode));
+	Log::write("Mesh: Changing drawTo mode to " + std::to_string(newMode));
 	mode = newMode;
 	if (mode == DrawMode::RectEdge)
 	{

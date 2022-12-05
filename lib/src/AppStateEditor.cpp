@@ -13,12 +13,12 @@ void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
 		confirmExitDialog.open(DIALOG_TITLE_WARNING, DIALOG_TEXT_UNSAVED_EXIT, [&] (UserChoice choice)
 			{
 				if (choice == UserChoice::Cancelled)
-					return;
+				return;
 				else if (choice == UserChoice::Confirmed)
 					saveLevel();
 				else
 					unsavedChanges = false;
-				handleExit(confirmExitDialog);
+		handleExit(confirmExitDialog);
 			});
 	}
 	else
@@ -162,7 +162,7 @@ AppStateEditor::AppStateEditor(
 	editor = std::make_unique<Editor>(gui, theme, canvas, [&] ()
 	{
 		unsavedChanges = true;
-		updateWindowTitle();
+	updateWindowTitle();
 	});
 
 	// Gui setup
@@ -202,6 +202,7 @@ void AppStateEditor::buildLayout()
 	menu->setTextSize(Sizers::GetMenuBarTextHeight());
 	menu->setRenderer(theme.getRenderer("MenuBar"));
 	menu->getRenderer()->setTextColor(sf::Color::Black);
+
 	menu->setSize("100%", TOPBAR_HEIGHT);
 	menu->addMenu("File");
 	menu->addMenuItem(FILE_CTX_NEW);
@@ -286,8 +287,8 @@ void AppStateEditor::loadLevel()
 	}
 	catch (...) { return; } // User cancel
 
- // The load path becomes save path for subsequent saves
 
+	// The load path becomes save path for subsequent saves
 	try
 	{
 		filePath = savePath;
