@@ -120,7 +120,10 @@ void AppStateEditor::input()
 	}
 }
 
-void AppStateEditor::update() {}
+void AppStateEditor::update()
+{
+	commandQueue.processAll();
+}
 
 void AppStateEditor::draw()
 {
@@ -163,7 +166,7 @@ AppStateEditor::AppStateEditor(
 	{
 		unsavedChanges = true;
 	updateWindowTitle();
-	});
+	}, commandQueue);
 
 	// Gui setup
 	theme.load(rootDir + "/resources/TransparentGrey.txt");

@@ -6,6 +6,7 @@
 #include <LevelD.hpp>
 
 #include "ToolProperty.hpp"
+#include "include/Commands/CommandQueue.hpp"
 
 /**
  *  This is generic top level class representing an Editor Tool.
@@ -40,6 +41,7 @@ protected:
 	const std::string CTX_MENU_NAME = "Tool";
 	tgui::Gui& gui;
 	std::function<void(void)> onStateChangedCallback;
+	CommandQueue& commandQueue;
 
 	void registerShortcut(sf::Keyboard::Key key, std::function<void(void)> callback);
 	void clearShortcuts()
@@ -114,9 +116,18 @@ public:
 
 	void buildSidebar(tgui::Theme& theme);
 
-	Tool(tgui::Gui& gui, std::function<void(void)> onStateChanged) : gui(gui), onStateChangedCallback(onStateChanged) {}
+	Tool(
+		tgui::Gui& gui,
+		std::function<void(void)> onStateChanged,
+		CommandQueue& commandQueue)
+		: gui(gui)
+		, onStateChangedCallback(onStateChanged)
+		, commandQueue(commandQueue)
+	{}
 };
 
+// Keeps track of which tiles were used in the past
+// to display them on the right sidebar
 class ToolMeshHistory
 {
 private:
@@ -166,7 +177,12 @@ public:
 	virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const = 0;
 	virtual std::size_t getSpriteCount() const = 0;
 
-	ToolWithSprites(tgui::Gui& gui, std::function<void(void)> onStateChanged) : Tool(gui, onStateChanged) {}
+	ToolWithSprites(
+		tgui::Gui& gui,
+		std::function<void(void)> onStateChanged,
+		CommandQueue& commandQueue)
+		: Tool(gui, onStateChanged, commandQueue)
+	{}
 };
 
 namespace Helper

@@ -18,7 +18,10 @@ public:
 	{}
 
 public:
-	std::unique_ptr<CommandInterface> exec() override;
+	void exec() override;
+
+	[[nodiscard]]
+	std::unique_ptr<CommandInterface> getInverse() const override;
 };
 
 class ResizeCommand final : public CommandInterface
@@ -32,5 +35,8 @@ public:
 	{}
 
 public:
-	std::unique_ptr<CommandInterface> exec() override;
+	void exec() override;
+
+	[[nodiscard]]
+	std::unique_ptr<CommandInterface> getInverse() const override;
 };

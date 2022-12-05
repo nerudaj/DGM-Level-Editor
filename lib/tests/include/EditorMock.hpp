@@ -11,6 +11,7 @@ struct EditorMockState
 	unsigned loadFromFileCallCounter = 0;
 	unsigned switchToolCallCounter = 0;
 	unsigned resizeDialogCallCounter = 0;
+	unsigned shrinkToFitCallCounter = 0;
 };
 
 class EditorMock final : public EditorInterface
@@ -56,6 +57,11 @@ public:
 	virtual void resizeDialog() override
 	{
 		state->resizeDialogCallCounter++;
+	}
+
+	virtual void shrinkToFit() override
+	{
+		state->shrinkToFitCallCounter++;
 	}
 
 	EditorMock(EditorMockState* state) : state(state) {}

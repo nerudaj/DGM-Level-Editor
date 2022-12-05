@@ -1,6 +1,6 @@
 #include "include/Commands/ResizeCommand.hpp"
 
-std::unique_ptr<CommandInterface> ResizeMeshCommand::exec()
+void ResizeMeshCommand::exec()
 {
 	auto tileValues = std::vector<int>(newSize.x * newSize.y, 0);
 	auto solidValues = std::vector<int>(newSize.x * newSize.y, 0);
@@ -28,13 +28,20 @@ std::unique_ptr<CommandInterface> ResizeMeshCommand::exec()
 	}
 
 	target.build(tileValues, solidValues, { newSize.x, newSize.y });
+}
 
+std::unique_ptr<CommandInterface> ResizeMeshCommand::getInverse() const
+{
 	return nullptr;
 }
 
-std::unique_ptr<CommandInterface> ResizeCommand::exec()
+void ResizeCommand::exec()
 {
 	// TODO: snapshoting
 	meshCommand->exec();
+}
+
+std::unique_ptr<CommandInterface> ResizeCommand::getInverse() const
+{
 	return nullptr;
 }

@@ -2,7 +2,8 @@
 
 #include "Tool.hpp"
 
-class ItemToolProperty : public ImageToolProperty {
+class ItemToolProperty : public ImageToolProperty
+{
 	// Dìdí se pøes ImageToolProperty.
 	virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) override;
 
@@ -11,26 +12,31 @@ public:
 	LevelD::Thing data;
 	bool empty = true;
 
-	virtual bool isEmpty() override {
+	virtual bool isEmpty() override
+	{
 		return empty;
 	}
 
-	virtual void clear() override {
+	virtual void clear() override
+	{
 		empty = true;
 	}
 
-	ItemToolProperty(tgui::Gui &gui, Tool* parent) : ImageToolProperty(gui, parent) {}
+	ItemToolProperty(tgui::Gui& gui, Tool* parent) : ImageToolProperty(gui, parent) {}
 };
 
-class ToolItem : public ToolWithSprites {
+class ToolItem : public ToolWithSprites
+{
 public:
-	enum class EditMode : std::size_t {
+	enum class EditMode : std::size_t
+	{
 		ModeDraw, ModeErase
 	};
 	const sf::Vector2i NULL_VECTOR = sf::Vector2i(-1, -1);
 
 protected:
-	struct ItemRenderData {
+	struct ItemRenderData
+	{
 		sf::Texture texture;
 		tgui::Texture guiTexture;
 		sf::IntRect clip;
@@ -54,19 +60,22 @@ protected:
 
 	void changeEditMode(EditMode mode);
 
-	bool isValidPenPosForDrawing(const sf::Vector2i& pos) const {
+	bool isValidPenPosForDrawing(const sf::Vector2i& pos) const
+	{
 		return !(pos.x < 0 || pos.y < 0 || pos.x >= levelSize.x || pos.y >= levelSize.y);
 	}
 
-	virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const override {
+	virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const override
+	{
 		return renderData[spriteId].guiTexture;
 	}
 
-	virtual std::size_t getSpriteCount() const override {
+	virtual std::size_t getSpriteCount() const override
+	{
 		return renderData.size();
 	}
 
-	std::size_t getItemFromPosition(const sf::Vector2f &vec) const;
+	std::size_t getItemFromPosition(const sf::Vector2f& vec) const;
 
 	void selectItemsInArea(sf::IntRect& selectedArea);
 
@@ -97,9 +106,15 @@ public:
 
 	virtual void buildCtxMenu(tgui::MenuBar::Ptr& menu) override;
 
-	ToolItem(tgui::Gui& gui, std::function<void(void)> onStateChanged) : ToolWithSprites(gui, onStateChanged) {}
+	ToolItem(
+		tgui::Gui& gui,
+		std::function<void(void)> onStateChanged,
+		CommandQueue& commandQueue)
+		: ToolWithSprites(gui, onStateChanged, commandQueue)
+	{}
 };
 
-namespace std {
+namespace std
+{
 	std::string to_string(ToolItem::EditMode mode);
 };

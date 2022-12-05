@@ -24,6 +24,7 @@ set ( SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/ToolMeshTest.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/AppStateEditor.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/CommandHistoryTest.cpp"
 )
 
 add_executable ( ${PROJECT_NAME}

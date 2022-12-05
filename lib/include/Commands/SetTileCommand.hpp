@@ -8,9 +8,11 @@ class SetTileCommand final : public CommandInterface
 {
 protected:
 	DrawableLeveldMesh& targetMesh;
-	const sf::Vector2u& tilePos;
-	unsigned value;
-	bool blocking;
+	sf::Vector2u tilePos;
+	unsigned value = 0;
+	bool blocking = false;
+	unsigned oldValue = 0;
+	bool oldBlocking = false;
 
 public:
 	SetTileCommand(
@@ -25,6 +27,8 @@ public:
 	{}
 
 public:
+	void exec() override;
+
 	[[nodiscard]]
-	std::unique_ptr<CommandInterface> exec() override;
+	std::unique_ptr<CommandInterface> getInverse() const override;
 };

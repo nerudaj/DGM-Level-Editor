@@ -12,9 +12,7 @@ void ToolMesh::penClicked(const sf::Vector2i& position)
 	auto tilePos = worldToTilePos(position);
 	if (isPositionValid(tilePos))
 	{
-		SetTileCommand command(map, tilePos, penValue, defaultBlocks[penValue]);
-		// TODO: move evaluation somewhere else
-		std::ignore = command.exec();
+		commandQueue.push(std::make_unique<SetTileCommand>(map, tilePos, penValue, defaultBlocks[penValue]));
 	}
 }
 

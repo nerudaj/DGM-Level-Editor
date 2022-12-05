@@ -9,6 +9,8 @@
 #include "Editor.hpp"
 #include "include/FileApi.hpp"
 #include <optional>
+#include "include/Commands/CommandQueue.hpp"
+#include "include/Commands/CommandHistory.hpp"
 
 /**
  *  This class is responsible for drawing top level gui - topbar, canvas, console, bootstrapping
@@ -30,6 +32,10 @@ protected:
 	// Gui
 	tgui::Gui gui;
 	tgui::Canvas::Ptr canvas;
+
+	// History
+	CommandHistory commandHistory;
+	CommandQueue commandQueue = CommandQueue(commandHistory);
 
 	/*
 	*  HOW TO MAKE THIS NICER:

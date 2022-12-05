@@ -8,6 +8,7 @@
 #include "Tools/ToolItem.hpp"
 #include "Tools/ToolTrigger.hpp"
 #include "Dialogs/ResizeLevelDialog.hpp"
+#include "include/Commands/CommandQueue.hpp"
 
 class EditorInterface
 {
@@ -48,6 +49,8 @@ private:
 	Camera camera = Camera(canvas);
 	EditorStateManager stateMgr;
 	sf::CircleShape mouseIndicator;
+
+	CommandQueue& commandQueue;
 
 	bool initialized = false;
 	std::string configPath;
@@ -94,5 +97,10 @@ public:
 
 	virtual void shrinkToFit() override;
 
-	Editor(tgui::Gui& gui, tgui::Theme& theme, tgui::Canvas::Ptr& canvas, std::function<void(void)> onStateChanged);
+	Editor(
+		tgui::Gui& gui,
+		tgui::Theme& theme,
+		tgui::Canvas::Ptr& canvas,
+		std::function<void(void)> onStateChanged,
+		CommandQueue& commandQueue);
 };

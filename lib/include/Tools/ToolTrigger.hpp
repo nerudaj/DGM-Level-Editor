@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Tool.hpp"
+#include "include/Commands/CommandQueue.hpp"
 
-class ToolTriggerProperty : public ToolProperty {
+class ToolTriggerProperty : public ToolProperty
+{
 public:
 	LevelD::Trigger data;
 	std::size_t id = -1;
@@ -12,12 +14,14 @@ public:
 	virtual bool isEmpty() override { return id == -1; }
 	virtual void clear() override { id = -1; }
 
-	ToolTriggerProperty(tgui::Gui& gui, Tool* parent) : ToolProperty(gui, parent) {
+	ToolTriggerProperty(tgui::Gui& gui, Tool* parent) : ToolProperty(gui, parent)
+	{
 		clear();
 	}
 };
 
-class ToolTrigger : public Tool {
+class ToolTrigger : public Tool
+{
 private:
 	using PenType = LevelD::Trigger::AreaType;
 
@@ -50,10 +54,11 @@ private:
 	void updateVisForTrigger(sf::CircleShape& vis, const LevelD::Trigger& trigger);
 	void updateVisForTrigger(sf::RectangleShape& vis, const LevelD::Trigger& trigger);
 
-	bool isValidPenPosForDrawing(const sf::Vector2i& pos) const {
+	bool isValidPenPosForDrawing(const sf::Vector2i& pos) const
+	{
 		return !(pos.x < 0 || pos.y < 0 || pos.x >= levelSize.x || pos.y >= levelSize.y);
 	}
-	
+
 	virtual void penClicked(const sf::Vector2i& position) override;
 	virtual void penDragStarted(const sf::Vector2i& start) override;
 	virtual void penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) override;
@@ -71,5 +76,10 @@ public:
 	virtual ToolProperty& getProperty() override;
 	virtual void setProperty(const ToolProperty& prop) override;
 
-	ToolTrigger(tgui::Gui& gui, std::function<void(void)> onStateChanged) : Tool(gui, onStateChanged) {}
+	ToolTrigger(
+		tgui::Gui& gui,
+		std::function<void(void)> onStateChanged,
+		CommandQueue& commandQueue)
+		: Tool(gui, onStateChanged, commandQueue)
+	{}
 };

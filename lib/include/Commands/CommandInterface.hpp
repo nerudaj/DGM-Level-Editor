@@ -26,5 +26,8 @@ public:
 
 public:
 	// Execute command and return undo command
-	virtual std::unique_ptr<CommandInterface> exec() = 0;
+	virtual void exec() = 0;
+
+	[[nodiscard]]
+	virtual std::unique_ptr<CommandInterface> getInverse() const = 0;
 };
