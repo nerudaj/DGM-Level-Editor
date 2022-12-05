@@ -247,6 +247,9 @@ void AppStateEditor::buildLayout()
 	addEditorMenuItem("Resize level (R)",
 		[this] () { editor->resizeDialog(); },
 		sf::Keyboard::R);
+	addEditorMenuItem("Shrink level to fit (S)",
+		[this] () { editor->shrinkToFit(); },
+		sf::Keyboard::S);
 
 	// Must be added AFTER canvas, otherwise canvas blocks pop-up menus
 	gui.add(menu, "TopMenuBar");

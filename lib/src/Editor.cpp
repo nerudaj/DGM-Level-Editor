@@ -128,6 +128,9 @@ void Editor::resizeDialog() {
 	});
 }
 
+void Editor::shrinkToFit()
+{}
+
 Editor::Editor(tgui::Gui &gui, tgui::Theme &theme, tgui::Canvas::Ptr& canvas, std::function<void(void)> onStateChanged) : gui(gui), theme(theme), canvas(canvas) {
 	// Instantiate all EditorTools here
 	stateMgr.addState(std::to_string(ToolType::Mesh), new ToolMesh(gui, onStateChanged));

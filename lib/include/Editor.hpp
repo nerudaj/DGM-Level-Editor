@@ -33,6 +33,8 @@ public:
 
 	virtual void resizeDialog() = 0;
 
+	virtual void shrinkToFit() = 0;
+
 	virtual ~EditorInterface() = default;
 };
 
@@ -89,6 +91,8 @@ public:
 	virtual void saveToFile(const std::string& filename) override;
 
 	virtual void resizeDialog() override;
+
+	virtual void shrinkToFit() override;
 
 	Editor(tgui::Gui& gui, tgui::Theme& theme, tgui::Canvas::Ptr& canvas, std::function<void(void)> onStateChanged);
 };
