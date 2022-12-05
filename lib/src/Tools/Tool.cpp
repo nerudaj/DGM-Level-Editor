@@ -91,7 +91,7 @@ void ToolWithSprites::buildSpriteIdSelectionModal(tgui::Gui& gui, tgui::Theme& t
 	if (gui.get<tgui::ChildWindow>("ToolSelection")) return;
 
 	// Create wrapper window
-	auto modal = createNewChildWindow("Tile Selection");
+	auto modal = createNewChildWindow(theme, "Tile Selection");
 	modal->setSize("70%", "70%");
 	modal->setPosition("15%", "15%");
 	gui.add(modal, "ToolSelection");

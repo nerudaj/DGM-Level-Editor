@@ -20,10 +20,11 @@ public:
 class YesNoCancelDialog : public YesNoCancelDialogInterface
 {
 	tgui::Gui& gui;
+	tgui::Theme& theme;
 	const std::string DIALOG_ID = "YesNoCancelDialog";
 
 public:
 	virtual void open(const std::string title, const std::string& text, std::function<void(UserChoice)> completedCallback) override;
 
-	YesNoCancelDialog(tgui::Gui& gui) : gui(gui) {};
+	YesNoCancelDialog(tgui::Gui& gui, tgui::Theme& theme) : gui(gui), theme(theme) {};
 };

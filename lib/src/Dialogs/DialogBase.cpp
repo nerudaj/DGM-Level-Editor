@@ -6,7 +6,7 @@ void DialogInterface::open(std::function<void()> confirmCallback)
 {
 	if (isOpen()) return;
 
-	auto modal = createNewChildWindow(DIALOG_TITLE);
+	auto modal = createNewChildWindow(theme, DIALOG_TITLE);
 	modal->setSize("30%", "50%");
 	modal->setPosition("35%", "25%");
 	modal->connect("EscapeKeyPressed", [this] () { close(); });
@@ -51,7 +51,7 @@ void DialogInterface::open(std::function<void()> confirmCallback)
 	btn->connect("clicked", [this, confirmCallback] ()
 	{
 		confirmCallback();
-		close();
+	close();
 	});
 	modal->add(btn);
 
@@ -69,11 +69,13 @@ void DialogInterface::open(std::function<void()> confirmCallback)
 
 DialogInterface::DialogInterface(
 	tgui::Gui& gui,
+	tgui::Theme& theme,
 	const std::string& dialogId,
 	const std::string& dialogTitle,
 	const std::vector<OptionLine>& options)
 	:
 	gui(gui),
+	theme(theme),
 	DIALOG_ID(dialogId),
 	DIALOG_TITLE(dialogTitle),
 	OPTIONS(options)

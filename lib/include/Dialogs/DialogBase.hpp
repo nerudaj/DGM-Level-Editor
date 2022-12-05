@@ -17,6 +17,7 @@ public:
 
 protected:
 	tgui::Gui& gui;
+	tgui::Theme& theme;
 	const std::string DIALOG_ID;
 	const std::string DIALOG_TITLE;
 	const std::vector<OptionLine> OPTIONS;
@@ -47,6 +48,7 @@ public:
 
 	DialogInterface(
 		tgui::Gui& gui,
+		tgui::Theme& theme,
 		const std::string& dialogId,
 		const std::string& dialogTitle,
 		const std::vector<OptionLine>& options);

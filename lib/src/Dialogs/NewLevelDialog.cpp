@@ -33,10 +33,12 @@ std::string NewLevelDialog::getConfigPath() const
 
 NewLevelDialog::NewLevelDialog(
 	tgui::Gui& gui,
+	tgui::Theme& theme,
 	cfg::Ini& ini)
 	:
 	DialogInterface(
 		gui,
+		theme,
 		"ModalNewLevel",
 		"New Level",
 		std::vector<OptionLine>({

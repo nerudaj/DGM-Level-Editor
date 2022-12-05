@@ -11,19 +11,19 @@ static void closeModal(tgui::Gui& gui, const std::string& id)
 
 void YesNoCancelDialog::open(const std::string title, const std::string& text, std::function<void(UserChoice)> completedCallback)
 {
-	auto modal = createNewChildWindow(title);
+	auto modal = createNewChildWindow(theme, title);
 	modal->setSize("20%", "10%");
 	modal->setPosition("40%", "40%");
 	modal->setPositionLocked(true);
 	modal->connect("EscapeKeyPressed", [this, completedCallback] ()
 	{
 		closeModal(gui, DIALOG_ID);
-		completedCallback(UserChoice::Cancelled);
+	completedCallback(UserChoice::Cancelled);
 	});
 	modal->connect("Closed", [this, completedCallback] ()
 	{
 		closeModal(gui, DIALOG_ID);
-		completedCallback(UserChoice::Cancelled);
+	completedCallback(UserChoice::Cancelled);
 	});
 	gui.add(modal, DIALOG_ID);
 
@@ -51,7 +51,7 @@ void YesNoCancelDialog::open(const std::string title, const std::string& text, s
 		btn->connect("clicked", [this, choice, completedCallback] ()
 		{
 			closeModal(gui, DIALOG_ID);
-			completedCallback(choice);
+		completedCallback(choice);
 		});
 		modal->add(btn);
 		xOffset += 32.25f;

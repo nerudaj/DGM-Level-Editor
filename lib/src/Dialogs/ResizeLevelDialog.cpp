@@ -13,10 +13,11 @@ unsigned ResizeDialog::getLevelHeight() const
 	return std::stoul(getEditboxValue(INPUT_LEVEL_HEIGHT_ID));
 }
 
-ResizeDialog::ResizeDialog(tgui::Gui& gui)
+ResizeDialog::ResizeDialog(tgui::Gui& gui, tgui::Theme& theme)
 	:
 	DialogInterface(
 		gui,
+		theme,
 		"ResizeLevelDialog",
 		"Resize Level",
 		std::vector<OptionLine>({

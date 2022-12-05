@@ -11,9 +11,10 @@ const float TITLEBAR_HEIGHT = 50.f;
 
 #include "Configs/Sizers.hpp"
 
-static inline tgui::ChildWindow::Ptr createNewChildWindow(const std::string& title)
+static inline tgui::ChildWindow::Ptr createNewChildWindow(tgui::Theme& theme, const std::string& title)
 {
 	auto modal = tgui::ChildWindow::create(title);
+	modal->setRenderer(theme.getRenderer("ChildWindow"));
 	modal->getRenderer()->setTitleBarHeight(
 		Sizers::GetMenuBarHeight());
 	modal->setTitleTextSize(

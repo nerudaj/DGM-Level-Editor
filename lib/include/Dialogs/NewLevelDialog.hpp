@@ -32,7 +32,7 @@ public:
 	[[nodiscard]]
 	std::string getConfigPath() const;
 
-	NewLevelDialog(tgui::Gui& gui, cfg::Ini& ini);
+	NewLevelDialog(tgui::Gui& gui, tgui::Theme& theme, cfg::Ini& ini);
 	NewLevelDialog(const NewLevelDialog&) = delete;
 	NewLevelDialog(NewLevelDialog&&) = delete;
 };

@@ -42,7 +42,7 @@ private:
 	tgui::Gui& gui;
 	tgui::Theme& theme;
 	tgui::Canvas::Ptr& canvas;
-	ResizeDialog dialog = ResizeDialog(gui);
+	ResizeDialog dialog = ResizeDialog(gui, theme);
 	Camera camera = Camera(canvas);
 	EditorStateManager stateMgr;
 	sf::CircleShape mouseIndicator;
