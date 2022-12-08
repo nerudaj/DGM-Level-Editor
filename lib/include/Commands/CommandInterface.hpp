@@ -31,3 +31,6 @@ public:
 	[[nodiscard]]
 	virtual std::unique_ptr<CommandInterface> getInverse() const = 0;
 };
+
+template<class T>
+concept IsDerivedFromCommandInterface = std::derived_from<T, CommandInterface>;

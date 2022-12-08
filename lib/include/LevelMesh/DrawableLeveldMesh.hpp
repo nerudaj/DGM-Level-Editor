@@ -73,14 +73,4 @@ public:
 	{
 		return mesh.isTileSolid(tilePos.x, tilePos.y);
 	}
-
-	// TODO: this should be implemented as a Command
-	// which would read each tile first, remember it so it could make inverse command
-	// and then set it to whatever
-	void setTileArea(
-		const sf::Vector2i& start,
-		const sf::Vector2i& end,
-		bool fill,
-		unsigned tileValue,
-		bool blocking);
 };

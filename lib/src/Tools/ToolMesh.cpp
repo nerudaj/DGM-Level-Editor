@@ -3,16 +3,22 @@
 #include "include/LogConsole.hpp"
 #include <filesystem>
 #include "include/Commands/SetTileCommand.hpp"
+#include "include/Commands/SetTileAreaCommand.hpp"
 #include <include/Commands/ResizeCommand.hpp>
+#include "include/Utilities.hpp"
 
 void ToolMesh::penClicked(const sf::Vector2i& position)
 {
 	signalStateChanged(); // those signals could be handled by commands
 
-	auto tilePos = worldToTilePos(position);
+	const auto tilePos = worldToTilePos(position);
 	if (isPositionValid(tilePos) && penValue != map.getTileValue(tilePos))
 	{
-		commandQueue.push(std::make_unique<SetTileCommand>(map, tilePos, penValue, defaultBlocks[penValue]));
+		commandQueue.push<SetTileCommand>(
+			map,
+			tilePos,
+			penValue,
+			defaultBlocks.at(penValue));
 	}
 }
 
@@ -37,13 +43,31 @@ void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 {
 	signalStateChanged();
 
+	const auto startTile = worldToTilePos(
+		Utilities::clipNegativeCoords(start));
+	const auto endTile = worldToTilePos(
+		Utilities::clipNegativeCoords(end));
 	if (mode == DrawMode::RectEdge)
 	{
-		map.setTileArea(start, end, false, penValue, defaultBlocks[penValue]);
+		constexpr bool DONT_FILL = false;
+		commandQueue.push<SetTileAreaCommand>(
+			map,
+			startTile,
+			endTile,
+			penValue,
+			defaultBlocks.at(penValue),
+			DONT_FILL);
 	}
 	else if (mode == DrawMode::RectFill)
 	{
-		map.setTileArea(start, end, true, penValue, defaultBlocks[penValue]);
+		constexpr bool FILL = true;
+		commandQueue.push<SetTileAreaCommand>(
+			map,
+			startTile,
+			endTile,
+			penValue,
+			defaultBlocks.at(penValue),
+			FILL);
 	}
 }
 

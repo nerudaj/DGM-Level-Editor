@@ -20,9 +20,11 @@ public:
 	CommandQueue(const CommandQueue&) = delete;
 
 public:
-	void push(std::unique_ptr<CommandInterface>&& command)
+	template<IsDerivedFromCommandInterface T, class ...Args>
+		requires std::constructible_from<T, Args...>
+	void push(Args&& ... args)
 	{
-		commands.push(std::move(command));
+		commands.push(std::make_unique<T>(std::forward<Args>(args)...));
 	}
 
 	void processAll();
