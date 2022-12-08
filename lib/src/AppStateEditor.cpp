@@ -46,11 +46,13 @@ std::optional<std::string> AppStateEditor::getNewSavePath()
 void AppStateEditor::handleUndo()
 {
 	Log::write("Undo");
+	commandHistory.undo();
 }
 
 void AppStateEditor::handleRedo()
 {
 	Log::write("Redo");
+	commandHistory.redo();
 }
 
 void AppStateEditor::handleShortcut(const sf::Keyboard::Key modKey, const sf::Keyboard::Key mainKey)

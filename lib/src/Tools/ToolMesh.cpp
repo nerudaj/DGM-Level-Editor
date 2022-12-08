@@ -10,7 +10,7 @@ void ToolMesh::penClicked(const sf::Vector2i& position)
 	signalStateChanged(); // those signals could be handled by commands
 
 	auto tilePos = worldToTilePos(position);
-	if (isPositionValid(tilePos))
+	if (isPositionValid(tilePos) && penValue != map.getTileValue(tilePos))
 	{
 		commandQueue.push(std::make_unique<SetTileCommand>(map, tilePos, penValue, defaultBlocks[penValue]));
 	}
