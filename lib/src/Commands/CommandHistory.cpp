@@ -20,4 +20,9 @@ void CommandHistory::undo()
 }
 
 void CommandHistory::redo()
-{}
+{
+	if (index == commands.size()) return;
+
+	commands[index]->exec();
+	index++;
+}

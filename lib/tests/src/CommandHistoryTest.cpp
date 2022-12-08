@@ -71,5 +71,28 @@ TEST_CASE("[CommandHistory]")
 		REQUIRE(history.test_getIndex() == 0u);
 	}
 
-	SECTION("TODO: redo") {}
+	SECTION("Add item, undo, redo, add item")
+	{
+		history.add(std::make_unique<TestCommand>(board));
+
+		history.undo();
+		REQUIRE(history.test_getCommands().size() == 1u);
+		REQUIRE(history.test_getIndex() == 0u);
+
+		history.redo();
+		REQUIRE(history.test_getCommands().size() == 1u);
+		REQUIRE(history.test_getIndex() == 1u);
+
+		history.add(std::make_unique<TestCommand>(board));
+		REQUIRE(history.test_getCommands().size() == 2u);
+		REQUIRE(history.test_getIndex() == 2u);
+	}
+
+	SECTION("Redoing not undoed history does nothing")
+	{
+		history.add(std::make_unique<TestCommand>(board));
+		history.redo();
+		REQUIRE(board.getInverseCalled == 0u);
+		REQUIRE(board.execCalled == 0u);
+	}
 }
