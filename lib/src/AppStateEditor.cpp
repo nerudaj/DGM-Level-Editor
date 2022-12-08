@@ -43,6 +43,32 @@ std::optional<std::string> AppStateEditor::getNewSavePath()
 	}
 }
 
+void AppStateEditor::handleUndo()
+{
+	Log::write("Undo");
+}
+
+void AppStateEditor::handleRedo()
+{
+	Log::write("Redo");
+}
+
+void AppStateEditor::handleShortcut(const sf::Keyboard::Key modKey, const sf::Keyboard::Key mainKey)
+{
+	if (modKey == sf::Keyboard::LControl && appShortcuts.contains(mainKey))
+	{
+		appShortcuts.at(mainKey)();
+	}
+	else if (modKey == sf::Keyboard::LShift && editorShortcuts.contains(mainKey) && editor->isInitialized())
+	{
+		editorShortcuts.at(mainKey)();
+	}
+	else
+	{
+		Log::write(std::format("Unknown shortcut {} + {}", std::to_string(modKey), std::to_string(mainKey)));
+	}
+}
+
 void AppStateEditor::input()
 {
 	const sf::Vector2i mousePos = sf::Mouse::getPosition(
@@ -69,18 +95,9 @@ void AppStateEditor::input()
 		}
 		else if (event.type == sf::Event::KeyPressed)
 		{
-			if (event.key.code == sf::Keyboard::LControl)
+			if (event.key.code == sf::Keyboard::LControl || event.key.code == sf::Keyboard::LShift)
 			{
-				keyShortcut |= 1;
-			}
-			else if (event.key.code == sf::Keyboard::LShift)
-			{
-				keyShortcut |= 2;
-			}
-			else if (event.key.code == sf::Keyboard::S)
-			{
-				if (keyShortcut == 1) saveLevel(); // save
-				else if (keyShortcut == 3) saveLevel(true); // save as
+				lastPressedModKey = event.key.code;
 			}
 			else if (event.key.code == sf::Keyboard::Enter)
 			{
@@ -90,28 +107,16 @@ void AppStateEditor::input()
 					dialogNewLevel.close();
 				}
 			}
-			else if (event.key.code == sf::Keyboard::O && keyShortcut == 1)
+			else
 			{
-				loadLevel();
-			}
-			else if (event.key.code == sf::Keyboard::N && keyShortcut == 1)
-			{
-				dialogNewLevel.open([this] () { newLevelDialogCallback(); });
-			}
-			else if (editorShortcuts.count(event.key.code) && editor->isInitialized())
-			{
-				editorShortcuts[event.key.code]();
+				handleShortcut(lastPressedModKey, event.key.code);
 			}
 		}
 		else if (event.type == sf::Event::KeyReleased)
 		{
-			if (event.key.code == sf::Keyboard::LControl)
+			if (event.key.code == sf::Keyboard::LControl || event.key.code == sf::Keyboard::LShift)
 			{
-				keyShortcut ^= 1;
-			}
-			else if (event.key.code == sf::Keyboard::LShift)
-			{
-				keyShortcut ^= 2;
+				lastPressedModKey = sf::Keyboard::Unknown;
 			}
 		}
 
@@ -182,7 +187,9 @@ AppStateEditor::AppStateEditor(
 constexpr const char* FILE_CTX_NEW = "New (Ctrl+N)";
 constexpr const char* FILE_CTX_LOAD = "Load (Ctrl+O)";
 constexpr const char* FILE_CTX_SAVE = "Save (Ctrl+S)";
-constexpr const char* FILE_CTX_SAVE_AS = "Save as (Ctrl+Shift+S)";
+constexpr const char* FILE_CTX_SAVE_AS = "Save as...";
+constexpr const char* FILE_CTX_UNDO = "Undo (Ctrl+Z)";
+constexpr const char* FILE_CTX_REDO = "Redo (Ctrl+Y)";
 constexpr const char* FILE_CTX_EXIT = "Exit";
 
 void AppStateEditor::buildLayout()
@@ -208,19 +215,29 @@ void AppStateEditor::buildLayout()
 
 	menu->setSize("100%", TOPBAR_HEIGHT);
 	menu->addMenu("File");
-	menu->addMenuItem(FILE_CTX_NEW);
-	menu->connectMenuItem("File", FILE_CTX_NEW, [this] ()
- {
-	 dialogNewLevel.open([this] () { newLevelDialogCallback(); });
-	});
-	menu->addMenuItem(FILE_CTX_LOAD);
-	menu->connectMenuItem("File", FILE_CTX_LOAD, [this] () { loadLevel(); });
-	menu->addMenuItem(FILE_CTX_SAVE);
-	menu->connectMenuItem("File", FILE_CTX_SAVE, [this] () { saveLevel(); });
-	menu->addMenuItem(FILE_CTX_SAVE_AS);
-	menu->connectMenuItem("File", FILE_CTX_SAVE_AS, [this] () { saveLevel(true); });
-	menu->addMenuItem(FILE_CTX_EXIT);
-	menu->connectMenuItem("File", FILE_CTX_EXIT, [this] () { app.popState(); });
+
+	auto addFileMenuItem = [this, &menu](
+		const std::string& label,
+		std::function<void(void)> callback,
+		std::optional<sf::Keyboard::Key> shortcut = {})
+	{
+		menu->addMenuItem(label);
+		menu->connectMenuItem("File", label, callback);
+
+		if (shortcut.has_value())
+		{
+			assert(!appShortcuts.contains(shortcut.value()));
+			appShortcuts[shortcut.value()] = callback;
+		}
+	};
+
+	addFileMenuItem(FILE_CTX_NEW, [this] { newLevelDialogCallback(); }, sf::Keyboard::N);
+	addFileMenuItem(FILE_CTX_LOAD, [this] { loadLevel(); }, sf::Keyboard::O);
+	addFileMenuItem(FILE_CTX_SAVE, [this] { saveLevel(); }, sf::Keyboard::S);
+	addFileMenuItem(FILE_CTX_SAVE_AS, [this] { saveLevel(true); });
+	addFileMenuItem(FILE_CTX_UNDO, [this] { handleUndo(); }, sf::Keyboard::Z);
+	addFileMenuItem(FILE_CTX_REDO, [this] { handleRedo(); }, sf::Keyboard::Y);
+	addFileMenuItem(FILE_CTX_EXIT, [this] { app.popState(); });
 
 	menu->addMenu("View");
 	menu->addMenuItem("Console");
@@ -234,24 +251,25 @@ void AppStateEditor::buildLayout()
 	{
 		menu->addMenuItem(label);
 		menu->connectMenuItem("Editor", label, callback);
+		assert(!editorShortcuts.contains(shortcut));
 		editorShortcuts[shortcut] = callback;
 	};
 
 	addEditorMenuItem(
 		"Mesh mode (M)",
-		[this] () { editor->switchTool(Editor::ToolType::Mesh); },
+		[this] { editor->switchTool(Editor::ToolType::Mesh); },
 		sf::Keyboard::M);
 	addEditorMenuItem("Items mode (I)",
-		[this] () { editor->switchTool(Editor::ToolType::Item); },
+		[this] { editor->switchTool(Editor::ToolType::Item); },
 		sf::Keyboard::I);
 	addEditorMenuItem("Trigger mode (T)",
-		[this] () { editor->switchTool(Editor::ToolType::Trigger); },
+		[this] { editor->switchTool(Editor::ToolType::Trigger); },
 		sf::Keyboard::T);
 	addEditorMenuItem("Resize level (R)",
-		[this] () { editor->resizeDialog(); },
+		[this] { editor->resizeDialog(); },
 		sf::Keyboard::R);
 	addEditorMenuItem("Shrink level to fit (S)",
-		[this] () { editor->shrinkToFit(); },
+		[this] { editor->shrinkToFit(); },
 		sf::Keyboard::S);
 
 	// Must be added AFTER canvas, otherwise canvas blocks pop-up menus

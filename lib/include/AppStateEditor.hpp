@@ -12,6 +12,8 @@
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Commands/CommandHistory.hpp"
 
+using ShortcutMap = std::map<sf::Keyboard::Key, std::function<void(void)>>;
+
 /**
  *  This class is responsible for drawing top level gui - topbar, canvas, console, bootstrapping
  *  space for sidebar. It is responsibility for underlying components that can fill it with content to do so.
@@ -56,7 +58,8 @@ protected:
 	std::unique_ptr<EditorInterface> editor;
 
 	std::string savePath;
-	std::map<sf::Keyboard::Key, std::function<void(void)>> editorShortcuts;
+	ShortcutMap editorShortcuts;
+	ShortcutMap appShortcuts;
 
 	// Build functions
 	void buildLayout();
@@ -75,11 +78,14 @@ protected:
 	void saveLevel(bool forceNewPath = false);
 
 	// Shortcut
-	unsigned keyShortcut = 0;
+	sf::Keyboard::Key lastPressedModKey = sf::Keyboard::Unknown;
 
 protected:
 	void handleExit(YesNoCancelDialogInterface& dialoConfirmExit);
 	std::optional<std::string> getNewSavePath();
+	void handleUndo();
+	void handleRedo();
+	void handleShortcut(const sf::Keyboard::Key modKey, const sf::Keyboard::Key mainKey);
 
 public:
 	// Inherited via AppState
