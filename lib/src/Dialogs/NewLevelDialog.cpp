@@ -46,15 +46,11 @@ NewLevelDialog::NewLevelDialog(
 			OptionLine{ "Level height:", INPUT_LEVEL_HEIGHT_ID, "10" },
 			OptionLine{ "Config file:", INPUT_LEVEL_CONFIG_ID, "Pick a config file", true, [&gui] ()
 				{
-					try
-					{
-						auto fileApi = std::make_unique<FileApi>();
-						auto str = fileApi->getOpenFileName(
+					auto fileApi = std::make_unique<FileApi>();
+					auto box = gui.get<tgui::EditBox>("InputLevelConfig");
+					auto fileName = fileApi->getOpenFileName(
 						"JSON Files\0*.json\0Any File\0*.*\0");
-						auto box = gui.get<tgui::EditBox>("InputLevelConfig");
-						box->setText(str);
-					}
-					catch (...) {}
+					box->setText(fileName.value_or(""));
  } } })),
 	ini(ini)
 {}

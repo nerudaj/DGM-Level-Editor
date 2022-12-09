@@ -11,8 +11,7 @@
 #include <optional>
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Commands/CommandHistory.hpp"
-
-using ShortcutMap = std::map<sf::Keyboard::Key, std::function<void(void)>>;
+#include "include/ShortcutEngineInterface.hpp"
 
 /**
  *  This class is responsible for drawing top level gui - topbar, canvas, console, bootstrapping
@@ -28,8 +27,8 @@ protected:
 	tgui::Theme theme;
 	std::string rootDir;
 	std::string filePath;
+	std::string savePath;
 	bool unsavedChanges = false;
-	std::unique_ptr<FileApiInterface> fileApi;
 
 	// Gui
 	tgui::Gui gui;
@@ -54,16 +53,11 @@ protected:
 	NewLevelDialog dialogNewLevel = NewLevelDialog(gui, theme, ini);
 	YesNoCancelDialog dialogConfirmExit = YesNoCancelDialog(gui, theme);
 
-	// Editor
 	std::unique_ptr<EditorInterface> editor;
+	std::unique_ptr<ShortcutEngineInterface> shortcutEngine;
+	std::unique_ptr<FileApiInterface> fileApi;
 
-	std::string savePath;
-	ShortcutMap editorShortcuts;
-	ShortcutMap appShortcuts;
-
-	// Build functions
-	void buildLayout();
-
+protected:
 	void updateWindowTitle()
 	{
 		app.window.getWindowContext().setTitle(
@@ -74,18 +68,46 @@ protected:
 
 	// IO
 	void newLevelDialogCallback();
-	void loadLevel();
-	void saveLevel(bool forceNewPath = false);
-
-	// Shortcut
-	sf::Keyboard::Key lastPressedModKey = sf::Keyboard::Unknown;
-
-protected:
-	void handleExit(YesNoCancelDialogInterface& dialoConfirmExit);
 	std::optional<std::string> getNewSavePath();
+
+protected: // Build functions
+	class AllowExecutionToken;
+
+	void buildLayout();
+	AllowExecutionToken buildCanvasLayout(
+		const std::string& SIDEBAR_WIDTH,
+		const std::string& SIDEBAR_HEIGHT,
+		const std::string& TOPBAR_HEIGHT);
+
+	class AllowExecutionToken {
+		AllowExecutionToken() = default;
+		friend AllowExecutionToken AppStateEditor::buildCanvasLayout(
+			const std::string&,
+			const std::string&,
+			const std::string&);
+	};
+
+	void buildMenuBarLayout(
+		AllowExecutionToken,
+		const std::string& TOPBAR_HEIGHT,
+		unsigned TOPBAR_FONT_HEIGHT);
+	void buildSidebarLayout(
+		AllowExecutionToken,
+		const std::string& SIDEBAR_WIDTH,
+		const std::string& SIDEBAR_HEIGHT,
+		const std::string& TOPBAR_HEIGHT);
+	tgui::ChatBox::Ptr buildLoggerLayout(
+		AllowExecutionToken,
+		const std::string& TOPBAR_HEIGHT,
+		unsigned TOPBAR_FONT_HEIGHT);
+
+protected: // Callback handlers
+	void handleNewLevel();
+	void handleLoadLevel();
+	void handleSaveLevel(bool forceNewPath = false);
 	void handleUndo();
 	void handleRedo();
-	void handleShortcut(const sf::Keyboard::Key modKey, const sf::Keyboard::Key mainKey);
+	void handleExit(YesNoCancelDialogInterface& dialoConfirmExit);
 
 public:
 	// Inherited via AppState
@@ -97,5 +119,10 @@ public:
 		return false;
 	}
 
-	AppStateEditor(dgm::App& app, cfg::Ini& ini, const std::string& rootDir, std::unique_ptr<FileApiInterface> fileApi);
+	AppStateEditor(
+		dgm::App& app,
+		cfg::Ini& ini,
+		const std::string& rootDir,
+		std::unique_ptr<FileApiInterface> fileApi,
+		std::unique_ptr<ShortcutEngineInterface> shortcutEngine);
 };

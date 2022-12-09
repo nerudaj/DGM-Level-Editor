@@ -85,8 +85,8 @@ ListBox {
 MenuBar {
     BackgroundColor = rgb(180, 180, 180);
     SelectedBackgroundColor = rgb(0, 110, 200);
-    TextColor = rgb(255, 255, 255);
-    SelectedTextColor = rgb(255, 255, 255);
+    TextColor = rgb(0, 0, 0);
+    SelectedTextColor = rgb(0, 0, 0);
 }
 
 MessageBox {

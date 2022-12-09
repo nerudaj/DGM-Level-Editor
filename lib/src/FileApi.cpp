@@ -20,7 +20,7 @@ std::string FileApi::resolveAppdata() {
 	return converter.to_bytes(result);
 }
 
-std::string FileApi::getSaveFileName(const char *filter) {
+std::optional<std::string> FileApi::getSaveFileName(const char *filter) {
 	char filename[MAX_PATH];
 
 	OPENFILENAME ofn;
@@ -35,14 +35,14 @@ std::string FileApi::getSaveFileName(const char *filter) {
 	ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
 
 	if (!GetSaveFileNameA(&ofn)) {
-		throw std::runtime_error("File select dialog failed");
+		return {};
 	}
 
 	filename[MAX_PATH - 1] = '\0';
 	return std::string(filename);
 }
 
-std::string FileApi::getOpenFileName(const char* filter) {
+std::optional<std::string> FileApi::getOpenFileName(const char* filter) {
 	char filename[MAX_PATH];
 
 	OPENFILENAME ofn;
@@ -57,7 +57,7 @@ std::string FileApi::getOpenFileName(const char* filter) {
 	ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
 
 	if (!GetOpenFileNameA(&ofn)) {
-		throw std::runtime_error("File select dialog failed");
+		return {};
 	}
 
 	filename[MAX_PATH - 1] = '\0';

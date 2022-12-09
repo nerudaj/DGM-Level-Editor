@@ -15,10 +15,10 @@ void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
 				if (choice == UserChoice::Cancelled)
 				return;
 				else if (choice == UserChoice::Confirmed)
-					saveLevel();
+					handleSaveLevel();
 				else
 					unsavedChanges = false;
-		handleExit(confirmExitDialog);
+				handleExit(confirmExitDialog);
 			});
 	}
 	else
@@ -29,46 +29,10 @@ void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
 
 std::optional<std::string> AppStateEditor::getNewSavePath()
 {
-	try
-	{
-		auto result = fileApi->getSaveFileName("LevelD Files\0*.lvd\0Any File\0*.*\0");
-
-		if (not result.ends_with(".lvd"))
-			return result + ".lvd";
-		return result;
-	}
-	catch (...)
-	{
-		return std::nullopt;
-	}
-}
-
-void AppStateEditor::handleUndo()
-{
-	Log::write("Undo");
-	commandHistory.undo();
-}
-
-void AppStateEditor::handleRedo()
-{
-	Log::write("Redo");
-	commandHistory.redo();
-}
-
-void AppStateEditor::handleShortcut(const sf::Keyboard::Key modKey, const sf::Keyboard::Key mainKey)
-{
-	if (modKey == sf::Keyboard::LControl && appShortcuts.contains(mainKey))
-	{
-		appShortcuts.at(mainKey)();
-	}
-	else if (modKey == sf::Keyboard::LShift && editorShortcuts.contains(mainKey) && editor->isInitialized())
-	{
-		editorShortcuts.at(mainKey)();
-	}
-	else
-	{
-		Log::write(std::format("Unknown shortcut {} + {}", std::to_string(modKey), std::to_string(mainKey)));
-	}
+	auto result = fileApi->getSaveFileName("LevelD Files\0*.lvd\0Any File\0*.*\0");
+	return result.transform([] (const std::string& s) -> std::string {
+		return s.ends_with(".lvd") ? s : s + ".lvd";
+	});
 }
 
 void AppStateEditor::input()
@@ -97,11 +61,7 @@ void AppStateEditor::input()
 		}
 		else if (event.type == sf::Event::KeyPressed)
 		{
-			if (event.key.code == sf::Keyboard::LControl || event.key.code == sf::Keyboard::LShift)
-			{
-				lastPressedModKey = event.key.code;
-			}
-			else if (event.key.code == sf::Keyboard::Enter)
+			if (event.key.code == sf::Keyboard::Enter)
 			{
 				if (dialogNewLevel.isOpen())
 				{
@@ -109,21 +69,20 @@ void AppStateEditor::input()
 					dialogNewLevel.close();
 				}
 			}
-			else
-			{
-				handleShortcut(lastPressedModKey, event.key.code);
-			}
 		}
-		else if (event.type == sf::Event::KeyReleased)
+		else if (event.type == sf::Event::GainedFocus)
 		{
-			if (event.key.code == sf::Keyboard::LControl || event.key.code == sf::Keyboard::LShift)
-			{
-				lastPressedModKey = sf::Keyboard::Unknown;
-			}
+			sf::Event releaseKeys;
+			releaseKeys.type = sf::Event::KeyReleased;
+			releaseKeys.key.code = sf::Keyboard::LShift;
+			shortcutEngine->handleEvent(releaseKeys);
+			releaseKeys.key.code = sf::Keyboard::LControl;
+			shortcutEngine->handleEvent(releaseKeys);
 		}
 
 		gui.handleEvent(event);
 		editor->handleEvent(event, mousePos);
+		shortcutEngine->handleEvent(event);
 	}
 }
 
@@ -149,12 +108,14 @@ AppStateEditor::AppStateEditor(
 	dgm::App& app,
 	cfg::Ini& ini,
 	const std::string& rootDir,
-	std::unique_ptr<FileApiInterface> fileApi)
+	std::unique_ptr<FileApiInterface> fileApi,
+	std::unique_ptr<ShortcutEngineInterface> shortcutEngine)
 	:
 	dgm::AppState(app),
 	ini(ini),
 	rootDir(rootDir),
-	fileApi(std::move(fileApi))
+	fileApi(std::move(fileApi)),
+	shortcutEngine(std::move(shortcutEngine))
 {
 	try
 	{
@@ -197,24 +158,53 @@ constexpr const char* FILE_CTX_EXIT = "Exit";
 void AppStateEditor::buildLayout()
 {
 	const std::string TOPBAR_HEIGHT = std::to_string(Sizers::GetMenuBarHeight());
+	const unsigned TOPBAR_FONT_HEIGHT = Sizers::GetMenuBarTextHeight();
 	const std::string SIDEBAR_WIDTH = "8%";
-	const std::string SIDEBAR_HEIGHT = "&.height - " + TOPBAR_HEIGHT;
+	// 2* because of the logger
+	const std::string SIDEBAR_HEIGHT = "&.height - 2*" + TOPBAR_HEIGHT;
 	const std::string SIDEBAR_XPOS = "&.width - " + SIDEBAR_WIDTH;
 
 	// Canvas
+	auto runToken = buildCanvasLayout(
+		SIDEBAR_WIDTH,
+		SIDEBAR_HEIGHT,
+		TOPBAR_HEIGHT);
+	buildMenuBarLayout(
+		runToken,
+		TOPBAR_HEIGHT,
+		TOPBAR_FONT_HEIGHT);
+	buildSidebarLayout(
+		runToken,
+		SIDEBAR_WIDTH,
+		SIDEBAR_HEIGHT,
+		TOPBAR_HEIGHT);
+	auto loggerChatBox = buildLoggerLayout(
+		runToken,
+		TOPBAR_HEIGHT,
+		TOPBAR_FONT_HEIGHT);
+	Log::get().init(loggerChatBox);
+}
+
+AppStateEditor::AllowExecutionToken AppStateEditor::buildCanvasLayout(
+	const std::string& SIDEBAR_WIDTH,
+	const std::string& SIDEBAR_HEIGHT,
+	const std::string& TOPBAR_HEIGHT)
+{
 	canvas = tgui::Canvas::create();
-	// NOTE: If canvas is getting some "shadow" tile edits out of the view (under sidebar)
-	// it might be because sidebar doesn't stop events from propagating downwards
-	canvas->setSize(app.window.getSize().x, SIDEBAR_HEIGHT);
+	canvas->setSize("100% - " + SIDEBAR_WIDTH, SIDEBAR_HEIGHT);
 	canvas->setPosition(0.f, TOPBAR_HEIGHT);
 	gui.add(canvas, "TilesetCanvas");
+	return AllowExecutionToken();
+}
 
-	// Top bar
+void AppStateEditor::buildMenuBarLayout(
+	AllowExecutionToken,
+	const std::string& TOPBAR_HEIGHT,
+	unsigned TOPBAR_FONT_HEIGHT)
+{
 	auto menu = tgui::MenuBar::create();
-	menu->setTextSize(Sizers::GetMenuBarTextHeight());
+	menu->setTextSize(TOPBAR_FONT_HEIGHT);
 	menu->setRenderer(theme.getRenderer("MenuBar"));
-	menu->getRenderer()->setTextColor(sf::Color::Black);
-
 	menu->setSize("100%", TOPBAR_HEIGHT);
 	menu->addMenu("File");
 
@@ -225,25 +215,20 @@ void AppStateEditor::buildLayout()
 	{
 		menu->addMenuItem(label);
 		menu->connectMenuItem("File", label, callback);
-
+		
 		if (shortcut.has_value())
 		{
-			assert(!appShortcuts.contains(shortcut.value()));
-			appShortcuts[shortcut.value()] = callback;
+			shortcutEngine->registerShortcut(true, false, *shortcut, callback);
 		}
 	};
 
-	addFileMenuItem(FILE_CTX_NEW, [this] { dialogNewLevel.open([this] { newLevelDialogCallback(); }); }, sf::Keyboard::N);
-	addFileMenuItem(FILE_CTX_LOAD, [this] { loadLevel(); }, sf::Keyboard::O);
-	addFileMenuItem(FILE_CTX_SAVE, [this] { saveLevel(); }, sf::Keyboard::S);
-	addFileMenuItem(FILE_CTX_SAVE_AS, [this] { saveLevel(true); });
+	addFileMenuItem(FILE_CTX_NEW, [this] { handleNewLevel(); }, sf::Keyboard::N);
+	addFileMenuItem(FILE_CTX_LOAD, [this] { handleLoadLevel(); }, sf::Keyboard::O);
+	addFileMenuItem(FILE_CTX_SAVE, [this] { handleSaveLevel(); }, sf::Keyboard::S);
+	addFileMenuItem(FILE_CTX_SAVE_AS, [this] { handleSaveLevel(true); });
 	addFileMenuItem(FILE_CTX_UNDO, [this] { handleUndo(); }, sf::Keyboard::Z);
 	addFileMenuItem(FILE_CTX_REDO, [this] { handleRedo(); }, sf::Keyboard::Y);
-	addFileMenuItem(FILE_CTX_EXIT, [this] { app.popState(); });
-
-	menu->addMenu("View");
-	menu->addMenuItem("Console");
-	menu->connectMenuItem("View", "Console", [this] () { Log::get().toggle(); });
+	addFileMenuItem(FILE_CTX_EXIT, [this] { handleExit(dialogConfirmExit); });
 
 	menu->addMenu("Editor");
 	auto addEditorMenuItem = [this, &menu](
@@ -253,8 +238,8 @@ void AppStateEditor::buildLayout()
 	{
 		menu->addMenuItem(label);
 		menu->connectMenuItem("Editor", label, callback);
-		assert(!editorShortcuts.contains(shortcut));
-		editorShortcuts[shortcut] = callback;
+
+		shortcutEngine->registerShortcut(false, true, shortcut, callback);
 	};
 
 	addEditorMenuItem(
@@ -276,16 +261,36 @@ void AppStateEditor::buildLayout()
 
 	// Must be added AFTER canvas, otherwise canvas blocks pop-up menus
 	gui.add(menu, "TopMenuBar");
+}
 
-	// Side bar - only bootstrap the space it will be sitting in
+void AppStateEditor::buildSidebarLayout(
+	AllowExecutionToken,
+	const std::string& SIDEBAR_WIDTH,
+	const std::string& SIDEBAR_HEIGHT,
+	const std::string& TOPBAR_HEIGHT)
+{
+	// only bootstrap the space it will be sitting in
 	auto sidebar = tgui::Group::create();
 	sidebar->setSize(SIDEBAR_WIDTH, SIDEBAR_HEIGHT);
-	sidebar->setPosition(SIDEBAR_XPOS, TOPBAR_HEIGHT);
+	sidebar->setPosition("100% - " + SIDEBAR_WIDTH, TOPBAR_HEIGHT);
 	gui.add(sidebar, "Sidebar");
+}
 
-	// Logger console
-	Log::get().init(&gui);
-	Log::get().create(theme, { "0.5%", "81%" }, { "20%", "15%" });
+tgui::ChatBox::Ptr AppStateEditor::buildLoggerLayout(
+	AllowExecutionToken,
+	const std::string& TOPBAR_HEIGHT,
+	unsigned TOPBAR_FONT_HEIGHT)
+{
+	auto logger = tgui::ChatBox::create();
+	logger->setRenderer(theme.getRenderer("ChatBox"));
+	logger->setSize("100%", TOPBAR_HEIGHT);
+	logger->setPosition("0%", "100% - " + TOPBAR_HEIGHT);
+	logger->setTextSize(Sizers::GetMenuBarTextHeight());
+	logger->setLinesStartFromTop();
+	logger->setLineLimit(1);
+	logger->addLine("This is a log console");
+	gui.add(logger, "LoggerBox");
+	return logger;
 }
 
 void AppStateEditor::newLevelDialogCallback()
@@ -303,24 +308,25 @@ void AppStateEditor::newLevelDialogCallback()
 	ini["Editor"]["configPath"] = configPath;
 }
 
-void AppStateEditor::loadLevel()
+void AppStateEditor::handleNewLevel()
 {
-	Log::write("AppStateEditor::loadLevel(). savePath = " + savePath + "; empty = " + std::to_string(savePath.empty()));
+	dialogNewLevel.open([this] { newLevelDialogCallback(); });
+}
 
+void AppStateEditor::handleLoadLevel()
+{
+	auto r = fileApi->getOpenFileName("LevelD Files\0*.lvd\0Any File\0*.*\0");
+	if (!r.has_value()) return;
+
+	savePath = *r;
+	filePath = savePath; // The load path becomes save path for subsequent saves
+	
 	try
 	{
-		savePath = fileApi->getOpenFileName("LevelD Files\0*.lvd\0Any File\0*.*\0");
-	}
-	catch (...) { return; } // User cancel
-
-
-	// The load path becomes save path for subsequent saves
-	try
-	{
-		filePath = savePath;
-		unsavedChanges = false;
 		editor->loadFromFile(savePath);
+		unsavedChanges = false;
 		updateWindowTitle();
+		Log::write2("Level loaded. Path = '{}'", savePath);
 	}
 	catch (std::exception& e)
 	{
@@ -328,7 +334,7 @@ void AppStateEditor::loadLevel()
 	}
 }
 
-void AppStateEditor::saveLevel(bool forceNewPath)
+void AppStateEditor::handleSaveLevel(bool forceNewPath)
 {
 	if (savePath.empty() || forceNewPath)
 	{
@@ -351,3 +357,14 @@ void AppStateEditor::saveLevel(bool forceNewPath)
 	}
 }
 
+void AppStateEditor::handleUndo()
+{
+	Log::write("Undo");
+	commandHistory.undo();
+}
+
+void AppStateEditor::handleRedo()
+{
+	Log::write("Redo");
+	commandHistory.redo();
+}

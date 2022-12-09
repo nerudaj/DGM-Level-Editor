@@ -11,17 +11,17 @@ public:
 		return "C:\\appdata";
 	}
 
-	virtual std::string getSaveFileName(const char* filter) override
+	virtual std::optional<std::string> getSaveFileName(const char* filter) override
 	{
 		if (userCancelled)
-			throw std::runtime_error("File select dialog failed");
+			return {};
 		return mockFileName;
 	}
 
-	virtual std::string getOpenFileName(const char* filter) override
+	virtual std::optional<std::string> getOpenFileName(const char* filter) override
 	{
 		if (userCancelled)
-			throw std::runtime_error("File select dialog failed");
+			return {};
 		return mockFileName;
 	}
 };

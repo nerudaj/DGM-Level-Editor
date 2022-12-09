@@ -1,14 +1,15 @@
 #pragma once
 
 #include <string>
+#include <optional>
 
 class FileApiInterface {
 public:
 	virtual std::string resolveAppdata() = 0;
 
-	virtual std::string getSaveFileName(const char* filter) = 0;
+	virtual std::optional<std::string> getSaveFileName(const char* filter) = 0;
 
-	virtual std::string getOpenFileName(const char* filter) = 0;
+	virtual std::optional<std::string> getOpenFileName(const char* filter) = 0;
 
 	FileApiInterface() = default;
 	FileApiInterface(const FileApiInterface&) = delete;
@@ -19,7 +20,7 @@ class FileApi final : public FileApiInterface {
 public:
 	virtual std::string resolveAppdata() override;
 
-	virtual std::string getSaveFileName(const char* filter) override;
+	virtual std::optional<std::string> getSaveFileName(const char* filter) override;
 
-	virtual std::string getOpenFileName(const char* filter) override;
+	virtual std::optional<std::string> getOpenFileName(const char* filter) override;
 };

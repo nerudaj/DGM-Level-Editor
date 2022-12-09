@@ -4,7 +4,8 @@
 #include "../include/FileApiMock.hpp"
 #include "../include/EditorMock.hpp"
 #include "../include/YesNoCancelDialogMock.hpp"
-#include "include/AppStateEditor.hpp"
+#include <include/AppStateEditor.hpp>
+#include <include/ShortcutEngine.hpp>
 
 class AppStateEditorTestable : public AppStateEditor
 {
@@ -29,8 +30,13 @@ public:
 		editor = std::move(mock);
 	}
 
-	AppStateEditorTestable(dgm::App& app, cfg::Ini& ini, const std::string& rootDir, std::unique_ptr<FileApiInterface> fileApi)
-		: AppStateEditor(app, ini, rootDir, std::move(fileApi))
+	AppStateEditorTestable(
+		dgm::App& app,
+		cfg::Ini& ini,
+		const std::string& rootDir,
+		std::unique_ptr<FileApiInterface> fileApi,
+		std::unique_ptr<ShortcutEngineInterface> shortcutEngine)
+		: AppStateEditor(app, ini, rootDir, std::move(fileApi), std::move(shortcutEngine))
 	{
 		//editor = std::make_unique<EditorMock>();
 	}
@@ -70,6 +76,7 @@ TEST_CASE("getNewSavePath", "[AppStateEditor]")
 	cfg::Ini ini;
 	std::string rootDir = getRootPath();
 	auto fileApiMock = std::make_unique<FileApiMock>();
+	auto shortcutEngine = std::make_unique<ShortcutEngine>();
 
 	SECTION("Returns nullopt on user cancel")
 	{
@@ -78,7 +85,8 @@ TEST_CASE("getNewSavePath", "[AppStateEditor]")
 			app,
 			ini,
 			rootDir,
-			std::move(fileApiMock));
+			std::move(fileApiMock),
+			std::move(shortcutEngine));
 		REQUIRE(not appStateEditor.getNewSavePathTest().has_value());
 	}
 
@@ -89,7 +97,8 @@ TEST_CASE("getNewSavePath", "[AppStateEditor]")
 			app,
 			ini,
 			rootDir,
-			std::move(fileApiMock));
+			std::move(fileApiMock),
+			std::move(shortcutEngine));
 		REQUIRE(appStateEditor.getNewSavePathTest().value() == "name.lvd");
 	}
 
@@ -100,7 +109,8 @@ TEST_CASE("getNewSavePath", "[AppStateEditor]")
 			app,
 			ini,
 			rootDir,
-			std::move(fileApiMock));
+			std::move(fileApiMock),
+			std::move(shortcutEngine));
 		REQUIRE(appStateEditor.getNewSavePathTest().value() == "name.lvd");
 	}
 }
@@ -112,6 +122,7 @@ TEST_CASE("handleExit", "[AppStateEditor]")
 	cfg::Ini ini;
 	std::string rootDir = getRootPath();
 	auto fileApiMock = std::make_unique<FileApiMock>();
+	auto shortcutEngine = std::make_unique<ShortcutEngine>();
 	EditorMockState editorMockState;
 	auto editorMock = std::make_unique<EditorMock>(&editorMockState);
 
@@ -120,7 +131,8 @@ TEST_CASE("handleExit", "[AppStateEditor]")
 		app.pushState<AppStateEditorTestable>(
 			ini,
 			rootDir,
-			std::move(fileApiMock));
+			std::move(fileApiMock),
+			std::move(shortcutEngine));
 		app.getState().injectEditorMock(std::move(editorMock));
 		app.getState().mockUnsavedChanges();
 
@@ -138,7 +150,8 @@ TEST_CASE("handleExit", "[AppStateEditor]")
 		app.pushState<AppStateEditorTestable>(
 			ini,
 			rootDir,
-			std::move(fileApiMock));
+			std::move(fileApiMock),
+			std::move(shortcutEngine));
 		app.getState().injectEditorMock(std::move(editorMock));
 		app.getState().mockUnsavedChanges();
 
@@ -156,7 +169,8 @@ TEST_CASE("handleExit", "[AppStateEditor]")
 		app.pushState<AppStateEditorTestable>(
 				ini,
 				rootDir,
-				std::move(fileApiMock));
+				std::move(fileApiMock),
+				std::move(shortcutEngine));
 		app.getState().injectEditorMock(std::move(editorMock));
 		app.getState().mockUnsavedChanges();
 

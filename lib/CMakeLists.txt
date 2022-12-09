@@ -11,6 +11,9 @@ set ( HEADER_FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/Globals.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/JsonHelper.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/LogConsole.hpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/ShortcutCombo.hpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/ShortcutEngineInterface.hpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/ShortcutEngine.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/Utilities.hpp"
 )
 
@@ -22,6 +25,8 @@ set ( SOURCE_FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/FileApi.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/JsonHelper.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/LogConsole.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/ShortcutCombo.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/ShortcutEngine.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/Utilities.cpp"
 )
 

@@ -14,17 +14,16 @@ configure_file (
 	${CMAKE_CURRENT_BINARY_DIR}/Release/ COPYONLY
 )
 
-set ( HEADERS
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/FileApiMock.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/EditorMock.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/YesNoCancelDialogMock.hpp"
+file (
+	GLOB HEADERS
+	CONFIGURE_DEPENDS
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
 )
 
-set ( SOURCES
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/ToolMeshTest.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/AppStateEditor.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/CommandHistoryTest.cpp"
+file (
+	GLOB SOURCES
+	CONFIGURE_DEPENDS
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 
 add_executable ( ${PROJECT_NAME}

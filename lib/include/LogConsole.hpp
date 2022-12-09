@@ -6,28 +6,25 @@
 
 class Log {
 private:
-	tgui::Gui *gui = nullptr;
+	tgui::ChatBox::Ptr output;
 
 	Log() = default;
 
 public:
 	static Log &get();
 
-	void create(tgui::Theme& theme, const tgui::Layout2d& pos, const tgui::Layout2d& size);
-
-	void toggle();
-
 	static void write(const std::string& text);
 
 	static void write(const std::string& label, const sf::Vector2i &vec);
 
 	template<class... Args>
-	static void write2(const char* fmt, Args... args) {
-		write(std::format(fmt, std::forward<Args>(args)...));
+	static void write2(const char* fmt, Args&&... args) {
+		const auto message = std::vformat(fmt, std::make_format_args(std::forward<Args>(args)...));
+		write(message);
 	}
 
-	void init(tgui::Gui *gui) {
-		Log::gui = gui;
+	void init(tgui::ChatBox::Ptr uiLogger) {
+		output = uiLogger;
 	}
 
 	Log(const Log&) = delete;

@@ -3,6 +3,7 @@
 
 #include "include/AppStateEditor.hpp"
 #include "include/FileApi.hpp"
+#include "include/ShortcutEngine.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -36,7 +37,11 @@ int main(int argc, char* argv[])
 	dgm::Window window(windowSettings);
 	dgm::App app(window);
 
-	app.pushState<AppStateEditor>(ini, rootDir, std::move(fileApi));
+	app.pushState<AppStateEditor>(
+		ini,
+		rootDir,
+		std::move(fileApi),
+		std::make_unique<ShortcutEngine>());
 	app.run();
 
 	windowSettings = window.close();
