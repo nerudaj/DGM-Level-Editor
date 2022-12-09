@@ -233,7 +233,7 @@ void AppStateEditor::buildLayout()
 		}
 	};
 
-	addFileMenuItem(FILE_CTX_NEW, [this] { newLevelDialogCallback(); }, sf::Keyboard::N);
+	addFileMenuItem(FILE_CTX_NEW, [this] { dialogNewLevel.open([this] { newLevelDialogCallback(); }); }, sf::Keyboard::N);
 	addFileMenuItem(FILE_CTX_LOAD, [this] { loadLevel(); }, sf::Keyboard::O);
 	addFileMenuItem(FILE_CTX_SAVE, [this] { saveLevel(); }, sf::Keyboard::S);
 	addFileMenuItem(FILE_CTX_SAVE_AS, [this] { saveLevel(true); });
