@@ -5,24 +5,11 @@
 class ItemToolProperty : public ImageToolProperty
 {
 	// Dìdí se pøes ImageToolProperty.
-	virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) override;
+	virtual void buildModalSpecifics(tgui::Gui& gui, tgui::ScrollablePanel::Ptr& panel) override;
 
 public:
 	std::size_t itemId;
 	LevelD::Thing data;
-	bool empty = true;
-
-	virtual bool isEmpty() override
-	{
-		return empty;
-	}
-
-	virtual void clear() override
-	{
-		empty = true;
-	}
-
-	ItemToolProperty(tgui::Gui& gui, Tool* parent) : ImageToolProperty(gui, parent) {}
 };
 
 class ToolItem : public ToolWithSprites
@@ -45,7 +32,6 @@ protected:
 
 	std::vector<LevelD::Thing> items;
 	std::vector<ItemRenderData> renderData;
-	ItemToolProperty itemProperty = ItemToolProperty(gui, this);
 	std::set<std::size_t> selectedItems;
 	sf::RectangleShape selectRect;
 
@@ -100,17 +86,21 @@ public:
 
 	virtual void penDelete() override;
 
-	virtual ToolProperty& getProperty() override;
+	virtual std::unique_ptr<ToolProperty> getProperty() const override;
 
 	virtual void setProperty(const ToolProperty& prop) override;
 
 	virtual void buildCtxMenu(tgui::MenuBar::Ptr& menu) override;
 
+	virtual std::optional<unsigned> getTagOfHighlightedObject() override;
+	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override;
+
 	ToolItem(
 		tgui::Gui& gui,
 		std::function<void(void)> onStateChanged,
-		CommandQueue& commandQueue)
-		: ToolWithSprites(gui, onStateChanged, commandQueue)
+		CommandQueue& commandQueue,
+		ShortcutEngineInterface& shortcutEngine)
+		: ToolWithSprites(gui, onStateChanged, commandQueue, shortcutEngine)
 	{}
 };
 

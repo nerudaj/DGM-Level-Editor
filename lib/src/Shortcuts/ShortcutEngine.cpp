@@ -1,12 +1,9 @@
-#include "include/ShortcutEngine.hpp"
+#include "include/Shortcuts/ShortcutEngine.hpp"
 #include "include/LogConsole.hpp"
 #include <cassert>
 
 void ShortcutEngine::evaluateShortcut(sf::Keyboard::Key key)
 {
-	if (!ctrlIsPressed && !shiftIsPressed)
-		return;
-
 	ShortcutCombo combo = {
 		.ctrlRequired = ctrlIsPressed,
 		.shiftRequired = shiftIsPressed,
@@ -38,19 +35,25 @@ void ShortcutEngine::handleEvent(sf::Event& event)
 }
 
 void ShortcutEngine::registerShortcut(
-		bool requiresCtrl,
-		bool requiresShift,
-		sf::Keyboard::Key key,
-		std::function<void(void)> callback)
+	const std::string& groupName,
+	const ShortcutCombo& combo,
+	std::function<void(void)> callback)
 {
-	ShortcutCombo combo = {
-		.ctrlRequired = requiresCtrl,
-		.shiftRequired = requiresShift,
-		.key = key
-	};
-
 	if (shortcuts.contains(combo))
 
-	assert(!shortcuts.contains(combo));
+	assert(!shortcuts.contains(combo), "Shortcut is already registered");
 	shortcuts[combo] = callback;
+	groupToShortcuts[groupName].push_back(combo);
+}
+
+void ShortcutEngine::unregisterShortcutGroup(
+	const std::string& groupName)
+{
+	if (!groupToShortcuts.contains(groupName))
+		return;
+
+	for (auto&& combo : groupToShortcuts.at(groupName))
+	{
+		shortcuts.erase(combo);
+	}
 }

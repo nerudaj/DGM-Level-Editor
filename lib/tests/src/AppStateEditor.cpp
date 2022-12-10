@@ -5,7 +5,7 @@
 #include "../include/EditorMock.hpp"
 #include "../include/YesNoCancelDialogMock.hpp"
 #include <include/AppStateEditor.hpp>
-#include <include/ShortcutEngine.hpp>
+#include <include/Shortcuts/ShortcutEngine.hpp>
 
 class AppStateEditorTestable : public AppStateEditor
 {

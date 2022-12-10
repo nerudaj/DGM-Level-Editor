@@ -1,5 +1,5 @@
 #include <catch.hpp>
-#include "include/ShortcutCombo.hpp"
+#include "include/Shortcuts/ShortcutCombo.hpp"
 
 TEST_CASE("[ShortcutCombo]")
 {

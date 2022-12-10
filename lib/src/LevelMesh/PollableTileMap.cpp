@@ -1,6 +1,6 @@
 #include "include/LevelMesh/PollableTileMap.hpp"
 #include "include/LogConsole.hpp"
-#include "include/Utilities.hpp"
+#include "include/Utilities/Utilities.hpp"
 
 unsigned PollableTileMap::getTileValue(unsigned tileX, unsigned tileY) const
 {

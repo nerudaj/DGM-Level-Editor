@@ -287,43 +287,69 @@ void ToolTrigger::penDelete() {
 }
 
 /* Properties */
-ToolProperty& ToolTrigger::getProperty() {
-    property.clear();
+std::unique_ptr<ToolProperty> ToolTrigger::getProperty() const {
+    auto pos = getPenPosition();
 
-    property.id = getTriggerFromPosition(Tool::getPenPosition());
-    if (property.id == -1) return property;
+    std::size_t trigId = getTriggerFromPosition(pos);
+    if (trigId == -1)
+        return nullptr;
 
-    property.data = triggers[property.id];
-    return property;
+    auto&& result = std::make_unique<ToolTriggerProperty>();
+    result->id = trigId;
+    result->data = triggers[trigId];
+
+    return std::move(result);
 }
 
-void ToolTrigger::setProperty(const ToolProperty &) {
+void ToolTrigger::setProperty(const ToolProperty &prop) {
+    auto&& property = dynamic_cast<const ToolTriggerProperty&>(prop);
     triggers[property.id] = property.data;
 }
 
-void ToolTriggerProperty::buildModalSpecifics(tgui::Panel::Ptr& panel) {
+std::optional<unsigned> ToolTrigger::getTagOfHighlightedObject()
+{
+    return {};
+    /*auto&& prop = dynamic_cast<ToolTriggerProperty&>(getProperty());
+    if (prop.isEmpty() || prop.data.tag == 0)
+        return {};
+    return prop.data.tag;*/
+}
+
+std::vector<sf::Vector2u> ToolTrigger::getPositionsOfObjectsWithTag(unsigned tag) const
+{
+    std::vector<sf::Vector2u> result;
+    for (auto&& trigger : triggers)
+    {
+        if (trigger.tag == tag)
+            result.push_back({ trigger.x, trigger.y });
+    }
+
+    return result;
+}
+
+void ToolTriggerProperty::buildModalSpecifics(tgui::Gui& gui, tgui::Panel::Ptr& panel) {
     auto dst = tgui::ScrollablePanel::create();
     panel->add(dst);
 
     constexpr bool DISABLED = false;
 
     unsigned row = 0;
-    addOption(dst, "X coordinate:", "Measured in pixels from top-left corner", data.x, row++);
-    addOption(dst, "Y coordinate:", "Measured in pixels from top-left corner", data.y, row++);
+    addOption(gui, dst, "X coordinate:", "Measured in pixels from top-left corner", data.x, row++);
+    addOption(gui, dst, "Y coordinate:", "Measured in pixels from top-left corner", data.y, row++);
     if (data.areaType == LevelD::Trigger::AreaType::Circle) {
-        addOption(dst, "Radius:", "Measured in pixels", data.radius, row++);
+        addOption(gui, dst, "Radius:", "Measured in pixels", data.radius, row++);
     }
     else {
-        addOption(dst, "Width:", "Measured in pixels", data.width, row++);
-        addOption(dst, "Height:", "Measured in pixels", data.height, row++);
+        addOption(gui, dst, "Width:", "Measured in pixels", data.width, row++);
+        addOption(gui, dst, "Height:", "Measured in pixels", data.height, row++);
     }
-    addOption(dst, "Trigger type:", "How the trigger should be executed", data.type, row++);
-    addOption(dst, "Tag:", "Value used to group related objects", data.tag, row++, true, true);
-    addOption(dst, "Action ID:", "ID of action to execute", data.id, row++);
-    addOption(dst, "Parameter 1:", "First param of action", data.a1, row++);
-    addOption(dst, "Parameter 2:", "Second param of action", data.a2, row++);
-    addOption(dst, "Parameter 3:", "Third param of action", data.a3, row++);
-    addOption(dst, "Parameter 4:", "Fourth param of action", data.a4, row++);
-    addOption(dst, "Parameter 5:", "Fifth param of action", data.a5, row++);
+    addOption(gui, dst, "Trigger type:", "How the trigger should be executed", data.type, row++);
+    addOption(gui, dst, "Tag:", "Value used to group related objects", data.tag, row++, true, true);
+    addOption(gui, dst, "Action ID:", "ID of action to execute", data.id, row++);
+    addOption(gui, dst, "Parameter 1:", "First param of action", data.a1, row++);
+    addOption(gui, dst, "Parameter 2:", "Second param of action", data.a2, row++);
+    addOption(gui, dst, "Parameter 3:", "Third param of action", data.a3, row++);
+    addOption(gui, dst, "Parameter 4:", "Fourth param of action", data.a4, row++);
+    addOption(gui, dst, "Parameter 5:", "Fifth param of action", data.a5, row++);
     addOption(dst, "Metadata:", "Text field for custom data", data.metadata, row++);
 }

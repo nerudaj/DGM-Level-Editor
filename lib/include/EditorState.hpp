@@ -9,11 +9,11 @@ private:
 	std::unique_ptr<Tool> layer;
 
 public:
-	Tool & getTool() {
+	Tool& getTool() {
 		return *layer;
 	}
 
-	const Tool & getTool() const {
+	const Tool& getTool() const {
 		return *layer;
 	}
 

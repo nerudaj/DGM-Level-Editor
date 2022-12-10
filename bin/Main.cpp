@@ -2,8 +2,8 @@
 #include <Config.hpp>
 
 #include "include/AppStateEditor.hpp"
-#include "include/FileApi.hpp"
-#include "include/ShortcutEngine.hpp"
+#include "include/Utilities/FileApi.hpp"
+#include "include/Shortcuts/ShortcutEngine.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -37,11 +37,12 @@ int main(int argc, char* argv[])
 	dgm::Window window(windowSettings);
 	dgm::App app(window);
 
+	auto shortcutEngine = std::make_unique<ShortcutEngine>();
 	app.pushState<AppStateEditor>(
 		ini,
 		rootDir,
 		std::move(fileApi),
-		std::make_unique<ShortcutEngine>());
+		std::move(shortcutEngine));
 	app.run();
 
 	windowSettings = window.close();

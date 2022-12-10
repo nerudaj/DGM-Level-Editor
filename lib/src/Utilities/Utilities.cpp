@@ -1,4 +1,4 @@
-#include "include/Utilities.hpp"
+#include "include/Utilities/Utilities.hpp"
 
 std::tuple<sf::Image, dgm::Clip> Utilities::createChessboardTexture(const sf::Color& accentColor)
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Editor.hpp"
+#include "include/Editor/Editor.hpp"
 
 struct EditorMockState
 {
@@ -49,7 +49,7 @@ public:
 		state->saveToFileCallCounter++;
 	}
 
-	virtual void switchTool(const ToolType tool) override
+	virtual void switchTool(EditorState) override
 	{
 		state->switchToolCallCounter++;
 	}

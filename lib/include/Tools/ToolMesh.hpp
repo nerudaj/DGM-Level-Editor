@@ -5,30 +5,14 @@
 
 class MeshToolProperty : public ImageToolProperty
 {
-protected:
-	virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) override;
+	virtual void buildModalSpecifics(tgui::Gui& gui, tgui::ScrollablePanel::Ptr& panel) override;
 
 public:
-	uint32_t tileX;
-	uint32_t tileY;
-	uint16_t tileValue;
-	bool blocking;
-	bool defaultBlocking;
-	bool empty;
-
-	virtual bool isEmpty() override { return empty; }
-
-	virtual void clear() override
-	{
-		tileX = 0;
-		tileY = 0;
-		tileValue = 0;
-		blocking = false;
-		defaultBlocking = false;
-		empty = true;
-	}
-
-	MeshToolProperty(tgui::Gui& gui, Tool* parent) : ImageToolProperty(gui, parent) { clear(); }
+	uint32_t tileX = 0;
+	uint32_t tileY = 0;
+	uint16_t tileValue = 0;
+	bool blocking = false;
+	bool defaultBlocking = false;
 };
 
 class ToolMesh : public ToolWithSprites
@@ -46,7 +30,6 @@ private:
 	sf::Texture texture; // tileset texture
 	dgm::Clip clip; // how tileset is sliced
 	DrawableLeveldMesh map;
-	MeshToolProperty tileProperty = MeshToolProperty(gui, this);
 
 	std::vector<bool> defaultBlocks;
 
@@ -55,14 +38,16 @@ private:
 
 	void changeDrawingMode(DrawMode newMode);
 
-	sf::Vector2u worldToTilePos(const sf::Vector2i& position)
+	[[nodiscard]]
+	sf::Vector2u worldToTilePos(const sf::Vector2i& position) const noexcept
 	{
 		unsigned tileX = position.x / map.getTileSize().x;
 		unsigned tileY = position.y / map.getTileSize().y;
 		return { tileX, tileY };
 	}
 
-	bool isPositionValid(const sf::Vector2u& tilePos)
+	[[nodiscard]]
+	bool isPositionValid(const sf::Vector2u& tilePos) const
 	{
 		return !(tilePos.x < 0 || tilePos.y < 0
 			|| tilePos.x >= map.getMapDimensions().x
@@ -98,17 +83,22 @@ public:
 
 	virtual void penDelete() override {}
 
-	virtual ToolProperty& getProperty() override;
+	virtual std::unique_ptr<ToolProperty> getProperty() const override;
 
 	virtual void setProperty(const ToolProperty& prop) override;
 
 	virtual void buildCtxMenu(tgui::MenuBar::Ptr& menu) override;
 
+	// No highlight here
+	virtual std::optional<unsigned> getTagOfHighlightedObject() override { return {}; }
+	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override { return {}; }
+
 	ToolMesh(
 		tgui::Gui& gui,
 		std::function<void(void)> onStateChanged,
-		CommandQueue& commandQueue)
-		: ToolWithSprites(gui, onStateChanged, commandQueue)
+		CommandQueue& commandQueue,
+		ShortcutEngineInterface& shortcutEngine)
+		: ToolWithSprites(gui, onStateChanged, commandQueue, shortcutEngine)
 	{}
 };
 

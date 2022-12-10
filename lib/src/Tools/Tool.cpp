@@ -4,7 +4,7 @@
 void Tool::buildCtxMenu(tgui::MenuBar::Ptr& menu)
 {
 	menu->removeMenu(CTX_MENU_NAME);
-	clearShortcuts();
+	shortcutEngine.unregisterShortcutGroup(CTX_MENU_NAME);
 	menu->addMenu(CTX_MENU_NAME);
 }
 
@@ -22,39 +22,18 @@ void Tool::buildSidebar(tgui::Theme& theme)
 	buildSidebar(gui, sidebar, theme);
 }
 
-void Tool::registerShortcut(sf::Keyboard::Key key, std::function<void(void)> callback)
-{
-	if (callbacks.count(key) != 0)
-	{
-		throw std::runtime_error("Cannot register callback for key " +
-			std::to_string(int(key)) + ": Callback already set!");
-	}
-
-	callbacks[key] = callback;
-}
-
-void Tool::addCtxMenuItem(tgui::MenuBar::Ptr& menu, const std::string& label, std::function<void(void)> callback, sf::Keyboard::Key shortcutKey)
+void Tool::addCtxMenuItem(
+	tgui::MenuBar::Ptr& menu,
+	const std::string& label,
+	std::function<void(void)> callback,
+	sf::Keyboard::Key key)
 {
 	menu->addMenuItem(label);
 	menu->connectMenuItem(CTX_MENU_NAME, label, callback);
-	registerShortcut(shortcutKey, callback);
-}
-
-void Tool::handleShortcuts(const sf::Event& event)
-{
-	if (event.type == sf::Event::KeyPressed)
-	{
-		if (event.key.code == sf::Keyboard::LShift) shiftPressed = true;
-
-		if (shiftPressed && callbacks.count(event.key.code) != 0)
-		{
-			callbacks.at(event.key.code)(); // execute callback;
-		}
-	}
-	else if (event.type == sf::Event::KeyReleased)
-	{
-		if (event.key.code == sf::Keyboard::LShift) shiftPressed = false;
-	}
+	shortcutEngine.registerShortcut(
+		CTX_MENU_NAME,
+		{ false, true, key },
+		callback);
 }
 
 void ToolWithSprites::buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme)

@@ -1,5 +1,5 @@
 #include "include/LevelMesh/DrawableDgmMesh.hpp"
-#include "include/Utilities.hpp"
+#include "include/Utilities/Utilities.hpp"
 
 void DrawableDgmMesh::build(
 	const std::vector<int>& data,

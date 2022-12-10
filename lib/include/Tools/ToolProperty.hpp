@@ -49,13 +49,10 @@ private:
     bool formValid = true;
 
     template<typename T>
-    void addOptionUint(TargetPanel& target, const std::string& label, const std::string& tooltip, T& val, unsigned ypos, bool enabled, bool tag);
+    void addOptionUint(tgui::Gui& gui, TargetPanel& target, const std::string& label, const std::string& tooltip, T& val, unsigned ypos, bool enabled, bool tag);
 
 protected:
-    tgui::Gui& gui;
-    Tool* parent;
-
-    virtual void buildModalSpecifics(tgui::Panel::Ptr& panel) = 0;
+    virtual void buildModalSpecifics(tgui::Gui& gui, tgui::Panel::Ptr& panel) = 0;
 
     tgui::Panel::Ptr getRowBackground(unsigned y, const std::string& tooltip);
 
@@ -63,30 +60,27 @@ protected:
 
     void addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, bool& val, unsigned ypos, bool enabled = true);
 
-    void addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, uint32_t& val, unsigned ypos, bool enabled = true, bool tag = false);
+    void addOption(tgui::Gui& gui, TargetPanel& target, const std::string& label, const std::string& tooltip, uint32_t& val, unsigned ypos, bool enabled = true, bool tag = false);
 
-    void addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, uint16_t& val, unsigned ypos, bool enabled = true);
+    void addOption(tgui::Gui& gui, TargetPanel& target, const std::string& label, const std::string& tooltip, uint16_t& val, unsigned ypos, bool enabled = true);
 
     void addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, std::string& val, unsigned ypos, bool enabled = true);
 
 public:
-    void buildModal();
+    void buildModal(
+        tgui::Gui& gui,
+        tgui::Theme& theme,
+        Tool& submitTarget);
 
-    virtual bool isEmpty() = 0;
-
-    virtual void clear() = 0;
-
-    ToolProperty(tgui::Gui &gui, Tool* parent) : gui(gui), parent(parent) {}
+    virtual ~ToolProperty() = default;
 };
 
 class ImageToolProperty : public ToolProperty {
 protected:
-    virtual void buildModalSpecifics(tgui::Panel::Ptr& panel) override;
+    virtual void buildModalSpecifics(tgui::Gui& gui, tgui::Panel::Ptr& panel) override;
 
-    virtual void buildModalSpecifics(tgui::ScrollablePanel::Ptr& panel) = 0;
+    virtual void buildModalSpecifics(tgui::Gui& gui, tgui::ScrollablePanel::Ptr& panel) = 0;
 
 public:
     tgui::Texture imageTexture;
-
-    ImageToolProperty(tgui::Gui &gui, Tool* parent) : ToolProperty(gui, parent) {}
 };

@@ -2,22 +2,19 @@
 
 #include <DGM/dgm.hpp>
 #include <TGUI/TGUI.hpp>
-#include "Camera.hpp"
-#include "EditorState.hpp"
-#include "Tools/ToolMesh.hpp"
-#include "Tools/ToolItem.hpp"
-#include "Tools/ToolTrigger.hpp"
-#include "Dialogs/ResizeLevelDialog.hpp"
+#include "include/Camera.hpp"
+#include "include/Editor/EditorState.hpp"
+#include "include/Editor/EditorStateManager.hpp"
+#include "include/Tools/ToolMesh.hpp"
+#include "include/Tools/ToolItem.hpp"
+#include "include/Tools/ToolTrigger.hpp"
+#include "include/Dialogs/ResizeLevelDialog.hpp"
 #include "include/Commands/CommandQueue.hpp"
+#include "include/Shortcuts/ShortcutEngine.hpp"
 
 class EditorInterface
 {
 public:
-	enum class ToolType : std::size_t
-	{
-		Mesh, Item, Trigger
-	};
-
 	virtual bool isInitialized() const = 0;
 
 	virtual void draw() = 0;
@@ -30,7 +27,7 @@ public:
 
 	virtual void loadFromFile(const std::string& filename) = 0;
 
-	virtual void switchTool(const ToolType tool) = 0;
+	virtual void switchTool(EditorState state) = 0;
 
 	virtual void resizeDialog() = 0;
 
@@ -51,6 +48,8 @@ private:
 	sf::CircleShape mouseIndicator;
 
 	CommandQueue& commandQueue;
+	ShortcutEngineInterface& shortcutEngine;
+	std::unique_ptr<ToolProperty> currentlyOpenedProperty;
 
 	bool initialized = false;
 	std::string configPath;
@@ -58,17 +57,24 @@ private:
 
 	bool isMouseWithinBoundaries(const sf::Vector2f& mousePos) const;
 
+	[[nodiscard]]
 	bool canScroll() const
 	{
 		// If property window is opened, prevent scrolling
 		return gui.get<tgui::ChildWindow>("ToolPropertyModal") == nullptr;
 	}
 
+	[[nodiscard]]
 	bool canOpenPropertyDialog() const
 	{
 		// If property window is opened, do not open new one
 		return canScroll();
 	}
+
+protected:
+	void populateMenuBar();
+
+	void handleRmbClicked();
 
 public:
 	virtual bool isInitialized() const override
@@ -87,7 +93,7 @@ public:
 	 */
 	virtual void init(unsigned levelWidth, unsigned levelHeight, const std::string& configPath) override;
 
-	virtual void switchTool(const ToolType tool) override;
+	virtual void switchTool(EditorState state) override;
 
 	virtual void loadFromFile(const std::string& filename) override;
 
@@ -102,5 +108,6 @@ public:
 		tgui::Theme& theme,
 		tgui::Canvas::Ptr& canvas,
 		std::function<void(void)> onStateChanged,
-		CommandQueue& commandQueue);
+		CommandQueue& commandQueue,
+		ShortcutEngineInterface& shortcutEngine);
 };

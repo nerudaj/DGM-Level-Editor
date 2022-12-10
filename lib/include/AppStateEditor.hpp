@@ -6,12 +6,12 @@
 #include "Dialogs/NewLevelDialog.hpp"
 #include "include/Dialogs/YesNoCancelDialog.hpp"
 #include "LogConsole.hpp"
-#include "Editor.hpp"
-#include "include/FileApi.hpp"
+#include "include/Editor/Editor.hpp"
+#include "include/Utilities/FileApi.hpp"
 #include <optional>
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Commands/CommandHistory.hpp"
-#include "include/ShortcutEngineInterface.hpp"
+#include "include/Shortcuts/ShortcutEngineInterface.hpp"
 
 /**
  *  This class is responsible for drawing top level gui - topbar, canvas, console, bootstrapping

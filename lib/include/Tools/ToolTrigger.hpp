@@ -5,19 +5,11 @@
 
 class ToolTriggerProperty : public ToolProperty
 {
+	virtual void buildModalSpecifics(tgui::Gui& gui, tgui::Panel::Ptr& panel) override;
+
 public:
 	LevelD::Trigger data;
-	std::size_t id = -1;
-
-	// Dìdí se pøes ToolProperty.
-	virtual void buildModalSpecifics(tgui::Panel::Ptr& panel) override;
-	virtual bool isEmpty() override { return id == -1; }
-	virtual void clear() override { id = -1; }
-
-	ToolTriggerProperty(tgui::Gui& gui, Tool* parent) : ToolProperty(gui, parent)
-	{
-		clear();
-	}
+	std::size_t id;
 };
 
 class ToolTrigger : public Tool
@@ -29,7 +21,6 @@ private:
 	const float DRAW_THRESHOLD = 3.f;
 
 	// Actual data
-	ToolTriggerProperty property = ToolTriggerProperty(gui, this);
 	std::vector<LevelD::Trigger> triggers;
 	std::set<std::size_t> selectedItems;
 
@@ -73,13 +64,17 @@ public:
 	virtual void loadFrom(const LevelD& lvd) override;
 	virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
 	virtual void penDelete() override;
-	virtual ToolProperty& getProperty() override;
+	virtual std::unique_ptr<ToolProperty> getProperty() const override;
 	virtual void setProperty(const ToolProperty& prop) override;
+
+	virtual std::optional<unsigned> getTagOfHighlightedObject() override;
+	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override;
 
 	ToolTrigger(
 		tgui::Gui& gui,
 		std::function<void(void)> onStateChanged,
-		CommandQueue& commandQueue)
-		: Tool(gui, onStateChanged, commandQueue)
+		CommandQueue& commandQueue,
+		ShortcutEngineInterface& shortcutEngine)
+		: Tool(gui, onStateChanged, commandQueue, shortcutEngine)
 	{}
 };

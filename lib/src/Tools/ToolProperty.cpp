@@ -42,7 +42,7 @@ void ToolProperty::addOption(TargetPanel& target, const std::string& label, cons
 
 
 template<typename T>
-inline void ToolProperty::addOptionUint(TargetPanel& target, const std::string& label, const std::string& tooltip, T& val, unsigned ypos, bool enabled, bool tag) {
+inline void ToolProperty::addOptionUint(tgui::Gui& gui, TargetPanel& target, const std::string& label, const std::string& tooltip, T& val, unsigned ypos, bool enabled, bool tag) {
 	auto row = getRowBackground(ypos, tooltip);
 	target->add(row);
 
@@ -58,7 +58,7 @@ inline void ToolProperty::addOptionUint(TargetPanel& target, const std::string& 
 	edit->setInputValidator(tgui::EditBox::Validator::UInt);
 
 	if (enabled) {
-		edit->connect("TextChanged", [this, &val, label](const std::string& newVal) {
+		edit->connect("TextChanged", [&] (const std::string& newVal) {
 			auto edit = gui.get<tgui::EditBox>("EditBox" + label);
 			try {
 				std::size_t endpos;
@@ -80,7 +80,7 @@ inline void ToolProperty::addOptionUint(TargetPanel& target, const std::string& 
 		btn->setSize(VALUE_WIDTH, "100%");
 		btn->setPosition(TAG_LEFT_MARGIN, "0%");
 		btn->setEnabled(enabled);
-		btn->connect("pressed", [this, label]() {
+		btn->connect("pressed", [&] {
 			auto edit = gui.get<tgui::EditBox>("EditBox" + label);
 			edit->setText(std::to_string(PropertyTag::get().getNewTag()));
 		});
@@ -91,12 +91,12 @@ inline void ToolProperty::addOptionUint(TargetPanel& target, const std::string& 
 }
 
 
-void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, uint32_t& val, unsigned ypos, bool enabled, bool tag) {
-	addOptionUint(target, label, tooltip, val, ypos, enabled, tag);
+void ToolProperty::addOption(tgui::Gui& gui, TargetPanel& target, const std::string& label, const std::string& tooltip, uint32_t& val, unsigned ypos, bool enabled, bool tag) {
+	addOptionUint(gui, target, label, tooltip, val, ypos, enabled, tag);
 }
 
-void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, uint16_t& val, unsigned ypos, bool enabled) {
-	addOptionUint(target, label, tooltip, val, ypos, enabled, false);
+void ToolProperty::addOption(tgui::Gui& gui, TargetPanel& target, const std::string& label, const std::string& tooltip, uint16_t& val, unsigned ypos, bool enabled) {
+	addOptionUint(gui, target, label, tooltip, val, ypos, enabled, false);
 }
 
 void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, std::string& val, unsigned ypos, bool enabled) {
@@ -121,9 +121,14 @@ void ToolProperty::addOption(TargetPanel& target, const std::string& label, cons
 	row->add(edit, "EditBox" + label);
 }
 
-void ToolProperty::buildModal() {
+void ToolProperty::buildModal(
+	tgui::Gui& gui,
+	tgui::Theme& theme,
+	Tool& submitTarget)
+{
 	// Create wrapper window
 	auto modal = tgui::ChildWindow::create("Tile Properties");
+	// FIXME: theme
 	modal->setSize("50%", "80%");
 	modal->setPosition("25%", "10%");
 	gui.add(modal, "ToolPropertyModal");
@@ -134,10 +139,10 @@ void ToolProperty::buildModal() {
 	modal->add(group);
 
 	// Actual content
-	buildModalSpecifics(group);
+	buildModalSpecifics(gui, group);
 
 	// Bottom buttons
-	auto close = [this]() {
+	auto close = [&]() {
 		auto modal = gui.get<tgui::ChildWindow>("ToolPropertyModal");
 		modal->close();
 		gui.remove(modal);
@@ -146,9 +151,9 @@ void ToolProperty::buildModal() {
 	auto btn = tgui::Button::create("Ok");
 	btn->setSize("20%", "8%");
 	btn->setPosition("56%", "90%");
-	btn->connect("clicked", [this, close]() {
+	btn->connect("clicked", [&] {
 		if (!formValid) return;
-		parent->setProperty(*this);
+		submitTarget.setProperty(*this);
 		close();
 	});
 	modal->add(btn);
@@ -156,13 +161,13 @@ void ToolProperty::buildModal() {
 	btn = tgui::Button::create("Cancel");
 	btn->setSize("20%", "8%");
 	btn->setPosition("78%", "90%");
-	btn->connect("clicked", [this, close]() { close();  });
+	btn->connect("clicked", [&] { close(); });
 	modal->add(btn);
 
 	formValid = true;
 }
 
-void ImageToolProperty::buildModalSpecifics(tgui::Panel::Ptr& panel) {
+void ImageToolProperty::buildModalSpecifics(tgui::Gui& gui, tgui::Panel::Ptr& panel) {
 	const float SCROLLBAR_WIDTH = 20.f;
 
 	const float IMAGE_SIZE = panel->getSize().x / 4.f;
@@ -182,5 +187,5 @@ void ImageToolProperty::buildModalSpecifics(tgui::Panel::Ptr& panel) {
 	panel->add(sp);
 
 	// Do property specific stuff
-	buildModalSpecifics(sp);
+	buildModalSpecifics(gui, sp);
 }

@@ -57,7 +57,7 @@ public:
 	}
 
 	[[nodiscard]]
-	const sf::Vector2u& getTileSize() const
+	const sf::Vector2u& getTileSize() const noexcept
 	{
 		return map.getClip().getFrameSize();
 	}

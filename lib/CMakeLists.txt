@@ -5,104 +5,46 @@ project ( editor-lib )
 set ( HEADER_FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/AppStateEditor.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/Camera.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/Editor.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/EditorState.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/FileApi.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/Globals.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/JsonHelper.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/LogConsole.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/ShortcutCombo.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/ShortcutEngineInterface.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/ShortcutEngine.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/Utilities.hpp"
 )
 
 set ( SOURCE_FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/AppStateEditor.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/Camera.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/Editor.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/EditorState.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/FileApi.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/JsonHelper.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/LogConsole.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/ShortcutCombo.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/ShortcutEngine.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/Utilities.cpp"
 )
 
-file (
-	GLOB CONFIGS_HEADERS
-	CONFIGURE_DEPENDS
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/Configs/*.hpp"
-)
+glob_sources_and_headers ( COMMANDS "Commands" )
+glob_sources_and_headers ( CONFIGS "Configs" )
+glob_sources_and_headers ( DIALOGS "Dialogs" )
+glob_sources_and_headers ( EDITOR "Editor" )
+glob_sources_and_headers ( LEVELMESH "LevelMesh" )
+glob_sources_and_headers ( SHORTCUTS "Shortcuts" )
+glob_sources_and_headers ( TOOLS "Tools" )
+glob_sources_and_headers ( UTILITIES "Utilities" )
 
-file (
-	GLOB CONFIGS_SOURCES
-	CONFIGURE_DEPENDS
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/Configs/*.cpp"
-)
-
-file (
-	GLOB TOOLS_HEADERS
-	CONFIGURE_DEPENDS
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/Tools/*.hpp"
-)
-
-file (
-	GLOB TOOLS_SOURCES
-	CONFIGURE_DEPENDS
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/Tools/*.cpp"
-)
-
-file (
-	GLOB DIALOGS_HEADERS
-	CONFIGURE_DEPENDS
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/Dialogs/*.hpp"
-)
-
-file (
-	GLOB DIALOGS_SOURCES
-	CONFIGURE_DEPENDS
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/Dialogs/*.cpp"
-)
-
-file (
-	GLOB LEVELMESH_HEADERS
-	CONFIGURE_DEPENDS
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/LevelMesh/*.hpp"
-)
-
-file (
-	GLOB LEVELMESH_SOURCES
-	CONFIGURE_DEPENDS
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/LevelMesh/*.cpp"
-)
-
-file (
-	GLOB COMMANDS_HEADERS
-	CONFIGURE_DEPENDS
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/Commands/*.hpp"
-)
-
-file (
-	GLOB COMMANDS_SOURCES
-	CONFIGURE_DEPENDS
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/Commands/*.cpp"
-)
-
-source_group ( "Configs" FILES ${CONFIGS_HEADERS} ${CONFIGS_SOURCES} )
-source_group ( "Tools" FILES ${TOOLS_HEADERS} ${TOOLS_SOURCES} )
-source_group ( "Dialogs" FILES ${DIALOGS_HEADERS} ${DIALOGS_SOURCES} )
-source_group ( "Level Mesh" FILES ${LEVELMESH_HEADERS} ${LEVELMESH_SOURCES} )
 source_group ( "Commands" FILES ${COMMANDS_HEADERS} ${COMMANDS_SOURCES} )
+source_group ( "Configs" FILES ${CONFIGS_HEADERS} ${CONFIGS_SOURCES} )
+source_group ( "Dialogs" FILES ${DIALOGS_HEADERS} ${DIALOGS_SOURCES} )
+source_group ( "Editor" FILES ${EDITOR_HEADERS} ${EDITOR_SOURCES} )
+source_group ( "Level Mesh" FILES ${LEVELMESH_HEADERS} ${LEVELMESH_SOURCES} )
+source_group ( "Shortcuts" FILES ${SHORTCUTS_HEADERS} ${SHORTCUTS_SOURCES} )
+source_group ( "Tools" FILES ${TOOLS_HEADERS} ${TOOLS_SOURCES} )
+source_group ( "Utilities" FILES ${UTILITIES_HEADERS} ${UTILITIES_SOURCES} )
 
 add_library ( ${PROJECT_NAME} STATIC
 	${HEADER_FILES} ${SOURCE_FILES}
-	${CONFIGS_HEADERS} ${CONFIGS_SOURCES}
-	${TOOLS_HEADERS} ${TOOLS_SOURCES}
-	${DIALOGS_HEADERS} ${DIALOGS_SOURCES}
-	${LEVELMESH_HEADERS} ${LEVELMESH_SOURCES}
 	${COMMANDS_HEADERS} ${COMMANDS_SOURCES}
+	${CONFIGS_HEADERS} ${CONFIGS_SOURCES}
+	${DIALOGS_HEADERS} ${DIALOGS_SOURCES}
+	${EDITOR_HEADERS} ${EDITOR_SOURCES}
+	${LEVELMESH_HEADERS} ${LEVELMESH_SOURCES}
+	${SHORTCUTS_HEADERS} ${SHORTCUTS_SOURCES}
+	${TOOLS_HEADERS} ${TOOLS_SOURCES}
+	${UTILITIES_HEADERS} ${UTILITIES_SOURCES}
 	"${CMAKE_CURRENT_SOURCE_DIR}/.editorconfig"
 )
 

@@ -178,6 +178,7 @@ void ToolItem::penClicked(const sf::Vector2i& position) {
 	if (not isValidPenPosForDrawing(position)) return;
 	std::size_t itemId;
 	if ((itemId = getItemFromPosition(sf::Vector2f(position))) != -1) {
+		// TODO: command
 		selectedItems.insert(itemId);
 		return;
 	}
@@ -246,6 +247,11 @@ void ToolItem::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) 
 		selectItemsInArea(selectedArea);
 	}
 
+	if (dragging)
+	{
+		// TODO: create command
+	}
+
 	selecting = false;
 	dragging = false;
 }
@@ -274,29 +280,40 @@ void ToolItem::penDelete() {
 	selectedItems.clear();
 }
 
-ToolProperty& ToolItem::getProperty() {
+std::unique_ptr<ToolProperty> ToolItem::getProperty() const {
 	auto pos = getPenPosition();
 
-	itemProperty.clear();
 
-	std::size_t itemId = 0;
-	if ((itemId = getItemFromPosition(sf::Vector2f(pos))) != -1) {
-		itemProperty.imageTexture = getSpriteAsTexture(items[itemId].id);
-		itemProperty.empty = false;
-		itemProperty.data = items[itemId];
-		itemProperty.itemId = itemId;
-	}
+	const std::size_t itemId = getItemFromPosition(sf::Vector2f(pos));
+	if (itemId == -1)
+		return nullptr;
 
-	return itemProperty;
+	auto&& result = std::make_unique<ItemToolProperty>();
+
+	result->imageTexture = getSpriteAsTexture(items[itemId].id);
+	result->data = items[itemId];
+	result->itemId = itemId;
+
+	return std::move(result);
 }
 
-void ToolItem::setProperty(const ToolProperty&) {
-	signalStateChanged();
+void ToolItem::setProperty(const ToolProperty& prop) {
+	auto&& property = dynamic_cast<const ItemToolProperty&>(prop);
 
-	items[itemProperty.itemId] = itemProperty.data;
-	items[itemProperty.itemId].x = std::clamp<unsigned>(items[itemProperty.itemId].x, 0, levelSize.x);
-	items[itemProperty.itemId].y = std::clamp<unsigned>(items[itemProperty.itemId].y, 0, levelSize.y);
-	PropertyTag::get().updateTag(items[itemProperty.itemId].tag);
+	items[property.itemId] = property.data;
+	items[property.itemId].x = std::clamp<unsigned>(
+		items[property.itemId].x,
+		0u,
+		levelSize.x);
+	items[property.itemId].y = std::clamp<unsigned>(
+		items[property.itemId].y,
+		0u,
+		levelSize.y);
+
+	PropertyTag::get().updateTag(items[property.itemId].tag);
+
+	// FIXME: Command
+	signalStateChanged();
 }
 
 void ToolItem::buildCtxMenu(tgui::MenuBar::Ptr& menu) {
@@ -309,14 +326,35 @@ void ToolItem::buildCtxMenu(tgui::MenuBar::Ptr& menu) {
 	addCtxMenuItem(menu, OPTION_ERASE, [this]() { changeEditMode(EditMode::ModeErase); }, sf::Keyboard::E);
 }
 
-void ItemToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& dst) {
+std::optional<unsigned> ToolItem::getTagOfHighlightedObject()
+{
+	return {};
+/*	auto&& prop = dynamic_cast<ItemToolProperty&>(getProperty());
+	if (prop.isEmpty() || prop.data.tag == 0)
+		return {};
+	return prop.data.tag;*/
+}
+
+std::vector<sf::Vector2u> ToolItem::getPositionsOfObjectsWithTag(unsigned tag) const
+{
+	std::vector<sf::Vector2u> result;
+	for (auto&& item : items)
+	{
+		if (item.tag == tag)
+			result.push_back({ item.x, item.y });
+	}
+
+	return result;
+}
+
+void ItemToolProperty::buildModalSpecifics(tgui::Gui& gui, tgui::ScrollablePanel::Ptr& dst) {
 	constexpr bool DISABLED = false;
 
-	addOption(dst, "Item ID:", "Unique identifier of the object", data.id, 0, DISABLED);
-	addOption(dst, "X coordinate:", "Measured in pixels from top-left corner", data.x, 1);
-	addOption(dst, "Y coordinate:", "Measured in pixels from top-left corner", data.y, 2);
-	addOption(dst, "Tag:", "Value used to group related objects", data.tag, 3, true, true);
-	addOption(dst, "Flags:", "16 bit value to alter behaviour of this object", data.flags, 4);
+	addOption(gui, dst, "Item ID:", "Unique identifier of the object", data.id, 0, DISABLED);
+	addOption(gui, dst, "X coordinate:", "Measured in pixels from top-left corner", data.x, 1);
+	addOption(gui, dst, "Y coordinate:", "Measured in pixels from top-left corner", data.y, 2);
+	addOption(gui, dst, "Tag:", "Value used to group related objects", data.tag, 3, true, true);
+	addOption(gui, dst, "Flags:", "16 bit value to alter behaviour of this object", data.flags, 4);
 	addOption(dst, "Metadata:", "Text field for custom data", data.metadata, 5);
 }
 

@@ -120,6 +120,7 @@ AppStateEditor::AppStateEditor(
 	try
 	{
 		resmgr.loadResource<sf::Font>(rootDir + "/resources/cruft.ttf");
+		theme.load(rootDir + "/resources/TransparentGrey.txt");
 	}
 	catch (std::exception& e)
 	{
@@ -129,20 +130,24 @@ AppStateEditor::AppStateEditor(
 
 	// Setup resources
 	sf::Font& font = resmgr.get<sf::Font>("cruft.ttf");
-
-	editor = std::make_unique<Editor>(gui, theme, canvas, [&] ()
-	{
-		unsavedChanges = true;
-	updateWindowTitle();
-	}, commandQueue);
-
-	// Gui setup
-	theme.load(rootDir + "/resources/TransparentGrey.txt");
-
 	gui.setFont(font);
 	gui.setTarget(app.window.getWindowContext());
 
 	buildLayout();
+
+	auto onStateChanged = [this]
+	{
+		unsavedChanges = true;
+		updateWindowTitle();
+	};
+
+	editor = std::make_unique<Editor>(
+		gui,
+		theme,
+		canvas,
+		onStateChanged,
+		commandQueue,
+		*(this->shortcutEngine));
 
 	updateWindowTitle();
 }
@@ -218,7 +223,10 @@ void AppStateEditor::buildMenuBarLayout(
 		
 		if (shortcut.has_value())
 		{
-			shortcutEngine->registerShortcut(true, false, *shortcut, callback);
+			shortcutEngine->registerShortcut(
+				"FileShortcuts",
+				{ true, false, *shortcut },
+				callback);
 		}
 	};
 
@@ -230,36 +238,6 @@ void AppStateEditor::buildMenuBarLayout(
 	addFileMenuItem(FILE_CTX_REDO, [this] { handleRedo(); }, sf::Keyboard::Y);
 	addFileMenuItem(FILE_CTX_EXIT, [this] { handleExit(dialogConfirmExit); });
 
-	menu->addMenu("Editor");
-	auto addEditorMenuItem = [this, &menu](
-		const std::string& label,
-		std::function<void(void)> callback,
-		sf::Keyboard::Key shortcut)
-	{
-		menu->addMenuItem(label);
-		menu->connectMenuItem("Editor", label, callback);
-
-		shortcutEngine->registerShortcut(false, true, shortcut, callback);
-	};
-
-	addEditorMenuItem(
-		"Mesh mode (M)",
-		[this] { editor->switchTool(Editor::ToolType::Mesh); },
-		sf::Keyboard::M);
-	addEditorMenuItem("Items mode (I)",
-		[this] { editor->switchTool(Editor::ToolType::Item); },
-		sf::Keyboard::I);
-	addEditorMenuItem("Trigger mode (T)",
-		[this] { editor->switchTool(Editor::ToolType::Trigger); },
-		sf::Keyboard::T);
-	addEditorMenuItem("Resize level (R)",
-		[this] { editor->resizeDialog(); },
-		sf::Keyboard::R);
-	addEditorMenuItem("Shrink level to fit (S)",
-		[this] { editor->shrinkToFit(); },
-		sf::Keyboard::S);
-
-	// Must be added AFTER canvas, otherwise canvas blocks pop-up menus
 	gui.add(menu, "TopMenuBar");
 }
 

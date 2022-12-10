@@ -5,8 +5,11 @@
 #include <json.hpp>
 #include <LevelD.hpp>
 
+#include <optional>
+
 #include "ToolProperty.hpp"
 #include "include/Commands/CommandQueue.hpp"
+#include "include/Shortcuts/ShortcutEngineInterface.hpp"
 
 /**
  *  This is generic top level class representing an Editor Tool.
@@ -42,25 +45,15 @@ protected:
 	tgui::Gui& gui;
 	std::function<void(void)> onStateChangedCallback;
 	CommandQueue& commandQueue;
-
-	void registerShortcut(sf::Keyboard::Key key, std::function<void(void)> callback);
-	void clearShortcuts()
-	{
-		callbacks.clear();
-	}
+	ShortcutEngineInterface& shortcutEngine;
 
 	void addCtxMenuItem(tgui::MenuBar::Ptr& menu, const std::string& label, std::function<void(void)> callback, sf::Keyboard::Key shortcutKey);
 
-	const sf::Vector2i& getPenPosition() const
-	{
-		return penPos;
-	}
+	[[nodiscard]]
+	const sf::Vector2i& getPenPosition() const noexcept { return penPos; }
 
-	const sf::Vector2i& getPenDragStart() const
-	{
-		assert(not 0xdeadc0de);
-		return penDownPos;
-	}
+	[[nodiscard]]
+	const sf::Vector2i& getPenDragStart() const noexcept { return penDownPos; }
 
 	bool isPenDragging() const
 	{
@@ -85,9 +78,6 @@ protected:
 	}
 
 public:
-
-	void handleShortcuts(const sf::Event& event);
-
 	virtual void configure(nlohmann::json& config) = 0;
 
 	virtual void resize(unsigned width, unsigned height) = 0;
@@ -105,7 +95,8 @@ public:
 	virtual void penDelete() = 0; // executed when Del is pressed
 
 	// Returns nullptr if no property can be returned
-	virtual ToolProperty& getProperty() = 0;
+	[[nodiscard]]
+	virtual std::unique_ptr<ToolProperty> getProperty() const = 0;
 	virtual void setProperty(const ToolProperty& prop) = 0;
 
 	virtual void buildCtxMenu(tgui::MenuBar::Ptr& menu);
@@ -116,15 +107,23 @@ public:
 
 	void buildSidebar(tgui::Theme& theme);
 
+	virtual std::optional<unsigned> getTagOfHighlightedObject() = 0;
+	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const = 0;
+
 	Tool(
 		tgui::Gui& gui,
 		std::function<void(void)> onStateChanged,
-		CommandQueue& commandQueue)
+		CommandQueue& commandQueue,
+		ShortcutEngineInterface& shortcutEngine)
 		: gui(gui)
 		, onStateChangedCallback(onStateChanged)
 		, commandQueue(commandQueue)
+		, shortcutEngine(shortcutEngine)
 	{}
 };
+
+template<class T>
+concept DerivedFromTool = std::derived_from<T, Tool>;
 
 // Keeps track of which tiles were used in the past
 // to display them on the right sidebar
@@ -180,8 +179,9 @@ public:
 	ToolWithSprites(
 		tgui::Gui& gui,
 		std::function<void(void)> onStateChanged,
-		CommandQueue& commandQueue)
-		: Tool(gui, onStateChanged, commandQueue)
+		CommandQueue& commandQueue,
+		ShortcutEngineInterface& shortcutEngine)
+		: Tool(gui, onStateChanged, commandQueue, shortcutEngine)
 	{}
 };
 

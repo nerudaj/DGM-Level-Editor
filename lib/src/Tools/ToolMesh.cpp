@@ -5,7 +5,7 @@
 #include "include/Commands/SetTileCommand.hpp"
 #include "include/Commands/SetTileAreaCommand.hpp"
 #include <include/Commands/ResizeCommand.hpp>
-#include "include/Utilities.hpp"
+#include "include/Utilities/Utilities.hpp"
 
 void ToolMesh::penClicked(const sf::Vector2i& position)
 {
@@ -166,31 +166,35 @@ void ToolMesh::drawTo(tgui::Canvas::Ptr& canvas, uint8_t)
 	}
 }
 
-ToolProperty& ToolMesh::getProperty()
+std::unique_ptr<ToolProperty> ToolMesh::getProperty() const
 {
 	auto pos = getPenPosition();
 
-	tileProperty.clear();
-
 	auto tilePos = worldToTilePos(pos);
-	if (not isPositionValid(tilePos)) return tileProperty; // returning null property
+	if (not isPositionValid(tilePos))
+		return nullptr;
 
-	tileProperty.tileX = tilePos.x;
-	tileProperty.tileY = tilePos.y;
-	tileProperty.tileValue = map.getTileValue(tilePos);
-	tileProperty.blocking = map.isTileSolid(tilePos);
-	tileProperty.defaultBlocking = defaultBlocks[tileProperty.tileValue];
-	tileProperty.imageTexture = getSpriteAsTexture(tileProperty.tileValue);
-	tileProperty.empty = false;
+	auto&& result = std::make_unique<MeshToolProperty>();
 
-	return tileProperty;
+	result->tileX = tilePos.x;
+	result->tileY = tilePos.y;
+	result->tileValue = map.getTileValue(tilePos);
+	result->blocking = map.isTileSolid(tilePos);
+	result->defaultBlocking = defaultBlocks[result->tileValue];
+	result->imageTexture = getSpriteAsTexture(result->tileValue);
+
+	return std::move(result);
 }
 
-void ToolMesh::setProperty(const ToolProperty&)
+void ToolMesh::setProperty(const ToolProperty& prop)
 {
-	map.setTileValue({ tileProperty.tileX, tileProperty.tileY }, tileProperty.tileValue);
-	map.setTileValue({ tileProperty.tileX, tileProperty.tileY }, tileProperty.blocking);
+	auto&& property = dynamic_cast<const MeshToolProperty&>(prop);
+
+	map.setTileValue({ property.tileX, property.tileY }, property.tileValue);
+	map.setTileValue({ property.tileX, property.tileY }, property.blocking);
+
 	signalStateChanged();
+	// TODO: command
 }
 
 void ToolMesh::buildCtxMenu(tgui::MenuBar::Ptr& menu)
@@ -231,12 +235,12 @@ std::string std::to_string(ToolMesh::DrawMode mode)
 	return "Error";
 }
 
-void MeshToolProperty::buildModalSpecifics(tgui::ScrollablePanel::Ptr& dst)
+void MeshToolProperty::buildModalSpecifics(tgui::Gui& gui, tgui::ScrollablePanel::Ptr& dst)
 {
 	constexpr bool DISABLED = false; // the function accepts predicate enabled
 
-	addOption(dst, "Tile X:", "X coordinate of the tile", tileX, 0, DISABLED);
-	addOption(dst, "Tile Y:", "Y coordinate of the tile", tileY, 1, DISABLED);
+	addOption(gui, dst, "Tile X:", "X coordinate of the tile", tileX, 0, DISABLED);
+	addOption(gui, dst, "Tile Y:", "Y coordinate of the tile", tileY, 1, DISABLED);
 	addOption(dst, "Impassable:", "Whether this tile blocks the player", blocking, 2);
 	addOption(dst, "Impassable by default:", "Whether this type of tile is impassable by default", defaultBlocking, 3, DISABLED);
 }

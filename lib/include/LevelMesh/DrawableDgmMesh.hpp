@@ -23,7 +23,7 @@ public:
 		const sf::Vector2u& voxelSize);
 
 	[[nodiscard]]
-	const dgm::Mesh& getOriginalMesh() const
+	const dgm::Mesh& getOriginalMesh() const noexcept
 	{
 		return mesh;
 	}

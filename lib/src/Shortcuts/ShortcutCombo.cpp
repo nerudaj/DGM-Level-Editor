@@ -1,4 +1,4 @@
-#include "include/ShortcutCombo.hpp"
+#include "include/Shortcuts/ShortcutCombo.hpp"
 #include <vector>
 #include <numeric>
 
