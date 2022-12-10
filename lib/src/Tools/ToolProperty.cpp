@@ -58,7 +58,7 @@ inline void ToolProperty::addOptionUint(tgui::Gui& gui, TargetPanel& target, con
 	edit->setInputValidator(tgui::EditBox::Validator::UInt);
 
 	if (enabled) {
-		edit->connect("TextChanged", [&] (const std::string& newVal) {
+		edit->connect("TextChanged", [&, label] (const std::string& newVal) {
 			auto edit = gui.get<tgui::EditBox>("EditBox" + label);
 			try {
 				std::size_t endpos;
@@ -80,7 +80,7 @@ inline void ToolProperty::addOptionUint(tgui::Gui& gui, TargetPanel& target, con
 		btn->setSize(VALUE_WIDTH, "100%");
 		btn->setPosition(TAG_LEFT_MARGIN, "0%");
 		btn->setEnabled(enabled);
-		btn->connect("pressed", [&] {
+		btn->connect("pressed", [&, label] {
 			auto edit = gui.get<tgui::EditBox>("EditBox" + label);
 			edit->setText(std::to_string(PropertyTag::get().getNewTag()));
 		});
@@ -128,7 +128,7 @@ void ToolProperty::buildModal(
 {
 	// Create wrapper window
 	auto modal = tgui::ChildWindow::create("Tile Properties");
-	// FIXME: theme
+	modal->setRenderer(theme.getRenderer("ChildWindow"));
 	modal->setSize("50%", "80%");
 	modal->setPosition("25%", "10%");
 	gui.add(modal, "ToolPropertyModal");
@@ -142,26 +142,27 @@ void ToolProperty::buildModal(
 	buildModalSpecifics(gui, group);
 
 	// Bottom buttons
-	auto close = [&]() {
+	auto close = [] (tgui::Gui& gui) {
 		auto modal = gui.get<tgui::ChildWindow>("ToolPropertyModal");
 		modal->close();
 		gui.remove(modal);
 	};
 
+	// TODO: Sizers
 	auto btn = tgui::Button::create("Ok");
 	btn->setSize("20%", "8%");
 	btn->setPosition("56%", "90%");
 	btn->connect("clicked", [&] {
 		if (!formValid) return;
 		submitTarget.setProperty(*this);
-		close();
+		close(gui);
 	});
 	modal->add(btn);
 
 	btn = tgui::Button::create("Cancel");
 	btn->setSize("20%", "8%");
 	btn->setPosition("78%", "90%");
-	btn->connect("clicked", [&] { close(); });
+	btn->connect("clicked", [&] { close(gui); });
 	modal->add(btn);
 
 	formValid = true;

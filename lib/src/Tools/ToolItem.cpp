@@ -328,11 +328,12 @@ void ToolItem::buildCtxMenu(tgui::MenuBar::Ptr& menu) {
 
 std::optional<unsigned> ToolItem::getTagOfHighlightedObject()
 {
-	return {};
-/*	auto&& prop = dynamic_cast<ItemToolProperty&>(getProperty());
-	if (prop.isEmpty() || prop.data.tag == 0)
+	auto&& prop = getProperty();
+	if (!prop)
 		return {};
-	return prop.data.tag;*/
+
+	auto&& itemProp = dynamic_cast<ItemToolProperty&>(*prop);
+	return itemProp.data.tag;
 }
 
 std::vector<sf::Vector2u> ToolItem::getPositionsOfObjectsWithTag(unsigned tag) const

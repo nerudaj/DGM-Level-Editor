@@ -308,11 +308,12 @@ void ToolTrigger::setProperty(const ToolProperty &prop) {
 
 std::optional<unsigned> ToolTrigger::getTagOfHighlightedObject()
 {
-    return {};
-    /*auto&& prop = dynamic_cast<ToolTriggerProperty&>(getProperty());
-    if (prop.isEmpty() || prop.data.tag == 0)
+    auto&& prop = getProperty();
+    if (!prop)
         return {};
-    return prop.data.tag;*/
+
+    auto&& trigProp = dynamic_cast<ToolTriggerProperty&>(*prop);
+    return trigProp.data.tag;
 }
 
 std::vector<sf::Vector2u> ToolTrigger::getPositionsOfObjectsWithTag(unsigned tag) const

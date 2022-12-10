@@ -31,6 +31,10 @@ public:
     ~PropertyTag() {}
 };
 
+// TODO: Turn this into a persistent dialog
+// with toolproperty just being a class that has buildModalSpecifics specialization
+// that will wipe contents of the dialog and fill them with something
+// new each time it is opened
 class ToolProperty {
 protected:
     using TargetPanel = tgui::ScrollablePanel::Ptr;
