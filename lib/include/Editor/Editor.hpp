@@ -76,6 +76,8 @@ protected:
 
 	void handleRmbClicked();
 
+	void drawTagHighlight();
+
 public:
 	virtual bool isInitialized() const override
 	{

@@ -11,6 +11,12 @@
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Shortcuts/ShortcutEngineInterface.hpp"
 
+struct GenericObject
+{
+	sf::Vector2u position;
+	unsigned tag;
+};
+
 /**
  *  This is generic top level class representing an Editor Tool.
  *  This is a component that can edit one attribute of LevelD -
@@ -107,7 +113,7 @@ public:
 
 	void buildSidebar(tgui::Theme& theme);
 
-	virtual std::optional<unsigned> getTagOfHighlightedObject() = 0;
+	virtual std::optional<GenericObject> getHighlightedObject() const = 0;
 	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const = 0;
 
 	Tool(

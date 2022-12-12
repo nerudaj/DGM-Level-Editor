@@ -90,7 +90,7 @@ public:
 	virtual void buildCtxMenu(tgui::MenuBar::Ptr& menu) override;
 
 	// No highlight here
-	virtual std::optional<unsigned> getTagOfHighlightedObject() override { return {}; }
+	virtual std::optional<GenericObject> getHighlightedObject() const override { return {}; }
 	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override { return {}; }
 
 	ToolMesh(

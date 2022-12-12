@@ -24,7 +24,7 @@ void Editor::populateMenuBar()
 	const std::string MENU_SHRINK = "Shrink level to fit (S)";
 
 	auto menu = gui.get<tgui::MenuBar>("TopMenuBar");
-	
+
 	// Cleanup previously built data
 	menu->removeMenu(MENU_NAME);
 	shortcutEngine.unregisterShortcutGroup(MENU_NAME);
@@ -80,6 +80,27 @@ void Editor::handleRmbClicked()
 		stateMgr.getActiveTool());
 }
 
+void Editor::drawTagHighlight()
+{
+	auto&& object = stateMgr.getActiveTool().getHighlightedObject();
+	if (!object.has_value() || object->tag == 0)
+		return;
+
+	std::vector<sf::Vertex> positions;
+	auto computeLinesToDraw = [&object, &positions] (Tool& t)
+	{
+		const auto vec = t.getPositionsOfObjectsWithTag(object->tag);
+		for (auto&& pos : vec)
+		{
+			positions.push_back(sf::Vertex(sf::Vector2f(object->position)));
+			positions.push_back(sf::Vertex(sf::Vector2f(pos)));
+		}
+	};
+
+	stateMgr.forallStates(computeLinesToDraw);
+	canvas->draw(positions.data(), positions.size(), sf::Lines);
+}
+
 void Editor::handleEvent(const sf::Event& event, const sf::Vector2i& mousePos)
 {
 	if (!initialized) return;
@@ -113,29 +134,10 @@ void Editor::draw()
 	{
 		tool.drawTo(canvas, active ? 255 : 128);
 	});
+
+	drawTagHighlight();
+
 	canvas->draw(mouseIndicator);
-
-	// highlight
-	auto tag = stateMgr.getActiveTool().getTagOfHighlightedObject();
-	if (tag.has_value()) {
-		std::vector<sf::Vector2u> positions;
-			
-		stateMgr.forallInactiveStates([&] (Tool& t) {
-			auto&& vec = t.getPositionsOfObjectsWithTag(*tag);
-			positions.insert(positions.end(), vec.begin(), vec.end());
-		});
-
-		for (auto&& position : positions)
-		{
-			sf::Vertex line[] =
-			{
-				sf::Vertex(mouseIndicator.getPosition()),
-				sf::Vertex(sf::Vector2f(position))
-			};
-
-			canvas->draw(line, 2, sf::Lines);
-		}
-	}
 }
 
 void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& configPath)
@@ -148,7 +150,7 @@ void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& 
 	stateMgr.forallStates([levelWidth, levelHeight, &config] (Tool& tool)
 	{
 		tool.configure(config);
-		tool.resize(levelWidth, levelHeight);
+	tool.resize(levelWidth, levelHeight);
 	});
 
 	// Configure camera

@@ -56,6 +56,9 @@ private:
 	virtual void penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) override;
 	virtual void penDragCancel(const sf::Vector2i& origin) override;
 
+protected:
+	static sf::Vector2u getNormalizedPosition(const LevelD::Trigger& trigger);
+
 public:
 	virtual void buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) override;
 	virtual void configure(nlohmann::json& config) override;
@@ -67,7 +70,7 @@ public:
 	virtual std::unique_ptr<ToolProperty> getProperty() const override;
 	virtual void setProperty(const ToolProperty& prop) override;
 
-	virtual std::optional<unsigned> getTagOfHighlightedObject() override;
+	virtual std::optional<GenericObject> getHighlightedObject() const override;
 	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override;
 
 	ToolTrigger(
