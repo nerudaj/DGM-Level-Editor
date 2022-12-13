@@ -3,6 +3,8 @@
 #include "include/Commands/CommandInterface.hpp"
 #include "include/Commands/UndoableCommandInterface.hpp"
 #include "include/LevelMesh/DrawableLeveldMesh.hpp"
+#include "include/Utilities/InitGuard.hpp"
+
 #include <SFML/System/Vector2.hpp>
 
 class SetTileCommand final : public UndoableCommandInterface
@@ -12,8 +14,8 @@ protected:
 	sf::Vector2u tilePos;
 	unsigned value = 0;
 	bool blocking = false;
-	unsigned oldValue = 0;
-	bool oldBlocking = false;
+	InitGuard<unsigned> oldValue;
+	InitGuard<bool> oldBlocking;
 
 public:
 	SetTileCommand(

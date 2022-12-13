@@ -14,6 +14,6 @@ std::unique_ptr<CommandInterface> SetTileCommand::getInverse() const
 	return std::make_unique<SetTileCommand>(
 		targetMesh,
 		tilePos,
-		oldValue,
-		oldBlocking);
+		*oldValue,
+		*oldBlocking);
 }

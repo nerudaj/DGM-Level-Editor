@@ -1,6 +1,9 @@
 #include "include/Tools/ToolItem.hpp"
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
+#include "include/Commands/CreateItemCommand.hpp"
+#include "include/Commands/DeleteItemCommand.hpp"
+
 #include <filesystem>
 
 void ToolItem::changeEditMode(EditMode mode)
@@ -200,35 +203,27 @@ void ToolItem::moveSelectedItemsTo(const sf::Vector2i& vec)
 
 void ToolItem::penClicked(const sf::Vector2i& position)
 {
-	Log::write("penClicked");
 	/*
 	* If pen is outside level bounds, exit
 	* If pen is over item, select it, exit
 	* Else create new item and clear selected
 	*/
 
-	if (not isValidPenPosForDrawing(position)) return;
-	std::size_t itemId;
-	if ((itemId = getItemFromPosition(sf::Vector2f(position))) != -1)
+	if (not isValidPenPosForDrawing(position))
+		return;
+
+	const std::size_t itemId = getItemFromPosition(
+		sf::Vector2f(position));
+	if (itemId != -1)
 	{
-		// TODO: command
 		selectedItems.insert(itemId);
 		return;
 	}
 
-	// Creating new item
-	signalStateChanged();
-
-	LevelD::Thing item;
-	item.id = penValue;
-	item.x = position.x;
-	item.y = position.y;
-	item.tag = 0;
-	item.flags = 0;
-	item.metadata = "";
-
-	items.push_back(item);
-	Log::write("New item pos", position);
+	commandQueue.push<CreateItemCommand>(
+		items,
+		position,
+		penValue);
 
 	selectedItems.clear();
 }
@@ -291,7 +286,7 @@ void ToolItem::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 
 	if (dragging)
 	{
-		// TODO: create command
+		// TODO: command
 	}
 
 	selecting = false;
@@ -328,8 +323,7 @@ void ToolItem::penDelete()
 
 std::unique_ptr<ToolProperty> ToolItem::getProperty() const
 {
-	auto pos = getPenPosition();
-
+	auto&& pos = getPenPosition();
 
 	const std::size_t itemId = getItemFromPosition(sf::Vector2f(pos));
 	if (itemId == -1)
@@ -371,8 +365,8 @@ void ToolItem::buildCtxMenu(tgui::MenuBar::Ptr& menu)
 	const std::string OPTION_DRAW = "Draw Mode (Shift+D)";
 	const std::string OPTION_ERASE = "Erase Mode (Shift+E)";
 
-	addCtxMenuItem(menu, OPTION_DRAW, [this] () { changeEditMode(EditMode::ModeDraw); }, sf::Keyboard::D);
-	addCtxMenuItem(menu, OPTION_ERASE, [this] () { changeEditMode(EditMode::ModeErase); }, sf::Keyboard::E);
+	addCtxMenuItem(menu, OPTION_DRAW, [this] { changeEditMode(EditMode::ModeDraw); }, sf::Keyboard::D);
+	addCtxMenuItem(menu, OPTION_ERASE, [this] { changeEditMode(EditMode::ModeErase); }, sf::Keyboard::E);
 }
 
 std::optional<GenericObject> ToolItem::getHighlightedObject() const
