@@ -7,7 +7,8 @@
 #include <functional>
 #include <vector>
 
-class EditorStateManager {
+class EditorStateManager
+{
 private:
 	std::map<EditorState, std::unique_ptr<Tool>> statesToTools;
 	EditorState currentState = EditorState();
@@ -15,7 +16,7 @@ private:
 
 public:
 	template<DerivedFromTool T, class ... Args>
-	requires std::constructible_from<T, Args...>
+		requires std::constructible_from<T, Args...>
 	void addState(EditorState state, Args&&... args)
 	{
 		assert(!statesToTools.contains(state));
@@ -30,6 +31,8 @@ public:
 	 */
 	void forallStates(std::function<void(Tool&)> callback);
 
+	void forallStates(std::function<void(const Tool&)> callback) const;
+
 	/**
 	 *  \brief Loop over all states in order in which they were added
 	 *
@@ -42,12 +45,14 @@ public:
 	void forallInactiveStates(std::function<void(Tool&)> callback);
 
 	[[nodiscard]]
-	Tool& getActiveTool() noexcept {
+	Tool& getActiveTool() noexcept
+	{
 		return *statesToTools.at(currentState);
 	}
 
 	[[nodiscard]]
-	const Tool& getActiveTool() const noexcept {
+	const Tool& getActiveTool() const noexcept
+	{
 		return *statesToTools.at(currentState);
 	}
 };

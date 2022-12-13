@@ -1,13 +1,23 @@
 #include "include/Editor/EditorStateManager.hpp"
 
-void EditorStateManager::forallStates(std::function<void(Tool&)> callback) {
+void EditorStateManager::forallStates(std::function<void(Tool&)> callback)
+{
 	for (auto&& stateId : insertionOrder)
 	{
 		callback(*statesToTools.at(stateId));
 	}
 }
 
-void EditorStateManager::forallStates(std::function<void(Tool&, bool)> callback) {
+void EditorStateManager::forallStates(std::function<void(const Tool&)> callback) const
+{
+	for (auto&& stateId : insertionOrder)
+	{
+		callback(*statesToTools.at(stateId));
+	}
+}
+
+void EditorStateManager::forallStates(std::function<void(Tool&, bool)> callback)
+{
 	for (auto&& stateId : insertionOrder)
 	{
 		callback(*statesToTools.at(stateId), stateId == currentState);
@@ -24,7 +34,8 @@ void EditorStateManager::forallInactiveStates(std::function<void(Tool&)> callbac
 	}
 }
 
-void EditorStateManager::changeState(EditorState state) {
+void EditorStateManager::changeState(EditorState state)
+{
 	assert(statesToTools.contains(state));
 	currentState = state;
 }

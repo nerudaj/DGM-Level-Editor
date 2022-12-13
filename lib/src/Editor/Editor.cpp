@@ -181,11 +181,20 @@ void Editor::switchTool(EditorState state)
 	stateMgr.getActiveTool().buildCtxMenu(menu);
 }
 
-void Editor::loadFromFile(const std::string& filename)
+LevelD Editor::save() const
 {
-	LevelD lvd;
-	lvd.loadFromFile(filename);
+	LevelD result;
 
+	stateMgr.forallStates([&result] (const Tool& tool)
+	{
+		tool.saveTo(result);
+	});
+
+	return result;
+}
+
+void Editor::loadFrom(const LevelD& lvd)
+{
 	init(1, 1, lvd.metadata.description); // Currently using this to be able to load the config
 	stateMgr.forallStates([&lvd] (Tool& tool)
 	{
@@ -193,28 +202,19 @@ void Editor::loadFromFile(const std::string& filename)
 	});
 }
 
-void Editor::saveToFile(const std::string& filename)
-{
-	LevelD lvd;
-	lvd.metadata.description = configPath; // Currently using this to be able to load the config
-	stateMgr.forallStates([&lvd] (Tool& tool)
-	{
-		tool.saveTo(lvd);
-	});
-	lvd.saveToFile(filename);
-}
-
 void Editor::resizeDialog()
 {
-	dialog.open([this] ()
+	auto handleResizeDialog = [this] ()
 	{
 		unsigned width = dialog.getLevelWidth();
-	unsigned height = dialog.getLevelHeight();
-	stateMgr.forallStates([&] (Tool& tool)
-	{
-		tool.resize(width, height);
-	});
-	});
+		unsigned height = dialog.getLevelHeight();
+		stateMgr.forallStates([&] (Tool& tool)
+		{
+			tool.resize(width, height);
+		});
+	};
+
+	dialog.open(handleResizeDialog);
 }
 
 void Editor::shrinkToFit()

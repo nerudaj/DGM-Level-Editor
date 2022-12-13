@@ -78,7 +78,7 @@ public:
 
 	virtual void resize(unsigned width, unsigned height) override;
 
-	virtual void saveTo(LevelD& lvd) override;
+	virtual void saveTo(LevelD& lvd) const override;
 
 	virtual void loadFrom(const LevelD& lvd) override;
 

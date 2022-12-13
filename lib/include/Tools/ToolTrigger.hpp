@@ -63,7 +63,7 @@ public:
 	virtual void buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) override;
 	virtual void configure(nlohmann::json& config) override;
 	virtual void resize(unsigned width, unsigned height) override;
-	virtual void saveTo(LevelD& lvd) override;
+	virtual void saveTo(LevelD& lvd) const override;
 	virtual void loadFrom(const LevelD& lvd) override;
 	virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
 	virtual void penDelete() override;

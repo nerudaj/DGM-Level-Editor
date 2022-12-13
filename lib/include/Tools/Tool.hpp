@@ -86,9 +86,10 @@ protected:
 public:
 	virtual void configure(nlohmann::json& config) = 0;
 
+	// TODO: add shrinkToFit parameter
 	virtual void resize(unsigned width, unsigned height) = 0;
 
-	virtual void saveTo(LevelD& lvd) = 0;
+	virtual void saveTo(LevelD& lvd) const = 0;
 	virtual void loadFrom(const LevelD& lvd) = 0;
 
 	virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) = 0;
@@ -113,7 +114,10 @@ public:
 
 	void buildSidebar(tgui::Theme& theme);
 
+	[[nodiscard]]
 	virtual std::optional<GenericObject> getHighlightedObject() const = 0;
+
+	[[nodiscard]]
 	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const = 0;
 
 	Tool(
@@ -126,6 +130,7 @@ public:
 		, commandQueue(commandQueue)
 		, shortcutEngine(shortcutEngine)
 	{}
+	virtual ~Tool() = default;
 };
 
 template<class T>

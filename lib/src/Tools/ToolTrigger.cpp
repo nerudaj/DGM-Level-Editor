@@ -147,7 +147,7 @@ void ToolTrigger::resize(unsigned width, unsigned height)
 	levelSize.y = int(tileSize.y * height);
 }
 
-void ToolTrigger::saveTo(LevelD& lvd)
+void ToolTrigger::saveTo(LevelD& lvd) const
 {
 	lvd.triggers = triggers;
 }

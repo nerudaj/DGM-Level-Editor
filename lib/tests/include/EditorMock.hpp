@@ -39,12 +39,13 @@ public:
 		state->handleEventCallCounter++;
 	}
 
-	virtual void saveToFile(const std::string&) override
+	virtual LevelD save() const override
 	{
 		state->saveToFileCallCounter++;
+		return {};
 	}
 
-	virtual void loadFromFile(const std::string&) override
+	virtual void loadFrom(const LevelD&) override
 	{
 		state->saveToFileCallCounter++;
 	}

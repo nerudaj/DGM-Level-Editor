@@ -18,7 +18,7 @@ void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
 					handleSaveLevel();
 				else
 					unsavedChanges = false;
-				handleExit(confirmExitDialog);
+		handleExit(confirmExitDialog);
 			});
 	}
 	else
@@ -30,8 +30,9 @@ void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
 std::optional<std::string> AppStateEditor::getNewSavePath()
 {
 	auto result = fileApi->getSaveFileName("LevelD Files\0*.lvd\0Any File\0*.*\0");
-	return result.transform([] (const std::string& s) -> std::string {
-		return s.ends_with(".lvd") ? s : s + ".lvd";
+	return result.transform([] (const std::string& s) -> std::string
+ {
+	 return s.ends_with(".lvd") ? s : s + ".lvd";
 	});
 }
 
@@ -220,7 +221,7 @@ void AppStateEditor::buildMenuBarLayout(
 	{
 		menu->addMenuItem(label);
 		menu->connectMenuItem("File", label, callback);
-		
+
 		if (shortcut.has_value())
 		{
 			shortcutEngine->registerShortcut(
@@ -298,13 +299,15 @@ void AppStateEditor::handleLoadLevel()
 
 	savePath = *r;
 	filePath = savePath; // The load path becomes save path for subsequent saves
-	
+
 	try
 	{
-		editor->loadFromFile(savePath);
+		LevelD lvd;
+		lvd.loadFromFile(savePath);
+		editor->loadFrom(lvd);
 		unsavedChanges = false;
 		updateWindowTitle();
-		Log::write2("Level loaded. Path = '{}'", savePath);
+		Log::write2("Level loaded from '{}'", savePath);
 	}
 	catch (std::exception& e)
 	{
@@ -326,8 +329,10 @@ void AppStateEditor::handleSaveLevel(bool forceNewPath)
 	{
 		filePath = savePath;
 		unsavedChanges = false;
-		editor->saveToFile(savePath);
+		auto&& lvd = editor->save();
+		lvd.saveToFile(savePath);
 		updateWindowTitle();
+		Log::write2("Level saved to '{}'", savePath);
 	}
 	catch (std::exception& e)
 	{

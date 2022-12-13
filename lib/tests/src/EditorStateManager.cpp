@@ -7,67 +7,62 @@
 class ToolPropertyMock : public ToolProperty
 {
 public:
-	virtual void buildModalSpecifics(tgui::Panel::Ptr& panel) override {}
-	virtual bool isEmpty() override { return true; }
-	virtual void clear() override {}
-
-	ToolPropertyMock(tgui::Gui& gui, Tool *parent)
-		: ToolProperty(gui, parent) {}
+	virtual void buildModalSpecifics(tgui::Gui& gui, tgui::Panel::Ptr& panel) override {}
 };
 
 class ToolMock final : public Tool
 {
 protected:
-	ToolPropertyMock propertyMock;
+	//ToolPropertyMock propertyMock;
 	std::string id;
 	std::vector<std::string>& invocationsTracker;
 
 public:
 	virtual void buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) override
-	{
-	}
+	{}
 
 	virtual void penClicked(const sf::Vector2i& position) override
-	{
-	}
+	{}
 
 	virtual void penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) override
-	{
-	}
+	{}
 
 	virtual void penDragCancel(const sf::Vector2i& origin) override
-	{
-	}
+	{}
 
 	virtual void configure(nlohmann::json& config) override
-	{
-	}
+	{}
 
 	virtual void resize(unsigned width, unsigned height) override
-	{
-	}
+	{}
 
-	virtual void saveTo(LevelD& lvd) override
-	{
-	}
+	virtual void saveTo(LevelD& lvd) const override
+	{}
 
 	virtual void loadFrom(const LevelD& lvd) override
-	{
-	}
+	{}
 
 	virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override
-	{
-	}
+	{}
 
 	virtual void penDelete() override
 	{
 		invocationsTracker.push_back(id + ":penDelete");
 	}
 
-	virtual ToolProperty& getProperty() override { return propertyMock; }
+	virtual std::unique_ptr<ToolProperty> getProperty() const override { return nullptr; }
 
 	virtual void setProperty(const ToolProperty& prop) override
+	{}
+
+	virtual std::optional<GenericObject> getHighlightedObject() const override
 	{
+		return {};
+	}
+
+	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned) const override
+	{
+		return {};
 	}
 
 	ToolMock(
@@ -78,7 +73,7 @@ public:
 		ShortcutEngineInterface& shortcutEngine,
 		std::vector<std::string>& invocationsTracker)
 		: Tool(gui, onStateChanged, commandQueue, shortcutEngine)
-		, propertyMock(gui, this)
+		//, propertyMock(gui, this)
 		, id(id)
 		, invocationsTracker(invocationsTracker)
 	{}
@@ -94,6 +89,7 @@ TEST_CASE("[EditorStateManager]")
 	std::vector<std::string> invocations;
 
 	EditorStateManager manager;
+
 	manager.addState<ToolMock>(
 		EditorState::Mesh,
 		"tool1",
@@ -113,8 +109,9 @@ TEST_CASE("[EditorStateManager]")
 
 	SECTION("Loops over all states in insertion order")
 	{
-		manager.forallStates([] (Tool& t) {
-			t.penDelete();
+		manager.forallStates([] (Tool& t)
+ {
+	 t.penDelete();
 		});
 
 		REQUIRE(invocations.size() == 2u);

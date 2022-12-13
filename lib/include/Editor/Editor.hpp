@@ -23,9 +23,10 @@ public:
 
 	virtual void handleEvent(const sf::Event& event, const sf::Vector2i& mousePos) = 0;
 
-	virtual void saveToFile(const std::string& filename) = 0;
+	[[nodiscard]]
+	virtual LevelD save() const = 0;
 
-	virtual void loadFromFile(const std::string& filename) = 0;
+	virtual void loadFrom(const LevelD& lvd) = 0;
 
 	virtual void switchTool(EditorState state) = 0;
 
@@ -97,9 +98,10 @@ public:
 
 	virtual void switchTool(EditorState state) override;
 
-	virtual void loadFromFile(const std::string& filename) override;
+	[[nodiscard]]
+	virtual LevelD save() const override;
 
-	virtual void saveToFile(const std::string& filename) override;
+	virtual void loadFrom(const LevelD& lvd) override;
 
 	virtual void resizeDialog() override;
 

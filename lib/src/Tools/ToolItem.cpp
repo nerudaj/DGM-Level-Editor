@@ -114,7 +114,7 @@ void ToolItem::resize(unsigned width, unsigned height)
 	levelSize.y = int(tileSize.y * height);
 }
 
-void ToolItem::saveTo(LevelD& lvd)
+void ToolItem::saveTo(LevelD& lvd) const
 {
 	lvd.things = items;
 }

@@ -117,7 +117,7 @@ void ToolMesh::resize(unsigned width, unsigned height)
 	// resizing (bigger, smaller)
 }
 
-void ToolMesh::saveTo(LevelD& lvd)
+void ToolMesh::saveTo(LevelD& lvd) const
 {
 	Log::write("ToolMesh::saveTo");
 	lvd.mesh.tileWidth = clip.getFrameSize().x;
