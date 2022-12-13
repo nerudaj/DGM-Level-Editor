@@ -15,7 +15,8 @@
 class EditorInterface
 {
 public:
-	virtual bool isInitialized() const = 0;
+	[[nodiscard]]
+	virtual bool isInitialized() const noexcept = 0;
 
 	virtual void draw() = 0;
 
@@ -26,11 +27,15 @@ public:
 	[[nodiscard]]
 	virtual LevelD save() const = 0;
 
-	virtual void loadFrom(const LevelD& lvd) = 0;
+	virtual void loadFrom(
+		const LevelD& lvd,
+		bool skipInit = false) = 0;
 
 	virtual void switchTool(EditorState state) = 0;
 
 	virtual void resizeDialog() = 0;
+
+	virtual void resize(unsigned width, unsigned height) = 0;
 
 	virtual void shrinkToFit() = 0;
 
@@ -53,8 +58,6 @@ private:
 	std::unique_ptr<ToolProperty> currentlyOpenedProperty;
 
 	bool initialized = false;
-	std::string configPath;
-	sf::Vector2u levelSize;
 
 	bool isMouseWithinBoundaries(const sf::Vector2f& mousePos) const;
 
@@ -80,12 +83,15 @@ protected:
 	void drawTagHighlight();
 
 public:
-	virtual bool isInitialized() const override
+	[[nodiscard]]
+	virtual bool isInitialized() const noexcept override
 	{
 		return initialized;
 	}
 
-	virtual void handleEvent(const sf::Event& event, const sf::Vector2i& mousePos) override;
+	virtual void handleEvent(
+		const sf::Event& event,
+		const sf::Vector2i& mousePos) override;
 
 	virtual void draw() override;
 
@@ -94,16 +100,23 @@ public:
 	 *  Also there is path to config json which should be loaded and given to each
 	 *  instantiated Tool.
 	 */
-	virtual void init(unsigned levelWidth, unsigned levelHeight, const std::string& configPath) override;
+	virtual void init(
+		unsigned levelWidth,
+		unsigned levelHeight,
+		const std::string& configPath) override;
 
 	virtual void switchTool(EditorState state) override;
 
 	[[nodiscard]]
 	virtual LevelD save() const override;
 
-	virtual void loadFrom(const LevelD& lvd) override;
+	virtual void loadFrom(
+		const LevelD& lvd,
+		bool skipInit = false) override;
 
 	virtual void resizeDialog() override;
+
+	virtual void resize(unsigned width, unsigned height) override;
 
 	virtual void shrinkToFit() override;
 

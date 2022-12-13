@@ -79,7 +79,8 @@ protected: // Build functions
 		const std::string& SIDEBAR_HEIGHT,
 		const std::string& TOPBAR_HEIGHT);
 
-	class AllowExecutionToken {
+	class AllowExecutionToken
+	{
 		AllowExecutionToken() = default;
 		friend AllowExecutionToken AppStateEditor::buildCanvasLayout(
 			const std::string&,
@@ -104,7 +105,7 @@ protected: // Build functions
 protected: // Callback handlers
 	void handleNewLevel();
 	void handleLoadLevel();
-	void handleSaveLevel(bool forceNewPath = false);
+	void handleSaveLevel(bool forceNewPath = false) noexcept;
 	void handleUndo();
 	void handleRedo();
 	void handleExit(YesNoCancelDialogInterface& dialoConfirmExit);

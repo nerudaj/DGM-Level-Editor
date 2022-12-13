@@ -9,8 +9,6 @@
 
 void ToolMesh::penClicked(const sf::Vector2i& position)
 {
-	signalStateChanged(); // those signals could be handled by commands
-
 	const auto tilePos = worldToTilePos(position);
 	if (isPositionValid(tilePos) && penValue != map.getTileValue(tilePos))
 	{
@@ -41,8 +39,6 @@ void ToolMesh::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end)
 
 void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 {
-	signalStateChanged();
-
 	const auto startTile = worldToTilePos(
 		Utilities::clipNegativeCoords(start));
 	const auto endTile = worldToTilePos(
@@ -108,10 +104,32 @@ void ToolMesh::configure(nlohmann::json& config)
 
 void ToolMesh::resize(unsigned width, unsigned height)
 {
-	signalStateChanged();
+	auto tileValues = std::vector<int>(width * height, 0);
+	auto solidValues = std::vector<int>(width * height, 0);
 
-	ResizeMeshCommand command(map, { width, height });
-	command.exec();
+	const bool upscalingX = width > map.getMapDimensions().x;
+	const bool upscalingY = height > map.getMapDimensions().y;
+	const unsigned offsetX = upscalingX
+		? (width - map.getMapDimensions().x) / 2u
+		: 0;
+	const unsigned offsetY = upscalingY
+		? (height - map.getMapDimensions().y) / 2u
+		: 0;
+
+	for (unsigned y = 0; y < std::min(height, map.getMapDimensions().y); y++)
+	{
+		for (unsigned x = 0; x < std::min(width, map.getMapDimensions().x); x++)
+		{
+			const unsigned targetX = x + offsetX;
+			const unsigned targetY = y + offsetY;
+			const unsigned targetI = targetY * width + targetX;
+
+			tileValues[targetI] = map.getTileValue({ x, y });
+			solidValues[targetI] = map.isTileSolid({ x, y });
+		}
+	}
+
+	map.build(tileValues, solidValues, { width, height });
 
 	// TODO: Testing scenario:
 	// resizing (bigger, smaller)

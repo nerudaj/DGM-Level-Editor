@@ -1,10 +1,11 @@
 #pragma once
 
 #include "include/Commands/CommandInterface.hpp"
+#include "include/Commands/UndoableCommandInterface.hpp"
 #include "include/LevelMesh/DrawableLeveldMesh.hpp"
 #include <SFML/System/Vector2.hpp>
 
-class SetTileCommand final : public CommandInterface
+class SetTileCommand final : public UndoableCommandInterface
 {
 protected:
 	DrawableLeveldMesh& targetMesh;

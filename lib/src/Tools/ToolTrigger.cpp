@@ -129,13 +129,20 @@ void ToolTrigger::configure(nlohmann::json& config)
 
 void ToolTrigger::resize(unsigned width, unsigned height)
 {
-	if (levelSize.x / tileSize.x > width || levelSize.y / tileSize.y > height) return;
+	const auto newLevelSize = sf::Vector2u(width, height);
+	const auto oldLevelSize = sf::Vector2u(
+		levelSize.x / tileSize.x,
+		levelSize.y / tileSize.y
+	);
 
-	const auto tilesX = levelSize.x / tileSize.x;
-	const auto tilesY = levelSize.y / tileSize.y;
-	auto offset = (sf::Vector2u(width, height) - sf::Vector2u(tilesX, tilesY)) / 2u;
-	offset.x *= tileSize.x;
-	offset.y *= tileSize.y;
+	if (oldLevelSize.x > newLevelSize.x || oldLevelSize.y > newLevelSize.y)
+		return;
+
+	const auto tileOffset = (newLevelSize - oldLevelSize) / 2u;
+	const auto offset = sf::Vector2u(
+		tileOffset.x * tileSize.x,
+		tileOffset.y * tileSize.y
+	);
 
 	for (auto& trigger : triggers)
 	{
@@ -154,11 +161,10 @@ void ToolTrigger::saveTo(LevelD& lvd) const
 
 void ToolTrigger::loadFrom(const LevelD& lvd)
 {
-	resize(lvd.mesh.layerWidth, lvd.mesh.layerHeight);
-
+	levelSize.x = lvd.mesh.layerWidth * tileSize.x;
+	levelSize.y = lvd.mesh.layerHeight * tileSize.y;
 	triggers = lvd.triggers;
 
-	// Update tags
 	for (const auto& trig : triggers)
 	{
 		PropertyTag::get().updateTag(trig.tag);

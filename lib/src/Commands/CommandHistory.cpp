@@ -1,6 +1,6 @@
 #include "include/Commands/CommandHistory.hpp"
 
-void CommandHistory::add(std::unique_ptr<CommandInterface>&& command)
+void CommandHistory::add(std::unique_ptr<UndoableCommandInterface>&& command)
 {
 	if (index < commands.size())
 	{

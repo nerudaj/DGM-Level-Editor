@@ -96,13 +96,20 @@ void ToolItem::configure(nlohmann::json& config)
 
 void ToolItem::resize(unsigned width, unsigned height)
 {
-	if (levelSize.x / tileSize.x > width || levelSize.y / tileSize.y > height) return;
+	const auto newLevelSize = sf::Vector2u(width, height);
+	const auto oldLevelSize = sf::Vector2u(
+		levelSize.x / tileSize.x,
+		levelSize.y / tileSize.y
+	);
 
-	const auto tilesX = levelSize.x / tileSize.x;
-	const auto tilesY = levelSize.y / tileSize.y;
-	auto offset = (sf::Vector2u(width, height) - sf::Vector2u(tilesX, tilesY)) / 2u;
-	offset.x *= tileSize.x;
-	offset.y *= tileSize.y;
+	if (oldLevelSize.x > newLevelSize.x || oldLevelSize.y > newLevelSize.y)
+		return;
+
+	const auto tileOffset = (newLevelSize - oldLevelSize) / 2u;
+	const auto offset = sf::Vector2u(
+		tileOffset.x * tileSize.x,
+		tileOffset.y * tileSize.y
+	);
 
 	for (auto& item : items)
 	{
@@ -121,11 +128,10 @@ void ToolItem::saveTo(LevelD& lvd) const
 
 void ToolItem::loadFrom(const LevelD& lvd)
 {
-	resize(lvd.mesh.layerWidth, lvd.mesh.layerHeight);
-
+	levelSize.x = lvd.mesh.layerWidth * tileSize.x;
+	levelSize.y = lvd.mesh.layerHeight * tileSize.y;
 	items = lvd.things;
 
-	// Update tags
 	for (auto& item : items)
 	{
 		PropertyTag::get().updateTag(item.tag);

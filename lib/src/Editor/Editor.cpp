@@ -1,6 +1,8 @@
 #include "include/Editor/Editor.hpp"
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
+#include "include/Commands/ResizeCommand.hpp"
+
 #include <fstream>
 #include <filesystem>
 
@@ -140,17 +142,22 @@ void Editor::draw()
 	canvas->draw(mouseIndicator);
 }
 
-void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& configPath)
+void Editor::init(
+	unsigned levelWidth,
+	unsigned levelHeight,
+	const std::string& configPath)
 {
-	levelSize = { levelWidth, levelHeight };
-
-	// Load json config and configure all tools
 	auto config = JsonHelper::loadFromFile(configPath);
 	config["configFolder"] = std::filesystem::path(configPath).parent_path().string();
-	stateMgr.forallStates([levelWidth, levelHeight, &config] (Tool& tool)
+
+	stateMgr.forallStates([&config] (Tool& tool)
 	{
 		tool.configure(config);
-	tool.resize(levelWidth, levelHeight);
+	});
+
+	stateMgr.forallStates([levelWidth, levelHeight] (Tool& tool)
+	{
+		tool.resize(levelWidth, levelHeight);
 	});
 
 	// Configure camera
@@ -159,7 +166,6 @@ void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& 
 	camera.resetZoom();
 
 	initialized = true;
-	Editor::configPath = configPath; // Remember this and export to leveld later
 
 	populateMenuBar();
 
@@ -167,9 +173,18 @@ void Editor::init(unsigned levelWidth, unsigned levelHeight, const std::string& 
 	switchTool(EditorState::Mesh);
 
 	// Configure canvas callbacks
-	canvas->connect("RightMouseReleased", [this] { handleRmbClicked(); });
-	canvas->connect("MousePressed", [this] { stateMgr.getActiveTool().penDown(); });
-	canvas->connect("MouseReleased", [this] { stateMgr.getActiveTool().penUp(); });
+	canvas->connect("RightMouseReleased", [this]
+	{
+		handleRmbClicked();
+	});
+	canvas->connect("MousePressed", [this]
+	{
+		stateMgr.getActiveTool().penDown();
+	});
+	canvas->connect("MouseReleased", [this]
+	{
+		stateMgr.getActiveTool().penUp();
+	});
 }
 
 void Editor::switchTool(EditorState state)
@@ -193,9 +208,14 @@ LevelD Editor::save() const
 	return result;
 }
 
-void Editor::loadFrom(const LevelD& lvd)
+void Editor::loadFrom(
+	const LevelD& lvd,
+	bool skipInit)
 {
-	init(1, 1, lvd.metadata.description); // Currently using this to be able to load the config
+	if (not skipInit)
+		// Currently using this to be able to load the config
+		init(1, 1, lvd.metadata.description);
+
 	stateMgr.forallStates([&lvd] (Tool& tool)
 	{
 		tool.loadFrom(lvd);
@@ -204,17 +224,21 @@ void Editor::loadFrom(const LevelD& lvd)
 
 void Editor::resizeDialog()
 {
-	auto handleResizeDialog = [this] ()
+	dialog.open([this]
 	{
-		unsigned width = dialog.getLevelWidth();
-		unsigned height = dialog.getLevelHeight();
-		stateMgr.forallStates([&] (Tool& tool)
-		{
-			tool.resize(width, height);
-		});
-	};
+		commandQueue.push<ResizeCommand>(
+			*this,
+			dialog.getLevelWidth(),
+			dialog.getLevelHeight());
+	});
+}
 
-	dialog.open(handleResizeDialog);
+void Editor::resize(unsigned width, unsigned height)
+{
+	stateMgr.forallStates([width, height] (Tool& t)
+	{
+		t.resize(width, height);
+	});
 }
 
 void Editor::shrinkToFit()

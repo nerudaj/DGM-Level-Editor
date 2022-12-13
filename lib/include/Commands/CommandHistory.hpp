@@ -1,17 +1,17 @@
 #pragma once
 
-#include "include/Commands/CommandInterface.hpp"
+#include "include/Commands/UndoableCommandInterface.hpp"
 
 #include <vector>
 #include <memory>
 
 class CommandHistory final
 {
-	std::vector<std::unique_ptr<CommandInterface>> commands;
+	std::vector<std::unique_ptr<UndoableCommandInterface>> commands;
 	unsigned index = 0;
 
 public:
-	void add(std::unique_ptr<CommandInterface>&& command);
+	void add(std::unique_ptr<UndoableCommandInterface>&& command);
 
 	void undo();
 

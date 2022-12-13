@@ -89,6 +89,12 @@ void AppStateEditor::input()
 
 void AppStateEditor::update()
 {
+	if (commandQueue.isEmpty())
+		return;
+
+	unsavedChanges = true;
+	updateWindowTitle();
+
 	commandQueue.processAll();
 }
 
@@ -315,7 +321,7 @@ void AppStateEditor::handleLoadLevel()
 	}
 }
 
-void AppStateEditor::handleSaveLevel(bool forceNewPath)
+void AppStateEditor::handleSaveLevel(bool forceNewPath) noexcept
 {
 	if (savePath.empty() || forceNewPath)
 	{

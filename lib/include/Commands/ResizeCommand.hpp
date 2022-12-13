@@ -1,37 +1,39 @@
 #pragma once
 
 #include "include/Commands/CommandInterface.hpp"
-#include <include/LevelMesh/DrawableLeveldMesh.hpp>
+#include "include/Commands/UndoableCommandInterface.hpp"
+#include "include/Editor/Editor.hpp"
 
-class ResizeMeshCommand final : public CommandInterface
+#include <LevelD.hpp>
+
+class ResizeCommandInverse final : public CommandInterface
 {
 protected:
-	DrawableLeveldMesh& target;
-	sf::Vector2u newSize;
+	Editor& editor;
+	LevelD snapshot;
 
 public:
-	ResizeMeshCommand(
-		DrawableLeveldMesh& target,
-		sf::Vector2u newSize)
-		: target(target)
-		, newSize(newSize)
+	ResizeCommandInverse(
+		Editor& editor,
+		LevelD snapshot)
+		: editor(editor), snapshot(snapshot)
 	{}
 
 public:
 	void exec() override;
-
-	[[nodiscard]]
-	std::unique_ptr<CommandInterface> getInverse() const override;
 };
 
-class ResizeCommand final : public CommandInterface
+class ResizeCommand final : public UndoableCommandInterface
 {
 protected:
-	std::unique_ptr<ResizeMeshCommand> meshCommand;
+	unsigned width;
+	unsigned height;
+	Editor& editor;
+	LevelD levelSnapshot;
 
 public:
-	ResizeCommand(std::unique_ptr<ResizeMeshCommand> meshCommand)
-		: meshCommand(std::move(meshCommand))
+	ResizeCommand(Editor& editor, unsigned width, unsigned height)
+		: editor(editor), width(width), height(height)
 	{}
 
 public:

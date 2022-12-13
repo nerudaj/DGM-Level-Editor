@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "include/Commands/CommandInterface.hpp"
+#include "include/Commands/UndoableCommandInterface.hpp"
 #include "include/LevelMesh/DrawableLeveldMesh.hpp"
 #include <SFML/System/Vector2.hpp>
 
@@ -28,14 +29,9 @@ public:
 
 public:
 	virtual void exec() override;
-
-	virtual std::unique_ptr<CommandInterface> getInverse() const override
-	{
-		return nullptr;
-	}
 };
 
-class SetTileAreaCommand final : public CommandInterface
+class SetTileAreaCommand final : public UndoableCommandInterface
 {
 protected:
 	DrawableLeveldMesh& targetMesh;
@@ -64,5 +60,7 @@ public:
 
 public:
 	virtual void exec() override;
+
+	[[nodiscard]]
 	virtual std::unique_ptr<CommandInterface> getInverse() const override;
 };
