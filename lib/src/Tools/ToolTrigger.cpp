@@ -1,7 +1,7 @@
 #include "include/Tools/ToolTrigger.hpp"
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
-#include "include/Commands/DeleteObjectCommand.hpp"
+#include "include/Commands/CreateDeleteObjectCommand.hpp"
 
 /* Helpers */
 std::size_t ToolTrigger::getTriggerFromPosition(const sf::Vector2i& pos) const

@@ -1,8 +1,7 @@
 #include "include/Tools/ToolItem.hpp"
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
-#include "include/Commands/CreateItemCommand.hpp"
-#include "include/Commands/DeleteObjectCommand.hpp"
+#include "include/Commands/CreateDeleteObjectCommand.hpp"
 
 #include <filesystem>
 
@@ -220,10 +219,18 @@ void ToolItem::penClicked(const sf::Vector2i& position)
 		return;
 	}
 
+	const auto itemToCreate = LevelD::Thing{
+		.id = penValue,
+		.tag = 0,
+		.x = static_cast<uint32_t>(position.x),
+		.y = static_cast<uint32_t>(position.y),
+		.flags = 0,
+		.metadata = ""
+	};
+
 	commandQueue.push<CreateItemCommand>(
 		items,
-		position,
-		penValue);
+		itemToCreate);
 
 	selectedItems.clear();
 }

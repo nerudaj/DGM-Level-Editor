@@ -1,5 +1,5 @@
 #include <catch.hpp>
-#include "include/Commands/DeleteObjectCommand.hpp"
+#include "include/Commands/CreateDeleteObjectCommand.hpp"
 #include "LevelD.hpp"
 
 [[nodiscatd]]
@@ -30,7 +30,7 @@ LevelD::Thing CreateItem(unsigned id, unsigned x, unsigned y)
 
 TEST_CASE("[Create/DeleteItemCommand]")
 {
-	LevelD::Things items;
+	std::vector<LevelD::Thing> items;
 
 	for (unsigned i = 0; i < 10; i++)
 		items.push_back(CreateItem(i, i * 10, i * 100));
@@ -39,8 +39,7 @@ TEST_CASE("[Create/DeleteItemCommand]")
 	{
 		auto command = CreateItemCommand(
 			items,
-			sf::Vector2i(24, 42),
-			69);
+			CreateItem(69, 24, 42));
 		command.exec();
 
 		REQUIRE(items.size() == 11);
@@ -51,8 +50,7 @@ TEST_CASE("[Create/DeleteItemCommand]")
 	{
 		auto command = CreateItemCommand(
 			items,
-			sf::Vector2i(24, 42),
-			69);
+			CreateItem(69, 24, 42));
 		command.exec();
 
 		REQUIRE(items.size() == 11);
