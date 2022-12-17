@@ -2,7 +2,7 @@
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
 #include "include/Commands/CreateItemCommand.hpp"
-#include "include/Commands/DeleteItemCommand.hpp"
+#include "include/Commands/DeleteObjectCommand.hpp"
 
 #include <filesystem>
 
@@ -308,16 +308,16 @@ void ToolItem::penDragCancel(const sf::Vector2i& origin)
 
 void ToolItem::penDelete()
 {
-	if (not selectedItems.empty())
-		signalStateChanged();
+	if (selectedItems.empty())
+		return;
 
-	unsigned less = 0;
-	for (auto index : selectedItems)
-	{
-		index -= less;
-		items.erase(items.begin() + index);
-		less++;
-	}
+	const auto idsToDelete = std::vector<std::size_t>(
+		selectedItems.begin(),
+		selectedItems.end());
+
+	commandQueue.push<DeleteItemCommand>(
+		items,
+		idsToDelete);
 	selectedItems.clear();
 }
 

@@ -1,37 +1,32 @@
 #pragma once
 
 #include "include/Commands/UndoableCommandInterface.hpp"
+#include "include/Commands/CommandHelper.hpp"
 #include "include/Utilities/InitGuard.hpp"
 
 #include <SFML/System/Vector2.hpp>
 #include <LevelD.hpp>
 #include <vector>
 
-struct CreateItemCommandData
-{
-	sf::Vector2i position;
-	unsigned itemType;
-};
+typedef ObjectToCreate<LevelD::Thing> ItemToCreate;
 
 class CreateItemCommand : public UndoableCommandInterface
 {
 protected:
-	std::vector<LevelD::Thing>& target;
-	std::vector<CreateItemCommandData> itemsToCreate;
-	InitGuard<std::vector<unsigned>> idsOfAddedItems;
+	LevelD::Things& target;
+	std::vector<ItemToCreate> itemsToCreate;
+	InitGuard<std::vector<std::size_t>> idsOfAddedItems;
 
 public:
 	CreateItemCommand(
-		std::vector<LevelD::Thing>& target,
+		LevelD::Things& target,
 		sf::Vector2i position,
-		unsigned itemType)
-		: target(target)
-		, itemsToCreate({ { position, itemType } })
-	{}
+		unsigned itemType);
 
+	// Used by DeleteItemCommand
 	CreateItemCommand(
-		std::vector<LevelD::Thing>& target,
-		const std::vector<CreateItemCommandData>& itemsToCreate)
+		LevelD::Things& target,
+		const std::vector<ItemToCreate>& itemsToCreate)
 		: target(target)
 		, itemsToCreate(itemsToCreate)
 	{}

@@ -1,13 +1,13 @@
 #include "include/Commands/CommandHistory.hpp"
 
-void CommandHistory::add(std::unique_ptr<UndoableCommandInterface>&& command)
+void CommandHistory::add(const Box<UndoableCommandInterface>& command)
 {
 	if (index < commands.size())
 	{
 		commands.erase(commands.begin() + index, commands.end());
 	}
 
-	commands.push_back(std::move(command));
+	commands.push_back(command);
 	index++;
 }
 

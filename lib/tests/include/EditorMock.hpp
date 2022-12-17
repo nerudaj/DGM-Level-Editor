@@ -19,7 +19,7 @@ class EditorMock final : public EditorInterface
 public:
 	EditorMockState* state;
 
-	virtual bool isInitialized() const override
+	virtual bool isInitialized() const noexcept override
 	{
 		return state->initCallCounter > 0;
 	}
@@ -45,7 +45,8 @@ public:
 		return {};
 	}
 
-	virtual void loadFrom(const LevelD&) override
+	virtual void loadFrom(const LevelD&,
+		bool skipInit = false) override
 	{
 		state->saveToFileCallCounter++;
 	}
@@ -59,6 +60,8 @@ public:
 	{
 		state->resizeDialogCallCounter++;
 	}
+
+	virtual void resize(unsigned width, unsigned height) override {}
 
 	virtual void shrinkToFit() override
 	{

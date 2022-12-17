@@ -1,6 +1,7 @@
 #include "include/Tools/ToolTrigger.hpp"
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
+#include "include/Commands/DeleteObjectCommand.hpp"
 
 /* Helpers */
 std::size_t ToolTrigger::getTriggerFromPosition(const sf::Vector2i& pos) const
@@ -273,9 +274,9 @@ void ToolTrigger::penClicked(const sf::Vector2i& position)
 			trigger.height = std::abs(position.y - drawStart.y);
 		}
 
-		triggers.push_back(trigger);
-
-		Log::write("Trigger added. Nof triggers: " + std::to_string(triggers.size()));
+		commandQueue.push<CreateTriggerCommand>(
+			triggers,
+			trigger);
 	}
 	else
 	{
@@ -339,10 +340,14 @@ void ToolTrigger::penDragCancel(const sf::Vector2i& origin)
 
 void ToolTrigger::penDelete()
 {
-	for (auto itr = selectedItems.crbegin(); itr != selectedItems.crend(); itr++)
-	{
-		triggers.erase(triggers.begin() + *itr);
-	}
+	if (selectedItems.empty())
+		return;
+
+	commandQueue.push<DeleteTriggerCommand>(
+		triggers,
+		std::vector<std::size_t>(
+			selectedItems.begin(),
+			selectedItems.end()));
 
 	selectedItems.clear();
 }
