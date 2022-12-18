@@ -28,6 +28,7 @@ protected:
 	std::string rootDir;
 	std::string filePath;
 	std::string savePath;
+	std::string configPath;
 	bool unsavedChanges = false;
 
 	// Gui

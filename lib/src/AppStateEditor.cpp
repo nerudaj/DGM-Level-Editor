@@ -310,6 +310,11 @@ void AppStateEditor::handleLoadLevel()
 	{
 		LevelD lvd;
 		lvd.loadFromFile(savePath);
+		configPath = lvd.metadata.description;
+
+		if (configPath.empty())
+			throw std::runtime_error("Path to config file is unknown!");
+
 		editor->loadFrom(lvd);
 		unsavedChanges = false;
 		updateWindowTitle();
@@ -336,6 +341,7 @@ void AppStateEditor::handleSaveLevel(bool forceNewPath) noexcept
 		filePath = savePath;
 		unsavedChanges = false;
 		auto&& lvd = editor->save();
+		lvd.metadata.description = configPath;
 		lvd.saveToFile(savePath);
 		updateWindowTitle();
 		Log::write2("Level saved to '{}'", savePath);
