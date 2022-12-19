@@ -1,5 +1,7 @@
 #pragma once
 
+#include "include/Utilities/DragContext.hpp"
+
 #include <LevelD.hpp>
 #include <vector>
 #include <concepts>
@@ -67,5 +69,28 @@ public:
 			});
 
 		return itemsToCreate;
+	}
+
+	template<TriggerOrThing ObjectType>
+	static void moveSelectedObjectsTo(
+		std::vector<ObjectType>& items,
+		const std::set<std::size_t> selectedIndices,
+		const DragContext& dragContext,
+		const sf::Vector2i& destination,
+		const sf::Vector2u& boundary)
+	{
+		const sf::Vector2i offset = destination + dragContext.initialDragOffset;
+		const ObjectType& leadingObject = items.at(dragContext.leadingItemId);
+		const sf::Vector2i forward = offset - sf::Vector2i(leadingObject.x, leadingObject.y);
+
+		for (auto& index : selectedIndices)
+		{
+			items[index].x = std::clamp<unsigned>(
+				items[index].x + forward.x,
+				0, boundary.x);
+			items[index].y = std::clamp<unsigned>(
+				items[index].y + forward.y,
+				0, boundary.y);
+		}
 	}
 };

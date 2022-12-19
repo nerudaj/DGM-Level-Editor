@@ -2,6 +2,7 @@
 
 #include "Tool.hpp"
 #include "include/Commands/CommandQueue.hpp"
+#include "include/Utilities/DragContext.hpp"
 
 class ToolTriggerProperty : public ToolProperty
 {
@@ -29,8 +30,8 @@ private:
 	sf::CircleShape circShape, circMarker;
 
 	// Pen interactions
-	sf::Vector2i drawStart, dragOffset;
-	std::size_t draggedItemId;
+	sf::Vector2i drawStart;
+	DragContext dragContext;
 	bool drawing = false, selecting = false, dragging = false;
 	PenType penType = PenType::Circle;
 
@@ -41,11 +42,11 @@ private:
 	/* Helper funkce */
 	std::size_t getTriggerFromPosition(const sf::Vector2i& pos) const;
 	void selectItemsInArea(sf::IntRect& selectedArea);
-	void moveSelectedTriggersTo(const sf::Vector2i& vec);
 	void updateVisForTrigger(sf::CircleShape& vis, const LevelD::Trigger& trigger);
 	void updateVisForTrigger(sf::RectangleShape& vis, const LevelD::Trigger& trigger);
 
-	bool isValidPenPosForDrawing(const sf::Vector2i& pos) const
+	[[nodiscard]]
+	constexpr bool isValidPenPosForDrawing(const sf::Vector2i& pos) const noexcept
 	{
 		return !(pos.x < 0 || pos.y < 0 || pos.x >= levelSize.x || pos.y >= levelSize.y);
 	}

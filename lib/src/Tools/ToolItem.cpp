@@ -1,7 +1,9 @@
 #include "include/Tools/ToolItem.hpp"
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
+#include "include/Commands/CommandHelper.hpp"
 #include "include/Commands/CreateDeleteObjectCommand.hpp"
+#include "include/Commands/MoveObjectCommand.hpp"
 
 #include <filesystem>
 
@@ -158,7 +160,7 @@ void ToolItem::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity)
 		canvas->draw(renderData[item.id].sprite);
 
 		// Outline for selected items
-		if (selectedItems.count(index) > 0)
+		if (selectedItems.contains(index))
 		{
 			outline.setPosition(position);
 			outline.setSize({ float(clip.width), float(clip.height) });
@@ -170,9 +172,6 @@ void ToolItem::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity)
 
 	if (selecting)
 	{
-
-		//outline.setPosition(sf::Vector2f(getSelectedAreaStart()));
-		//outline.setSize(sf::Vector2f(getSelectedAreaSize()));
 		canvas->draw(selectRect);
 	}
 }
@@ -185,18 +184,6 @@ void ToolItem::selectItemsInArea(sf::IntRect& selectedArea)
 		{
 			selectedItems.insert(i);
 		}
-	}
-}
-
-void ToolItem::moveSelectedItemsTo(const sf::Vector2i& vec)
-{
-	const sf::Vector2i offset = vec + dragOffset;
-	const sf::Vector2i forward = offset - sf::Vector2i(items[draggedItemId].x, items[draggedItemId].y);
-
-	for (auto& index : selectedItems)
-	{
-		items[index].x = std::clamp<unsigned>(items[index].x + forward.x, 0, levelSize.x);
-		items[index].y = std::clamp<unsigned>(items[index].y + forward.y, 0, levelSize.y);
 	}
 }
 
@@ -244,13 +231,19 @@ void ToolItem::penDragStarted(const sf::Vector2i& start)
 	*  Else selecting
 	*/
 
-	if ((draggedItemId = getItemFromPosition(sf::Vector2f(start))) != -1)
+
+	std::size_t itemId = getItemFromPosition(sf::Vector2f(start));
+	if (itemId != -1)
 	{
 		dragging = true;
-		if (selectedItems.count(draggedItemId) == 0) selectedItems.clear();
-		selectedItems.insert(draggedItemId);
-		auto& item = items[draggedItemId];
-		dragOffset = sf::Vector2i(item.x, item.y) - start;
+		dragContext.leadingItemId = itemId;
+
+		if (!selectedItems.contains(dragContext.leadingItemId))
+			selectedItems.clear();
+		selectedItems.insert(dragContext.leadingItemId);
+
+		auto& item = items[dragContext.leadingItemId];
+		dragContext.initialDragOffset = sf::Vector2i(item.x, item.y) - start;
 	}
 	else
 	{
@@ -261,11 +254,14 @@ void ToolItem::penDragStarted(const sf::Vector2i& start)
 
 void ToolItem::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end)
 {
-	/* If dragging, move all items to new position
-	*/
 	if (dragging && isValidPenPosForDrawing(end))
 	{
-		moveSelectedItemsTo(end);
+		CommandHelper::moveSelectedObjectsTo(
+			items,
+			selectedItems,
+			dragContext,
+			end,
+			sf::Vector2u(levelSize));
 	}
 
 	if (selecting)
@@ -276,12 +272,6 @@ void ToolItem::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end)
 
 void ToolItem::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 {
-	signalStateChanged();
-
-	Log::write("penDragEnded");
-	/* If selecting, select all items in area (clear everything previously selected)
-	*  Clear dragging and selecting flags
-	*/
 	if (selecting)
 	{
 		selectedItems.clear();
@@ -293,7 +283,13 @@ void ToolItem::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 
 	if (dragging)
 	{
-		// TODO: command
+		commandQueue.push<MoveItemCommand>(
+			items,
+			selectedItems,
+			dragContext,
+			start,
+			end,
+			sf::Vector2u(levelSize));
 	}
 
 	selecting = false;
@@ -302,13 +298,17 @@ void ToolItem::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 
 void ToolItem::penDragCancel(const sf::Vector2i& origin)
 {
-	selectedItems.clear();
-
 	if (dragging)
 	{
-		moveSelectedItemsTo(origin);
+		CommandHelper::moveSelectedObjectsTo(
+			items,
+			selectedItems,
+			dragContext,
+			origin,
+			sf::Vector2u(levelSize));
 	}
 
+	selectedItems.clear();
 	dragging = false;
 	selecting = false;
 }

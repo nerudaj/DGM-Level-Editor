@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Tool.hpp"
+#include "include/Utilities/DragContext.hpp"
 
 class ItemToolProperty : public ImageToolProperty
 {
@@ -41,8 +42,7 @@ protected:
 	EditMode editMode = EditMode::ModeDraw;
 	bool dragging = false;
 	bool selecting = false;
-	std::size_t draggedItemId = 0;
-	sf::Vector2i dragOffset;
+	DragContext dragContext;
 
 	void changeEditMode(EditMode mode);
 
@@ -51,6 +51,7 @@ protected:
 		return !(pos.x < 0 || pos.y < 0 || pos.x >= levelSize.x || pos.y >= levelSize.y);
 	}
 
+	// todo - return as ref? nodiscard, contextexpr, noexcept
 	virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const override
 	{
 		return renderData[spriteId].guiTexture;
@@ -64,8 +65,6 @@ protected:
 	std::size_t getItemFromPosition(const sf::Vector2f& vec) const;
 
 	void selectItemsInArea(sf::IntRect& selectedArea);
-
-	void moveSelectedItemsTo(const sf::Vector2i& vec);
 
 	virtual void penClicked(const sf::Vector2i& position) override;
 	virtual void penDragStarted(const sf::Vector2i& start) override;

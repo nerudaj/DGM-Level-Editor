@@ -141,11 +141,6 @@ void ToolWithSprites::changePenValue(unsigned value, tgui::Gui& gui, tgui::Theme
 	Tool::buildSidebar(theme);
 }
 
-constexpr void Tool::penDown() noexcept
-{
-	penDownPos = penPos;
-}
-
 void Tool::penPosition(const sf::Vector2i& position)
 {
 	penPos = position;

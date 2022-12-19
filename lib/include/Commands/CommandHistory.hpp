@@ -12,7 +12,7 @@ class CommandHistory final
 	unsigned index = 0;
 
 public:
-	constexpr void add(const Box<UndoableCommandInterface>& command);
+	void add(const Box<UndoableCommandInterface>& command);
 
 	void undo();
 

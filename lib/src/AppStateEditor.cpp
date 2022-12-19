@@ -126,8 +126,23 @@ AppStateEditor::AppStateEditor(
 {
 	try
 	{
-		resmgr.loadResource<sf::Font>(rootDir + "/resources/cruft.ttf");
+
 		theme.load(rootDir + "/resources/TransparentGrey.txt");
+
+		// TODO: refactor into nicer font loader
+		try
+		{
+			resmgr.loadResource<sf::Font>("C:/WINDOWS/FONTS/SEGOEUI.TTF");
+			sf::Font& font = resmgr.get<sf::Font>("SEGOEUI.TTF");
+			gui.setFont(font);
+		}
+		catch (std::exception& e)
+		{
+			std::cerr << "error:AppStateMainMenu: " << e.what() << std::endl;
+			resmgr.loadResource<sf::Font>(rootDir + "/resources/cruft.ttf");
+			sf::Font& font = resmgr.get<sf::Font>("cruft.ttf");
+			gui.setFont(font);
+		}
 	}
 	catch (std::exception& e)
 	{
@@ -136,8 +151,6 @@ AppStateEditor::AppStateEditor(
 	}
 
 	// Setup resources
-	sf::Font& font = resmgr.get<sf::Font>("cruft.ttf");
-	gui.setFont(font);
 	gui.setTarget(app.window.getWindowContext());
 
 	buildLayout();

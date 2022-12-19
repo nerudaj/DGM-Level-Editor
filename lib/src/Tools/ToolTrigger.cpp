@@ -2,6 +2,8 @@
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
 #include "include/Commands/CreateDeleteObjectCommand.hpp"
+#include "include/Commands/CommandHelper.hpp"
+#include "include/Commands/MoveObjectCommand.hpp"
 
 /* Helpers */
 std::size_t ToolTrigger::getTriggerFromPosition(const sf::Vector2i& pos) const
@@ -43,18 +45,6 @@ void ToolTrigger::selectItemsInArea(sf::IntRect& selectedArea)
 		{
 			selectedItems.insert(i);
 		}
-	}
-}
-
-void ToolTrigger::moveSelectedTriggersTo(const sf::Vector2i& vec)
-{
-	const sf::Vector2i offset = vec + dragOffset;
-	const sf::Vector2i forward = offset - sf::Vector2i(triggers[draggedItemId].x, triggers[draggedItemId].y);
-
-	for (auto& id : selectedItems)
-	{
-		triggers[id].x = std::clamp<unsigned>(triggers[id].x + forward.x, 0, levelSize.x);
-		triggers[id].y = std::clamp<unsigned>(triggers[id].y + forward.y, 0, levelSize.y);
 	}
 }
 
@@ -292,12 +282,18 @@ void ToolTrigger::penDragStarted(const sf::Vector2i& start)
 	//   If trigger was already selected, we're moving all selected
 	//   If it was not, then we're moving only this one
 	// Else we're selecting
-	if ((draggedItemId = getTriggerFromPosition(start)) != -1)
+	std::size_t itemId = getTriggerFromPosition(start);
+	if (itemId != -1)
 	{
 		dragging = true;
-		if (selectedItems.count(draggedItemId) == 0) selectedItems.clear();
-		selectedItems.insert(draggedItemId);
-		dragOffset = sf::Vector2i(triggers[draggedItemId].x, triggers[draggedItemId].y) - start;
+		dragContext.leadingItemId = itemId;
+
+		if (selectedItems.count(dragContext.leadingItemId) == 0)
+			selectedItems.clear();
+		selectedItems.insert(dragContext.leadingItemId);
+
+		auto& trigger = triggers[dragContext.leadingItemId];
+		dragContext.initialDragOffset = sf::Vector2i(trigger.x, trigger.y) - start;
 	}
 	else
 	{
@@ -308,11 +304,19 @@ void ToolTrigger::penDragStarted(const sf::Vector2i& start)
 
 void ToolTrigger::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end)
 {
-	selectMarker.setSize(sf::Vector2f(end - start));
-
 	if (dragging)
 	{
-		moveSelectedTriggersTo(end);
+		CommandHelper::moveSelectedObjectsTo(
+			triggers,
+			selectedItems,
+			dragContext,
+			end,
+			sf::Vector2u(levelSize));
+	}
+
+	if (selecting)
+	{
+		selectMarker.setSize(sf::Vector2f(end - start));
 	}
 }
 
@@ -327,19 +331,41 @@ void ToolTrigger::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& en
 		selectItemsInArea(selectedArea);
 	}
 
+	if (dragging)
+	{
+		commandQueue.push<MoveTriggerCommand>(
+			triggers,
+			selectedItems,
+			dragContext,
+			start,
+			end,
+			sf::Vector2u(levelSize));
+	}
+
 	dragging = false;
 	selecting = false;
 }
 
 void ToolTrigger::penDragCancel(const sf::Vector2i& origin)
 {
-	drawing = false;
-	selecting = false;
+	if (dragging)
+	{
+		CommandHelper::moveSelectedObjectsTo(
+			triggers,
+			selectedItems,
+			dragContext,
+			origin,
+			sf::Vector2u(levelSize));
+	}
+
 	selectedItems.clear();
+	dragging = false;
+	selecting = false;
 }
 
 void ToolTrigger::penDelete()
 {
+	[[unlikely]]
 	if (selectedItems.empty())
 		return;
 

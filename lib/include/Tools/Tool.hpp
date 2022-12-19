@@ -95,7 +95,7 @@ public:
 
 	virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) = 0;
 
-	constexpr virtual void penDown() noexcept final; // When LMB is pressed
+	constexpr virtual void penDown() noexcept final { penDownPos = penPos; } // When LMB is pressed
 	virtual void penPosition(const sf::Vector2i& position) final; // called each frame with current mouse pos
 	virtual void penUp() final; // When LMB is released
 
