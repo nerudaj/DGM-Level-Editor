@@ -141,7 +141,7 @@ void ToolWithSprites::changePenValue(unsigned value, tgui::Gui& gui, tgui::Theme
 	Tool::buildSidebar(theme);
 }
 
-void Tool::penDown()
+constexpr void Tool::penDown() noexcept
 {
 	penDownPos = penPos;
 }

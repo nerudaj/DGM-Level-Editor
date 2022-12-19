@@ -19,9 +19,10 @@ protected:
 	InitGuard<std::vector<ObjectToCreate<ObjectType>>> objectsToCreate;
 
 public:
+	[[nodiscard]]
 	DeleteObjectCommand(
 		std::vector<ObjectType>& target,
-		std::vector<std::size_t> idsToDelete)
+		std::vector<std::size_t> idsToDelete) noexcept
 		: target(target)
 		, idsToDelete(idsToDelete)
 	{}
@@ -52,10 +53,11 @@ protected:
 	InitGuard<std::vector<std::size_t>> idsOfAddedObjects;
 
 public:
+	[[nodiscard]]
 	CreateObjectCommand(
 		std::vector<ObjectType>& target,
-		const ObjectType& objectToCreate) :
-		target(target)
+		const ObjectType& objectToCreate) noexcept
+		: target(target)
 	{
 		objectsToCreate.push_back(ObjectToCreate<ObjectType>{
 			.arrayPosition = target.size(),
@@ -66,7 +68,7 @@ public:
 	// Used by DeleteObjectCommand
 	CreateObjectCommand(
 		std::vector<ObjectType>& target,
-		const std::vector<ObjectToCreate<ObjectType>>& objectsToCreate)
+		const std::vector<ObjectToCreate<ObjectType>>& objectsToCreate) noexcept
 		: target(target)
 		, objectsToCreate(objectsToCreate)
 	{}

@@ -12,19 +12,21 @@ class CommandHistory final
 	unsigned index = 0;
 
 public:
-	void add(const Box<UndoableCommandInterface>& command);
+	constexpr void add(const Box<UndoableCommandInterface>& command);
 
 	void undo();
 
 	void redo();
 
 public:
-	const auto& test_getCommands() const
+	[[nodiscard]]
+	constexpr const auto& test_getCommands() const noexcept
 	{
 		return commands;
 	}
 
-	const auto& test_getIndex() const
+	[[nodiscard]]
+	constexpr const auto& test_getIndex() const noexcept
 	{
 		return index;
 	}

@@ -11,7 +11,7 @@ const sf::Vector2f UP_VEC(0.f, -24.f);
 const sf::Vector2f DOWN_VEC(0.f, 24.f);
 const sf::Vector2f RIGHT_VEC(24.f, 0.f);
 
-bool Editor::isMouseWithinBoundaries(const sf::Vector2f& mousePos) const
+constexpr bool Editor::isMouseWithinBoundaries(const sf::Vector2f& mousePos) const noexcept
 {
 	return mousePos.x < 0.f && mousePos.y < 0.f;
 }

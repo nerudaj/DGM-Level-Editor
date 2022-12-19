@@ -13,9 +13,10 @@ protected:
 	LevelD snapshot;
 
 public:
+	[[nodiscard]]
 	ResizeCommandInverse(
 		Editor& editor,
-		LevelD snapshot)
+		LevelD snapshot) noexcept
 		: editor(editor), snapshot(snapshot)
 	{}
 
@@ -32,7 +33,8 @@ protected:
 	LevelD levelSnapshot;
 
 public:
-	ResizeCommand(Editor& editor, unsigned width, unsigned height)
+	[[nodiscard]]
+	ResizeCommand(Editor& editor, unsigned width, unsigned height) noexcept
 		: editor(editor), width(width), height(height)
 	{}
 

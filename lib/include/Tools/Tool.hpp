@@ -61,6 +61,7 @@ protected:
 	[[nodiscard]]
 	const sf::Vector2i& getPenDragStart() const noexcept { return penDownPos; }
 
+	[[nodiscard]]
 	bool isPenDragging() const
 	{
 		return penDownPos != NULL_VECTOR && dgm::Math::vectorSize(sf::Vector2f(penPos - penDownPos)) > DRAG_THRESHOLD;
@@ -94,7 +95,7 @@ public:
 
 	virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) = 0;
 
-	virtual void penDown() final; // When LMB is pressed
+	constexpr virtual void penDown() noexcept final; // When LMB is pressed
 	virtual void penPosition(const sf::Vector2i& position) final; // called each frame with current mouse pos
 	virtual void penUp() final; // When LMB is released
 
@@ -120,11 +121,12 @@ public:
 	[[nodiscard]]
 	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const = 0;
 
+	[[nodiscard]]
 	Tool(
 		tgui::Gui& gui,
 		std::function<void(void)> onStateChanged,
 		CommandQueue& commandQueue,
-		ShortcutEngineInterface& shortcutEngine)
+		ShortcutEngineInterface& shortcutEngine) noexcept
 		: gui(gui)
 		, onStateChangedCallback(onStateChanged)
 		, commandQueue(commandQueue)
@@ -136,48 +138,13 @@ public:
 template<class T>
 concept DerivedFromTool = std::derived_from<T, Tool>;
 
-// Keeps track of which tiles were used in the past
-// to display them on the right sidebar
-class ToolMeshHistory
-{
-private:
-	std::vector<unsigned> history;
-
-public:
-	void insert(unsigned value)
-	{
-		auto it = std::find(history.begin(), history.end(), value);
-		if (it != history.end()) history.erase(it);
-		history.insert(history.begin(), value);
-	}
-
-	void prune(unsigned size)
-	{
-		if (history.size() > size) history.resize(size);
-	}
-
-	void clear()
-	{
-		history.clear();
-		insert(0);
-	}
-
-	std::vector<unsigned>::const_iterator begin() const
-	{
-		return history.begin();
-	}
-
-	std::vector<unsigned>::const_iterator end() const
-	{
-		return history.end();
-	}
-};
+#include "include/Tools/ToolPenHistory.hpp"
 
 class ToolWithSprites : public Tool
 {
 protected:
 	unsigned penValue = 0;
-	ToolMeshHistory penHistory;
+	ToolPenHistory penHistory;
 
 	virtual void buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) override;
 	void buildSpriteIdSelectionModal(tgui::Gui& gui, tgui::Theme& theme);

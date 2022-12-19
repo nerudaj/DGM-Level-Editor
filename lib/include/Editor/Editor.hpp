@@ -59,7 +59,8 @@ private:
 
 	bool initialized = false;
 
-	bool isMouseWithinBoundaries(const sf::Vector2f& mousePos) const;
+	[[nodiscard]]
+	constexpr bool isMouseWithinBoundaries(const sf::Vector2f& mousePos) const noexcept;
 
 	[[nodiscard]]
 	bool canScroll() const
