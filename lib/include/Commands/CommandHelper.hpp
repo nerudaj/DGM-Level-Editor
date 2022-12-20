@@ -3,6 +3,7 @@
 #include "include/Utilities/DragContext.hpp"
 
 #include <LevelD.hpp>
+#include <set>
 #include <vector>
 #include <concepts>
 #include <algorithm>
