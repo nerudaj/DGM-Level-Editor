@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Tool.hpp"
-#include "include/Utilities/DragContext.hpp"
+#include "include/Tools/ToolInterface.hpp"
+#include "include/Tools/ToolWithDragAndSelect.hpp"
+#include "include/Tools/SidebarUserItem.hpp"
 
 class ItemToolProperty : public ImageToolProperty
 {
-	// Dìdí se pøes ImageToolProperty.
 	virtual void buildModalSpecifics(tgui::Gui& gui, tgui::ScrollablePanel::Ptr& panel) override;
 
 public:
@@ -13,7 +13,7 @@ public:
 	LevelD::Thing data;
 };
 
-class ToolItem : public ToolWithSprites
+class ToolItem final : public ToolWithDragAndSelect
 {
 public:
 	enum class EditMode : std::size_t
@@ -22,28 +22,56 @@ public:
 	};
 	const sf::Vector2i NULL_VECTOR = sf::Vector2i(-1, -1);
 
+public:
+	[[nodiscard]]
+	ToolItem(
+		std::function<void(void)> onStateChanged,
+		ShortcutEngineInterface& shortcutEngine,
+		tgui::Gui& gui,
+		tgui::Theme& theme,
+		CommandQueue& commandQueue) noexcept
+		: ToolWithDragAndSelect(onStateChanged, shortcutEngine)
+		, sidebarUser(gui, theme)
+		, commandQueue(commandQueue)
+	{}
+
+public: // PenUserInterface
+	void penClicked(const sf::Vector2i& position) override;
+
+public: // ToolInterface
+	void buildSidebar() override { sidebarUser.buildSidebar(); }
+
+	void configure(nlohmann::json& config) override;
+
+	void resize(unsigned width, unsigned height) override;
+
+	void saveTo(LevelD& lvd) const override;
+
+	void loadFrom(const LevelD& lvd) override;
+
+	void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
+
+	std::unique_ptr<ToolProperty> getProperty(const sf::Vector2i& penPos) const override;
+
+	void setProperty(const ToolProperty& prop) override;
+
+	std::optional<GenericObject> getHighlightedObject(const sf::Vector2i& penPos) const override;
+	std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override;
+
+protected: // ToolInterface
+	void buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) override;
+
+protected: // ToolWithDragAndSelect
+	virtual std::optional<std::size_t> getObjectIndexFromMousePos(const sf::Vector2i& pos) const final override;
+	virtual sf::Vector2i getPositionOfObjectWithIndex(std::size_t index) const final override;
+	virtual void selectObjectsInArea(const sf::IntRect& selectedArea) final override;
+	virtual void moveSelectedObjectsTo(const sf::Vector2i& point) final override;
+	virtual void createMoveCommand(
+		const sf::Vector2i& src,
+		const sf::Vector2i& dest) final override;
+	virtual void createDeleteCommand() final override;
+
 protected:
-	struct ItemRenderData
-	{
-		sf::Texture texture;
-		tgui::Texture guiTexture;
-		sf::IntRect clip;
-		sf::Sprite sprite;
-	};
-
-	std::vector<LevelD::Thing> items;
-	std::vector<ItemRenderData> renderData;
-	std::set<std::size_t> selectedItems;
-	sf::RectangleShape selectRect;
-
-	sf::Vector2u tileSize;
-	sf::Vector2i levelSize;
-
-	EditMode editMode = EditMode::ModeDraw;
-	bool dragging = false;
-	bool selecting = false;
-	DragContext dragContext;
-
 	void changeEditMode(EditMode mode);
 
 	bool isValidPenPosForDrawing(const sf::Vector2i& pos) const
@@ -51,56 +79,14 @@ protected:
 		return !(pos.x < 0 || pos.y < 0 || pos.x >= levelSize.x || pos.y >= levelSize.y);
 	}
 
-	// todo - return as ref? nodiscard, contextexpr, noexcept
-	virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const override
-	{
-		return renderData[spriteId].guiTexture;
-	}
+private:
+	std::vector<LevelD::Thing> items;
+	sf::Vector2u tileSize;
+	sf::Vector2i levelSize;
+	EditMode editMode = EditMode::ModeDraw;
+	SidebarUserItem sidebarUser;
+	CommandQueue& commandQueue;
 
-	virtual std::size_t getSpriteCount() const override
-	{
-		return renderData.size();
-	}
-
-	std::size_t getItemFromPosition(const sf::Vector2f& vec) const;
-
-	void selectItemsInArea(sf::IntRect& selectedArea);
-
-	virtual void penClicked(const sf::Vector2i& position) override;
-	virtual void penDragStarted(const sf::Vector2i& start) override;
-	virtual void penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) override;
-	virtual void penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) override;
-	virtual void penDragCancel(const sf::Vector2i& origin) override;
-
-public:
-	virtual void configure(nlohmann::json& config) override;
-
-	virtual void resize(unsigned width, unsigned height) override;
-
-	virtual void saveTo(LevelD& lvd) const override;
-
-	virtual void loadFrom(const LevelD& lvd) override;
-
-	virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
-
-	virtual void penDelete() override;
-
-	virtual std::unique_ptr<ToolProperty> getProperty() const override;
-
-	virtual void setProperty(const ToolProperty& prop) override;
-
-	virtual void buildCtxMenu(tgui::MenuBar::Ptr& menu) override;
-
-	virtual std::optional<GenericObject> getHighlightedObject() const override;
-	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override;
-
-	ToolItem(
-		tgui::Gui& gui,
-		std::function<void(void)> onStateChanged,
-		CommandQueue& commandQueue,
-		ShortcutEngineInterface& shortcutEngine)
-		: ToolWithSprites(gui, onStateChanged, commandQueue, shortcutEngine)
-	{}
 };
 
 namespace std

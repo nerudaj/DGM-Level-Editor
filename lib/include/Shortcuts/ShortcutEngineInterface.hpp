@@ -8,6 +8,9 @@
 class ShortcutEngineInterface
 {
 public:
+	virtual ~ShortcutEngineInterface() = default;
+
+public:
 	virtual void handleEvent(sf::Event& event) = 0;
 
 	virtual void registerShortcut(
@@ -18,6 +21,4 @@ public:
 	// Removes all shortcuts registered with matching group name
 	virtual void unregisterShortcutGroup(
 		const std::string& groupName) = 0;
-
-	virtual ~ShortcutEngineInterface() = default;
 };

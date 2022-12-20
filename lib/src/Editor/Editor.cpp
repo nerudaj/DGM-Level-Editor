@@ -71,7 +71,8 @@ void Editor::populateMenuBar()
 
 void Editor::handleRmbClicked()
 {
-	currentlyOpenedProperty = stateMgr.getActiveTool().getProperty();
+	currentlyOpenedProperty = stateMgr.getActiveTool()
+		.getProperty(physicalPen.getCurrentPenPos());
 
 	if (not canOpenPropertyDialog() or !currentlyOpenedProperty)
 		return;
@@ -84,12 +85,13 @@ void Editor::handleRmbClicked()
 
 void Editor::drawTagHighlight()
 {
-	auto&& object = stateMgr.getActiveTool().getHighlightedObject();
+	auto&& object = stateMgr.getActiveTool()
+		.getHighlightedObject(physicalPen.getCurrentPenPos());
 	if (!object.has_value() || object->tag == 0)
 		return;
 
 	std::vector<sf::Vertex> positions;
-	auto computeLinesToDraw = [&object, &positions] (Tool& t)
+	auto computeLinesToDraw = [&object, &positions] (ToolInterface& t)
 	{
 		const auto vec = t.getPositionsOfObjectsWithTag(object->tag);
 		for (auto&& pos : vec)
@@ -110,7 +112,7 @@ void Editor::handleEvent(const sf::Event& event, const sf::Vector2i& mousePos)
 	// Update mouse position for both indicator and current tool
 	auto realMousePos = camera.getWorldCoordinates(sf::Vector2f(mousePos));
 	mouseIndicator.setPosition(realMousePos);
-	stateMgr.getActiveTool().penPosition(sf::Vector2i(realMousePos));
+	physicalPen.updatePenPosition(sf::Vector2i(realMousePos));
 
 	if (event.type == sf::Event::KeyPressed)
 	{
@@ -118,8 +120,8 @@ void Editor::handleEvent(const sf::Event& event, const sf::Vector2i& mousePos)
 		else if (event.key.code == sf::Keyboard::Up && canScroll()) camera.move(UP_VEC);
 		else if (event.key.code == sf::Keyboard::Down && canScroll()) camera.move(DOWN_VEC);
 		else if (event.key.code == sf::Keyboard::Right && canScroll()) camera.move(RIGHT_VEC);
-		else if (event.key.code == sf::Keyboard::Escape) stateMgr.getActiveTool().penCancel();
-		else if (event.key.code == sf::Keyboard::Delete) stateMgr.getActiveTool().penDelete();
+		else if (event.key.code == sf::Keyboard::Escape) physicalPen.penCancel();
+		else if (event.key.code == sf::Keyboard::Delete) physicalPen.penDelete();
 	}
 	else if (event.type == sf::Event::MouseWheelScrolled && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
 	{
@@ -132,7 +134,7 @@ void Editor::draw()
 {
 	if (!initialized) return;
 
-	stateMgr.forallStates([this] (Tool& tool, bool active)
+	stateMgr.forallStates([this] (ToolInterface& tool, bool active)
 	{
 		tool.drawTo(canvas, active ? 255 : 128);
 	});
@@ -150,12 +152,12 @@ void Editor::init(
 	auto config = JsonHelper::loadFromFile(configPath);
 	config["configFolder"] = std::filesystem::path(configPath).parent_path().string();
 
-	stateMgr.forallStates([&config] (Tool& tool)
+	stateMgr.forallStates([&config] (ToolInterface& tool)
 	{
 		tool.configure(config);
 	});
 
-	stateMgr.forallStates([levelWidth, levelHeight] (Tool& tool)
+	stateMgr.forallStates([levelWidth, levelHeight] (ToolInterface& tool)
 	{
 		tool.resize(levelWidth, levelHeight);
 	});
@@ -179,18 +181,18 @@ void Editor::init(
 	});
 	canvas->connect("MousePressed", [this]
 	{
-		stateMgr.getActiveTool().penDown();
+		physicalPen.penDown();
 	});
 	canvas->connect("MouseReleased", [this]
 	{
-		stateMgr.getActiveTool().penUp();
+		physicalPen.penUp();
 	});
 }
 
 void Editor::switchTool(EditorState state)
 {
 	stateMgr.changeState(state);
-	stateMgr.getActiveTool().buildSidebar(theme);
+	stateMgr.getActiveTool().buildSidebar();
 
 	auto menu = gui.get<tgui::MenuBar>("TopMenuBar");
 	stateMgr.getActiveTool().buildCtxMenu(menu);
@@ -200,7 +202,7 @@ LevelD Editor::save() const
 {
 	LevelD result;
 
-	stateMgr.forallStates([&result] (const Tool& tool)
+	stateMgr.forallStates([&result] (const ToolInterface& tool)
 	{
 		tool.saveTo(result);
 	});
@@ -216,7 +218,7 @@ void Editor::loadFrom(
 		// Currently using this to be able to load the config
 		init(1, 1, lvd.metadata.description);
 
-	stateMgr.forallStates([&lvd] (Tool& tool)
+	stateMgr.forallStates([&lvd] (ToolInterface& tool)
 	{
 		tool.loadFrom(lvd);
 	});
@@ -235,7 +237,7 @@ void Editor::resizeDialog()
 
 void Editor::resize(unsigned width, unsigned height)
 {
-	stateMgr.forallStates([width, height] (Tool& t)
+	stateMgr.forallStates([width, height] (ToolInterface& t)
 	{
 		t.resize(width, height);
 	});
@@ -245,28 +247,31 @@ void Editor::shrinkToFit()
 {}
 
 Editor::Editor(
-	tgui::Gui& gui,
-	tgui::Theme& theme,
+	tgui::Gui& guiRef,
+	tgui::Theme& themeRef,
 	tgui::Canvas::Ptr& canvas,
 	std::function<void(void)> onStateChanged,
-	CommandQueue& commandQueue,
-	ShortcutEngineInterface& shortcutEngine)
-	: gui(gui)
-	, theme(theme)
+	CommandQueue& commandQueueRef,
+	ShortcutEngineInterface& shortcutEngineRef)
+	: gui(guiRef)
+	, theme(themeRef)
 	, canvas(canvas)
-	, commandQueue(commandQueue)
-	, shortcutEngine(shortcutEngine)
+	, commandQueue(commandQueueRef)
+	, shortcutEngine(shortcutEngineRef)
+	, physicalPen([this] () -> PenUserInterface& { return stateMgr.getActiveTool(); })
 {
 	// Instantiate all EditorTools here
 	stateMgr.addState<ToolMesh>(
 		EditorState::Mesh,
-		gui, onStateChanged, commandQueue, shortcutEngine);
+		onStateChanged, shortcutEngine, gui, theme, commandQueue);
+
 	stateMgr.addState<ToolItem>(
 		EditorState::Item,
-		gui, onStateChanged, commandQueue, shortcutEngine);
+		onStateChanged, shortcutEngine, gui, theme, commandQueue);
+
 	stateMgr.addState<ToolTrigger>(
 		EditorState::Trigger,
-		gui, onStateChanged, commandQueue, shortcutEngine);
+		onStateChanged, shortcutEngine, gui, theme, commandQueue, [this] () -> sf::Vector2i { return physicalPen.getCurrentPenPos(); });
 
 	// Bootstrapping mouse indicator
 	mouseIndicator.setRadius(8.f);

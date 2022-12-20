@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Tools/Tool.hpp"
+#include "include/Tools/ToolInterface.hpp"
 #include "include/Editor/EditorState.hpp"
 
 #include <map>
@@ -10,7 +10,7 @@
 class EditorStateManager
 {
 private:
-	std::map<EditorState, std::unique_ptr<Tool>> statesToTools;
+	std::map<EditorState, std::unique_ptr<ToolInterface>> statesToTools;
 	EditorState currentState = EditorState();
 	std::vector<EditorState> insertionOrder;
 
@@ -29,9 +29,9 @@ public:
 	/**
 	 *  \brief Loop over all states in order in which they were added
 	 */
-	void forallStates(std::function<void(Tool&)> callback);
+	void forallStates(std::function<void(ToolInterface&)> callback);
 
-	void forallStates(std::function<void(const Tool&)> callback) const;
+	void forallStates(std::function<void(const ToolInterface&)> callback) const;
 
 	/**
 	 *  \brief Loop over all states in order in which they were added
@@ -40,18 +40,18 @@ public:
 	 *  and a boolean flag indicating whether the particular tool
 	 *  is active.
 	 */
-	void forallStates(std::function<void(Tool&, bool)> callback);
+	void forallStates(std::function<void(ToolInterface&, bool)> callback);
 
-	void forallInactiveStates(std::function<void(Tool&)> callback);
+	void forallInactiveStates(std::function<void(ToolInterface&)> callback);
 
 	[[nodiscard]]
-	Tool& getActiveTool() noexcept
+	ToolInterface& getActiveTool() noexcept
 	{
 		return *statesToTools.at(currentState);
 	}
 
 	[[nodiscard]]
-	const Tool& getActiveTool() const noexcept
+	const ToolInterface& getActiveTool() const noexcept
 	{
 		return *statesToTools.at(currentState);
 	}

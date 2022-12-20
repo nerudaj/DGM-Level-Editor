@@ -1,6 +1,6 @@
 #include "include/Editor/EditorStateManager.hpp"
 
-void EditorStateManager::forallStates(std::function<void(Tool&)> callback)
+void EditorStateManager::forallStates(std::function<void(ToolInterface&)> callback)
 {
 	for (auto&& stateId : insertionOrder)
 	{
@@ -8,7 +8,7 @@ void EditorStateManager::forallStates(std::function<void(Tool&)> callback)
 	}
 }
 
-void EditorStateManager::forallStates(std::function<void(const Tool&)> callback) const
+void EditorStateManager::forallStates(std::function<void(const ToolInterface&)> callback) const
 {
 	for (auto&& stateId : insertionOrder)
 	{
@@ -16,7 +16,7 @@ void EditorStateManager::forallStates(std::function<void(const Tool&)> callback)
 	}
 }
 
-void EditorStateManager::forallStates(std::function<void(Tool&, bool)> callback)
+void EditorStateManager::forallStates(std::function<void(ToolInterface&, bool)> callback)
 {
 	for (auto&& stateId : insertionOrder)
 	{
@@ -24,7 +24,7 @@ void EditorStateManager::forallStates(std::function<void(Tool&, bool)> callback)
 	}
 }
 
-void EditorStateManager::forallInactiveStates(std::function<void(Tool&)> callback)
+void EditorStateManager::forallInactiveStates(std::function<void(ToolInterface&)> callback)
 {
 	for (auto&& stateId : insertionOrder)
 	{

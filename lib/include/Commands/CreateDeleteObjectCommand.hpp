@@ -22,7 +22,7 @@ public:
 	[[nodiscard]]
 	DeleteObjectCommand(
 		std::vector<ObjectType>& target,
-		std::vector<std::size_t> idsToDelete) noexcept
+		const std::vector<std::size_t>& idsToDelete) noexcept
 		: target(target)
 		, idsToDelete(idsToDelete)
 	{}

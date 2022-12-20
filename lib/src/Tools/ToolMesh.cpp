@@ -1,27 +1,28 @@
 #include "include/Tools/ToolMesh.hpp"
 #include "include/JsonHelper.hpp"
-#include "include/LogConsole.hpp"
-#include <filesystem>
 #include "include/Commands/SetTileCommand.hpp"
 #include "include/Commands/SetTileAreaCommand.hpp"
 #include <include/Commands/ResizeCommand.hpp>
 #include "include/Utilities/Utilities.hpp"
 
+#include <filesystem>
+
 void ToolMesh::penClicked(const sf::Vector2i& position)
 {
 	const auto tilePos = worldToTilePos(position);
-	if (isPositionValid(tilePos) && penValue != map.getTileValue(tilePos))
+	if (isPositionValid(tilePos) && sidebarUser.getPenValue() != map.getTileValue(tilePos))
 	{
 		commandQueue.push<SetTileCommand>(
 			map,
 			tilePos,
-			penValue,
-			defaultBlocks.at(penValue));
+			sidebarUser.getPenValue(),
+			defaultBlocks.at(sidebarUser.getPenValue()));
 	}
 }
 
 void ToolMesh::penDragStarted(const sf::Vector2i& start)
 {
+	dragging = true;
 	rectShape.setPosition(sf::Vector2f(start));
 }
 
@@ -39,6 +40,8 @@ void ToolMesh::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end)
 
 void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 {
+	dragging = true;
+
 	const auto startTile = worldToTilePos(
 		Utilities::clipNegativeCoords(start));
 	const auto endTile = worldToTilePos(
@@ -50,8 +53,8 @@ void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 			map,
 			startTile,
 			endTile,
-			penValue,
-			defaultBlocks.at(penValue),
+			sidebarUser.getPenValue(),
+			defaultBlocks.at(sidebarUser.getPenValue()),
 			DONT_FILL);
 	}
 	else if (mode == DrawMode::RectFill)
@@ -61,13 +64,11 @@ void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 			map,
 			startTile,
 			endTile,
-			penValue,
-			defaultBlocks.at(penValue),
+			sidebarUser.getPenValue(),
+			defaultBlocks.at(sidebarUser.getPenValue()),
 			FILL);
 	}
 }
-
-void ToolMesh::penDragCancel(const sf::Vector2i&) {}
 
 void ToolMesh::configure(nlohmann::json& config)
 {
@@ -78,9 +79,6 @@ void ToolMesh::configure(nlohmann::json& config)
 	if (texturePath.is_relative())
 		texturePath = rootPath / texturePath;
 
-	if (!texture.loadFromFile(texturePath.string()))
-		throw dgm::ResourceException("Cannot load texture file: " + texturePath.string());
-
 	sf::Vector2u tileDims = JsonHelper::arrayToVector2u(config[TOOL_STR]["texture"]["tileDimensions"]);
 	sf::Vector2u tileOffs = JsonHelper::arrayToVector2u(config[TOOL_STR]["texture"]["tileOffsets"]);
 	sf::IntRect  bounds = JsonHelper::arrayToIntRect(config[TOOL_STR]["texture"]["boundaries"]);
@@ -90,16 +88,15 @@ void ToolMesh::configure(nlohmann::json& config)
 	for (auto& item : config[TOOL_STR]["defaultProperties"]["solids"])
 	{
 		defaultBlocks[i++] = bool(int(item));
-		Log::write(std::to_string(i) + ": " + std::to_string(bool(int(item))));
 	}
 
-	clip = dgm::Clip(tileDims, bounds, 0, tileOffs);
-	map = DrawableLeveldMesh(texture, clip); // NOTE: The copy probly messes up internal texture (shared_ptr?)
+	sidebarUser.configure(
+		texturePath,
+		dgm::Clip(tileDims, bounds, 0, tileOffs));
+	map = DrawableLeveldMesh(sidebarUser.getTexture(), sidebarUser.getClip());
 
 	rectShape.setOutlineColor(sf::Color(255, 0, 0, 128));
 	rectShape.setOutlineThickness(2.f);
-
-	penHistory.clear();
 }
 
 void ToolMesh::resize(unsigned width, unsigned height)
@@ -137,9 +134,8 @@ void ToolMesh::resize(unsigned width, unsigned height)
 
 void ToolMesh::saveTo(LevelD& lvd) const
 {
-	Log::write("ToolMesh::saveTo");
-	lvd.mesh.tileWidth = clip.getFrameSize().x;
-	lvd.mesh.tileHeight = clip.getFrameSize().y;
+	lvd.mesh.tileWidth = sidebarUser.getClip().getFrameSize().x;
+	lvd.mesh.tileHeight = sidebarUser.getClip().getFrameSize().y;
 	lvd.mesh.layerWidth = map.getMapDimensions().x;
 	lvd.mesh.layerHeight = map.getMapDimensions().y;
 
@@ -158,8 +154,6 @@ void ToolMesh::saveTo(LevelD& lvd) const
 
 void ToolMesh::loadFrom(const LevelD& lvd)
 {
-	Log::write("ToolMesh::loadFrom");
-
 	const auto tilemapData = std::vector<int>(
 		lvd.mesh.layers[0].tiles.begin(),
 		lvd.mesh.layers[0].tiles.end());
@@ -175,20 +169,15 @@ void ToolMesh::drawTo(tgui::Canvas::Ptr& canvas, uint8_t)
 {
 	map.drawTo(canvas, enableOverlay);
 
-	if (isPenDragging())
+	if (dragging && (mode == DrawMode::RectEdge || mode == DrawMode::RectFill))
 	{
-		if (mode == DrawMode::RectEdge || mode == DrawMode::RectFill)
-		{
-			canvas->draw(rectShape);
-		}
+		canvas->draw(rectShape);
 	}
 }
 
-std::unique_ptr<ToolProperty> ToolMesh::getProperty() const
+std::unique_ptr<ToolProperty> ToolMesh::getProperty(const sf::Vector2i& penPos) const
 {
-	auto pos = getPenPosition();
-
-	auto tilePos = worldToTilePos(pos);
+	auto tilePos = worldToTilePos(penPos);
 	if (not isPositionValid(tilePos))
 		return nullptr;
 
@@ -199,7 +188,7 @@ std::unique_ptr<ToolProperty> ToolMesh::getProperty() const
 	result->tileValue = map.getTileValue(tilePos);
 	result->blocking = map.isTileSolid(tilePos);
 	result->defaultBlocking = defaultBlocks[result->tileValue];
-	result->imageTexture = getSpriteAsTexture(result->tileValue);
+	result->imageTexture = sidebarUser.getSpriteAsTexture(result->tileValue);
 
 	return std::move(result);
 }
@@ -215,10 +204,8 @@ void ToolMesh::setProperty(const ToolProperty& prop)
 	// TODO: command
 }
 
-void ToolMesh::buildCtxMenu(tgui::MenuBar::Ptr& menu)
+void ToolMesh::buildCtxMenuInternal(tgui::MenuBar::Ptr& menu)
 {
-	Tool::buildCtxMenu(menu); // bootstrap
-
 	const std::string OPTION_PENCIL = "Pencil Mode (Shift+P)";
 	const std::string OPTION_FILL = "Rect-fill Mode (Shift+F)";
 	const std::string OPTION_EDGE = "Rect-edge Mode (Shift+E)";
@@ -232,7 +219,6 @@ void ToolMesh::buildCtxMenu(tgui::MenuBar::Ptr& menu)
 
 void ToolMesh::changeDrawingMode(ToolMesh::DrawMode newMode)
 {
-	Log::write("Mesh: Changing drawTo mode to " + std::to_string(newMode));
 	mode = newMode;
 	if (mode == DrawMode::RectEdge)
 	{

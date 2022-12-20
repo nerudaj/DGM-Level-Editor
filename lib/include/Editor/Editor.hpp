@@ -11,6 +11,7 @@
 #include "include/Dialogs/ResizeLevelDialog.hpp"
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Shortcuts/ShortcutEngine.hpp"
+#include "include/Tools/PhysicalPen.hpp"
 
 class EditorInterface
 {
@@ -44,6 +45,18 @@ public:
 
 class Editor final : public EditorInterface
 {
+public:
+	[[nodiscard]]
+	Editor(
+		tgui::Gui& gui,
+		tgui::Theme& theme,
+		tgui::Canvas::Ptr& canvas,
+		std::function<void(void)> onStateChanged,
+		CommandQueue& commandQueue,
+		ShortcutEngineInterface& shortcutEngine);
+	Editor(Editor&&) = delete;
+	Editor(const Editor&) = delete;
+
 private:
 	tgui::Gui& gui;
 	tgui::Theme& theme;
@@ -52,6 +65,7 @@ private:
 	Camera camera = Camera(canvas);
 	EditorStateManager stateMgr;
 	sf::CircleShape mouseIndicator;
+	PhysicalPen physicalPen;
 
 	CommandQueue& commandQueue;
 	ShortcutEngineInterface& shortcutEngine;
@@ -121,11 +135,5 @@ public:
 
 	virtual void shrinkToFit() override;
 
-	Editor(
-		tgui::Gui& gui,
-		tgui::Theme& theme,
-		tgui::Canvas::Ptr& canvas,
-		std::function<void(void)> onStateChanged,
-		CommandQueue& commandQueue,
-		ShortcutEngineInterface& shortcutEngine);
+
 };

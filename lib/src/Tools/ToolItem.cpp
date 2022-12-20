@@ -7,95 +7,109 @@
 
 #include <filesystem>
 
+/* Implementing ToolWithDragAndSelect */
+std::optional<std::size_t> ToolItem::getObjectIndexFromMousePos(const sf::Vector2i& pos) const
+{
+	for (std::size_t i = 0; i < items.size(); i++)
+	{
+		auto&& clip = sidebarUser.getClip(items[i].id);
+		const float x = float(items[i].x);
+		const float y = float(items[i].y);
+		const float wh = clip.width / 2.f;
+		const float hh = clip.height / 2.f;
+		if ((x - wh) < pos.x && pos.x < (x + wh) && (y - hh) < pos.y && pos.y < (y + hh)) return i;
+	}
+
+	return {};
+}
+
+sf::Vector2i ToolItem::getPositionOfObjectWithIndex(std::size_t index) const
+{
+	return sf::Vector2i(
+		items.at(index).x,
+		items.at(index).y);
+}
+
+void ToolItem::selectObjectsInArea(const sf::IntRect& selectedArea)
+{
+	for (std::size_t i = 0; i < items.size(); i++)
+	{
+		if (selectedArea.contains(int(items[i].x), int(items[i].y)))
+		{
+			selectedObjects.insert(i);
+		}
+	}
+}
+void ToolItem::moveSelectedObjectsTo(const sf::Vector2i& point)
+{
+	CommandHelper::moveSelectedObjectsTo(
+			items,
+			selectedObjects,
+			dragContext,
+			point,
+			sf::Vector2u(levelSize));
+}
+
+void ToolItem::createMoveCommand(
+	const sf::Vector2i& src,
+	const sf::Vector2i& dest)
+{
+	commandQueue.push<MoveItemCommand>(
+		items,
+		selectedObjects,
+		dragContext,
+		src,
+		dest,
+		sf::Vector2u(levelSize));
+}
+
+void ToolItem::createDeleteCommand()
+{
+	commandQueue.push<DeleteItemCommand>(
+			items,
+			std::vector<std::size_t>(
+				selectedObjects.begin(),
+				selectedObjects.end()));
+}
+
+/* Rest of ToolItem */
+
 void ToolItem::changeEditMode(EditMode mode)
 {
 	Log::write("Changing ToolItem editMode to " + std::to_string(mode));
 	editMode = mode;
 }
 
-std::size_t ToolItem::getItemFromPosition(const sf::Vector2f& vec) const
-{
-	for (std::size_t i = 0; i < items.size(); i++)
-	{
-		const auto clip = renderData[items[i].id].clip;
-		const float x = float(items[i].x);
-		const float y = float(items[i].y);
-		const float wh = clip.width / 2.f;
-		const float hh = clip.height / 2.f;
-		if ((x - wh) < vec.x && vec.x < (x + wh) && (y - hh) < vec.y && vec.y < (y + hh)) return i;
-	}
-
-	return -1;
-}
-
 void ToolItem::configure(nlohmann::json& config)
 {
 	items.clear();
-	renderData.clear();
-	penHistory.clear();
 
 	const std::string TOOL_STR = "toolItem";
 	const auto rootPath = std::filesystem::path(config["configFolder"].get<std::string>());
 
 	tileSize = JsonHelper::arrayToVector2u(config["toolMesh"]["texture"]["tileDimensions"]);
 
-	auto items = config[TOOL_STR]["items"];
-	for (auto& item : items)
+	std::vector<SidebarUserItem::PathRectPair> pathRectPairs;
+	auto itemsJ = config[TOOL_STR]["items"];
+	pathRectPairs.reserve(itemsJ.size());
+
+	for (auto&& item : itemsJ)
 	{
-		renderData.push_back(ItemRenderData());
-		auto& rd = renderData.back();
 		auto texturePath = std::filesystem::path(item["texture"]["path"].get<std::string>());
 		if (texturePath.is_relative())
 			texturePath = rootPath / texturePath;
 
-		rd.clip = JsonHelper::arrayToIntRect(item["texture"]["clip"]);
-
-		if (!rd.texture.loadFromFile(texturePath.string()))
-		{
-			Log::write("Could not load texture: " + texturePath.string());
-			continue;
-		}
+		pathRectPairs.push_back(SidebarUserItem::PathRectPair{
+			.texturePath = texturePath,
+			.clip = JsonHelper::arrayToIntRect(item["texture"]["clip"])
+		});
 	}
 
-	for (unsigned i = 0; i < renderData.size(); i++)
-	{
-		const auto& clip = renderData[i].clip;
+	sidebarUser.configure(pathRectPairs);
 
-		renderData[i].sprite.setTexture(renderData[i].texture);
-		renderData[i].sprite.setTextureRect(clip);
-
-		if (clip.width == clip.height)
-		{
-			renderData[i].guiTexture = tgui::Texture(renderData[i].texture, clip);
-		}
-		else
-		{
-			const int size = std::max(clip.width, clip.height);
-
-			sf::Image txImg = renderData[i].texture.copyToImage();
-			sf::Image sqImg;
-			sqImg.create(size, size, sf::Color::Transparent);
-
-			// Copy txImg to sqImg, centered
-			unsigned xOffset = (size - clip.width) / 2;
-			unsigned yOffset = (size - clip.height) / 2;
-			for (int y = 0; y < clip.height; y++)
-			{
-				for (int x = 0; x < clip.width; x++)
-				{
-					sqImg.setPixel(x + xOffset, y + yOffset, txImg.getPixel(x + clip.left, y + clip.top));
-				}
-			}
-
-			sf::Texture texture;
-			texture.loadFromImage(sqImg);
-			renderData[i].guiTexture = tgui::Texture(texture);
-		}
-	}
-
-	selectRect.setOutlineColor(sf::Color::Red);
-	selectRect.setOutlineThickness(2);
-	selectRect.setFillColor(sf::Color::Transparent);
+	selectMarker.setOutlineColor(sf::Color::Red);
+	selectMarker.setOutlineThickness(2);
+	selectMarker.setFillColor(sf::Color::Transparent);
 }
 
 void ToolItem::resize(unsigned width, unsigned height)
@@ -146,44 +160,22 @@ void ToolItem::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity)
 {
 	unsigned index = 0;
 	sf::RectangleShape outline;
-	outline.setOutlineColor(sf::Color::Red);
-	outline.setOutlineThickness(2);
-	outline.setFillColor(sf::Color::Transparent);
 
 	for (auto& item : items)
 	{
-		auto& clip = renderData[item.id].clip;
-		auto position = sf::Vector2f(float(int(item.x) - clip.width / 2), float(int(item.y) - clip.height / 2));
-		renderData[item.id].sprite.setColor(sf::Color(255, 255, 255, opacity));
-		renderData[item.id].sprite.setPosition(position);
-
-		canvas->draw(renderData[item.id].sprite);
-
-		// Outline for selected items
-		if (selectedItems.contains(index))
-		{
-			outline.setPosition(position);
-			outline.setSize({ float(clip.width), float(clip.height) });
-			canvas->draw(outline);
-		}
+		sidebarUser.drawSprite(
+			canvas,
+			item.id,
+			sf::Vector2i(item.x, item.y),
+			selectedObjects.contains(index),
+			opacity);
 
 		index++;
 	}
 
 	if (selecting)
 	{
-		canvas->draw(selectRect);
-	}
-}
-
-void ToolItem::selectItemsInArea(sf::IntRect& selectedArea)
-{
-	for (std::size_t i = 0; i < items.size(); i++)
-	{
-		if (selectedArea.contains(int(items[i].x), int(items[i].y)))
-		{
-			selectedItems.insert(i);
-		}
+		canvas->draw(selectMarker);
 	}
 }
 
@@ -198,16 +190,15 @@ void ToolItem::penClicked(const sf::Vector2i& position)
 	if (not isValidPenPosForDrawing(position))
 		return;
 
-	const std::size_t itemId = getItemFromPosition(
-		sf::Vector2f(position));
-	if (itemId != -1)
+	const auto itemId = getObjectIndexFromMousePos(position);
+	if (itemId.has_value())
 	{
-		selectedItems.insert(itemId);
+		selectedObjects.insert(*itemId);
 		return;
 	}
 
 	const auto itemToCreate = LevelD::Thing{
-		.id = penValue,
+		.id = sidebarUser.getPenValue(),
 		.tag = 0,
 		.x = static_cast<uint32_t>(position.x),
 		.y = static_cast<uint32_t>(position.y),
@@ -219,128 +210,20 @@ void ToolItem::penClicked(const sf::Vector2i& position)
 		items,
 		itemToCreate);
 
-	selectedItems.clear();
+	selectedObjects.clear();
 }
 
-void ToolItem::penDragStarted(const sf::Vector2i& start)
+std::unique_ptr<ToolProperty> ToolItem::getProperty(const sf::Vector2i& penPos) const
 {
-	Log::write("penDragStarted");
-	/* If pen is over item, then select it and commence dragging
-	*	If multiple items are selected and this item was not, unselect
-	*   all and move only this object
-	*  Else selecting
-	*/
-
-
-	std::size_t itemId = getItemFromPosition(sf::Vector2f(start));
-	if (itemId != -1)
-	{
-		dragging = true;
-		dragContext.leadingItemId = itemId;
-
-		if (!selectedItems.contains(dragContext.leadingItemId))
-			selectedItems.clear();
-		selectedItems.insert(dragContext.leadingItemId);
-
-		auto& item = items[dragContext.leadingItemId];
-		dragContext.initialDragOffset = sf::Vector2i(item.x, item.y) - start;
-	}
-	else
-	{
-		selectRect.setPosition(sf::Vector2f(start));
-		selecting = true;
-	}
-}
-
-void ToolItem::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end)
-{
-	if (dragging && isValidPenPosForDrawing(end))
-	{
-		CommandHelper::moveSelectedObjectsTo(
-			items,
-			selectedItems,
-			dragContext,
-			end,
-			sf::Vector2u(levelSize));
-	}
-
-	if (selecting)
-	{
-		selectRect.setSize(sf::Vector2f(end - start));
-	}
-}
-
-void ToolItem::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
-{
-	if (selecting)
-	{
-		selectedItems.clear();
-		sf::IntRect selectedArea(
-			Helper::minVector(start, end),
-			{ std::abs(start.x - end.x), std::abs(start.y - end.y) });
-		selectItemsInArea(selectedArea);
-	}
-
-	if (dragging)
-	{
-		commandQueue.push<MoveItemCommand>(
-			items,
-			selectedItems,
-			dragContext,
-			start,
-			end,
-			sf::Vector2u(levelSize));
-	}
-
-	selecting = false;
-	dragging = false;
-}
-
-void ToolItem::penDragCancel(const sf::Vector2i& origin)
-{
-	if (dragging)
-	{
-		CommandHelper::moveSelectedObjectsTo(
-			items,
-			selectedItems,
-			dragContext,
-			origin,
-			sf::Vector2u(levelSize));
-	}
-
-	selectedItems.clear();
-	dragging = false;
-	selecting = false;
-}
-
-void ToolItem::penDelete()
-{
-	if (selectedItems.empty())
-		return;
-
-	const auto idsToDelete = std::vector<std::size_t>(
-		selectedItems.begin(),
-		selectedItems.end());
-
-	commandQueue.push<DeleteItemCommand>(
-		items,
-		idsToDelete);
-	selectedItems.clear();
-}
-
-std::unique_ptr<ToolProperty> ToolItem::getProperty() const
-{
-	auto&& pos = getPenPosition();
-
-	const std::size_t itemId = getItemFromPosition(sf::Vector2f(pos));
-	if (itemId == -1)
+	const auto itemId = getObjectIndexFromMousePos(penPos);
+	if (!itemId)
 		return nullptr;
 
 	auto&& result = std::make_unique<ItemToolProperty>();
 
-	result->imageTexture = getSpriteAsTexture(items[itemId].id);
-	result->data = items[itemId];
-	result->itemId = itemId;
+	result->imageTexture = sidebarUser.getSpriteAsTexture(items.at(*itemId).id);
+	result->data = items.at(*itemId);
+	result->itemId = *itemId;
 
 	return std::move(result);
 }
@@ -365,10 +248,8 @@ void ToolItem::setProperty(const ToolProperty& prop)
 	signalStateChanged();
 }
 
-void ToolItem::buildCtxMenu(tgui::MenuBar::Ptr& menu)
+void ToolItem::buildCtxMenuInternal(tgui::MenuBar::Ptr& menu)
 {
-	Tool::buildCtxMenu(menu); // bootstrap
-
 	const std::string OPTION_DRAW = "Draw Mode (Shift+D)";
 	const std::string OPTION_ERASE = "Erase Mode (Shift+E)";
 
@@ -376,9 +257,9 @@ void ToolItem::buildCtxMenu(tgui::MenuBar::Ptr& menu)
 	addCtxMenuItem(menu, OPTION_ERASE, [this] { changeEditMode(EditMode::ModeErase); }, sf::Keyboard::E);
 }
 
-std::optional<GenericObject> ToolItem::getHighlightedObject() const
+std::optional<GenericObject> ToolItem::getHighlightedObject(const sf::Vector2i& penPos) const
 {
-	auto&& prop = getProperty();
+	auto&& prop = getProperty(penPos);
 	if (!prop)
 		return {};
 

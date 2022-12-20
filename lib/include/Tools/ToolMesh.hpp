@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Tool.hpp"
 #include "include/LevelMesh/DrawableLeveldMesh.hpp"
+#include "include/Tools/ToolInterface.hpp"
+#include "include/Tools/PenUserInterface.hpp"
+#include "include/Tools/SidebarUserMesh.hpp"
 
 class MeshToolProperty : public ImageToolProperty
 {
@@ -15,7 +17,7 @@ public:
 	bool defaultBlocking = false;
 };
 
-class ToolMesh : public ToolWithSprites
+class ToolMesh final : public ToolInterface
 {
 public:
 	enum class DrawMode
@@ -23,19 +25,51 @@ public:
 		Pencil, RectFill, RectEdge, Line
 	};
 
+public:
+	[[nodiscard]]
+	ToolMesh(
+		std::function<void(void)> onStateChanged,
+		ShortcutEngineInterface& shortcutEngine,
+		tgui::Gui& gui,
+		tgui::Theme& theme,
+		CommandQueue& commandQueue) noexcept
+		: ToolInterface(onStateChanged, shortcutEngine)
+		, sidebarUser(gui, theme)
+		, commandQueue(commandQueue)
+	{}
+
+public: // PenUserInterface
+	void penClicked(const sf::Vector2i& position) override;
+	void penDragStarted(const sf::Vector2i& start) override;
+	void penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) override;
+	void penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) override;
+	void penDragCancel(const sf::Vector2i& origin) override {}
+	void penDelete() override {}
+
+public: // ToolInterface
+	void buildSidebar() override { sidebarUser.buildSidebar(); }
+
+	void configure(nlohmann::json& config) override;
+
+	void resize(unsigned width, unsigned height) override;
+
+	void saveTo(LevelD& lvd) const override;
+
+	void loadFrom(const LevelD& lvd) override;
+
+	void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
+
+	std::unique_ptr<ToolProperty> getProperty(const sf::Vector2i& penPos) const override;
+
+	void setProperty(const ToolProperty& prop) override;
+
+	void buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) override;
+
+	// No highlight here
+	virtual std::optional<GenericObject> getHighlightedObject(const sf::Vector2i& penPos) const override { return {}; }
+	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override { return {}; }
+
 private:
-	DrawMode mode = DrawMode::Pencil;
-	sf::RectangleShape rectShape;
-
-	sf::Texture texture; // tileset texture
-	dgm::Clip clip; // how tileset is sliced
-	DrawableLeveldMesh map;
-
-	std::vector<bool> defaultBlocks;
-
-	bool drawing = false;
-	bool enableOverlay = false;
-
 	void changeDrawingMode(DrawMode newMode);
 
 	[[nodiscard]]
@@ -54,52 +88,18 @@ private:
 			|| tilePos.y >= map.getMapDimensions().y);
 	}
 
-	virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const override
-	{
-		return tgui::Texture(texture, clip.getFrame(spriteId));
-	}
+private:
+	DrawMode mode = DrawMode::Pencil;
+	sf::RectangleShape rectShape;
+	DrawableLeveldMesh map;
+	SidebarUserMesh sidebarUser;
+	CommandQueue& commandQueue;
 
-	virtual std::size_t getSpriteCount() const override
-	{
-		return clip.getFrameCount();
-	}
+	std::vector<bool> defaultBlocks;
 
-	virtual void penClicked(const sf::Vector2i& position) override;
-	virtual void penDragStarted(const sf::Vector2i& start) override;
-	virtual void penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) override;
-	virtual void penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) override;
-	virtual void penDragCancel(const sf::Vector2i& origin) override;
-
-public:
-	virtual void configure(nlohmann::json& config);
-
-	virtual void resize(unsigned width, unsigned height);
-
-	virtual void saveTo(LevelD& lvd) const override;
-
-	virtual void loadFrom(const LevelD& lvd);
-
-	virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
-
-	virtual void penDelete() override {}
-
-	virtual std::unique_ptr<ToolProperty> getProperty() const override;
-
-	virtual void setProperty(const ToolProperty& prop) override;
-
-	virtual void buildCtxMenu(tgui::MenuBar::Ptr& menu) override;
-
-	// No highlight here
-	virtual std::optional<GenericObject> getHighlightedObject() const override { return {}; }
-	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override { return {}; }
-
-	ToolMesh(
-		tgui::Gui& gui,
-		std::function<void(void)> onStateChanged,
-		CommandQueue& commandQueue,
-		ShortcutEngineInterface& shortcutEngine)
-		: ToolWithSprites(gui, onStateChanged, commandQueue, shortcutEngine)
-	{}
+	bool drawing = false;
+	bool enableOverlay = false;
+	bool dragging = false;
 };
 
 namespace std

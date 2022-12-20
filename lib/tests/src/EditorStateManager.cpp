@@ -1,89 +1,74 @@
 #include <catch.hpp>
 #include "../include/NullCallback.hpp"
 #include <include/Editor/EditorStateManager.hpp>
-#include <include/Tools/Tool.hpp>
 #include <include/Shortcuts/ShortcutEngine.hpp>
+#include "../include/fakeit.hpp"
+#include "include/Tools/ToolInterface.hpp"
 
-class ToolPropertyMock : public ToolProperty
+class ToolMock : public ToolInterface
 {
 public:
-	virtual void buildModalSpecifics(tgui::Gui& gui, tgui::Panel::Ptr& panel) override {}
-};
-
-class ToolMock final : public Tool
-{
-protected:
-	//ToolPropertyMock propertyMock;
-	std::string id;
-	std::vector<std::string>& invocationsTracker;
-
-public:
-	virtual void buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme) override
+	ToolMock(
+		std::function<void(void)> onStateChanged,
+		ShortcutEngineInterface& shortcutEngine,
+		const std::string& name,
+		std::vector<std::string>& invocations)
+		: ToolInterface(onStateChanged, shortcutEngine)
+		, name(name)
+		, invocations(invocations)
 	{}
 
+public:
 	virtual void penClicked(const sf::Vector2i& position) override
 	{}
-
+	virtual void penDragStarted(const sf::Vector2i& start) override
+	{}
+	virtual void penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) override
+	{}
 	virtual void penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) override
 	{}
-
 	virtual void penDragCancel(const sf::Vector2i& origin) override
 	{}
-
+	virtual void penDelete() override
+	{}
+	virtual void buildSidebar() override
+	{
+		invocations.push_back(name + ":buildSidebar");
+	}
 	virtual void configure(nlohmann::json& config) override
 	{}
-
 	virtual void resize(unsigned width, unsigned height) override
 	{}
-
 	virtual void saveTo(LevelD& lvd) const override
 	{}
-
 	virtual void loadFrom(const LevelD& lvd) override
 	{}
-
 	virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override
 	{}
-
-	virtual void penDelete() override
+	virtual std::unique_ptr<ToolProperty> getProperty(const sf::Vector2i& penPos) const override
 	{
-		invocationsTracker.push_back(id + ":penDelete");
+		return nullptr;
 	}
-
-	virtual std::unique_ptr<ToolProperty> getProperty() const override { return nullptr; }
-
 	virtual void setProperty(const ToolProperty& prop) override
 	{}
-
-	virtual std::optional<GenericObject> getHighlightedObject() const override
+	virtual std::optional<GenericObject> getHighlightedObject(const sf::Vector2i& penPos) const override
 	{
 		return {};
 	}
-
-	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned) const override
+	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override
 	{
 		return {};
 	}
-
-	ToolMock(
-		const std::string& id,
-		tgui::Gui& gui,
-		std::function<void(void)> onStateChanged,
-		CommandQueue& commandQueue,
-		ShortcutEngineInterface& shortcutEngine,
-		std::vector<std::string>& invocationsTracker)
-		: Tool(gui, onStateChanged, commandQueue, shortcutEngine)
-		//, propertyMock(gui, this)
-		, id(id)
-		, invocationsTracker(invocationsTracker)
+	virtual void buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) override
 	{}
+
+private:
+	std::string name;
+	std::vector<std::string>& invocations;
 };
 
 TEST_CASE("[EditorStateManager]")
 {
-	tgui::Gui gui;
-	CommandHistory history;
-	CommandQueue queue(history);
 	ShortcutEngine engine;
 
 	std::vector<std::string> invocations;
@@ -92,30 +77,26 @@ TEST_CASE("[EditorStateManager]")
 
 	manager.addState<ToolMock>(
 		EditorState::Mesh,
-		"tool1",
-		gui,
 		Null::Callback,
-		queue,
 		engine,
+		"tool1",
 		invocations);
 	manager.addState<ToolMock>(
 		EditorState::Item,
-		"tool2",
-		gui,
 		Null::Callback,
-		queue,
 		engine,
+		"tool2",
 		invocations);
 
 	SECTION("Loops over all states in insertion order")
 	{
-		manager.forallStates([] (Tool& t)
- {
-	 t.penDelete();
+		manager.forallStates([] (ToolInterface& t)
+		{
+			t.buildSidebar();
 		});
 
 		REQUIRE(invocations.size() == 2u);
-		REQUIRE(invocations[0] == "tool1:penDelete");
-		REQUIRE(invocations[1] == "tool2:penDelete");
+		REQUIRE(invocations[0] == "tool1:buildSidebar");
+		REQUIRE(invocations[1] == "tool2:buildSidebar");
 	}
 }

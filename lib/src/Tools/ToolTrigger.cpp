@@ -5,8 +5,8 @@
 #include "include/Commands/CommandHelper.hpp"
 #include "include/Commands/MoveObjectCommand.hpp"
 
-/* Helpers */
-std::size_t ToolTrigger::getTriggerFromPosition(const sf::Vector2i& pos) const
+/* Implementing ToolWithDragAndSelect */
+std::optional<std::size_t> ToolTrigger::getObjectIndexFromMousePos(const sf::Vector2i& pos) const
 {
 	for (unsigned i = 0; i < triggers.size(); i++)
 	{
@@ -28,10 +28,17 @@ std::size_t ToolTrigger::getTriggerFromPosition(const sf::Vector2i& pos) const
 		}
 	}
 
-	return -1;
+	return {};
 }
 
-void ToolTrigger::selectItemsInArea(sf::IntRect& selectedArea)
+sf::Vector2i ToolTrigger::getPositionOfObjectWithIndex(std::size_t index) const
+{
+	return sf::Vector2i(
+		triggers.at(index).x,
+		triggers.at(index).y);
+}
+
+void ToolTrigger::selectObjectsInArea(const sf::IntRect& selectedArea)
 {
 	for (std::size_t i = 0; i < triggers.size(); i++)
 	{
@@ -43,10 +50,43 @@ void ToolTrigger::selectItemsInArea(sf::IntRect& selectedArea)
 
 		if (selectedArea.contains(itemCenter))
 		{
-			selectedItems.insert(i);
+			selectedObjects.insert(i);
 		}
 	}
 }
+void ToolTrigger::moveSelectedObjectsTo(const sf::Vector2i& point)
+{
+	CommandHelper::moveSelectedObjectsTo(
+			triggers,
+			selectedObjects,
+			dragContext,
+			point,
+			sf::Vector2u(levelSize));
+}
+
+void ToolTrigger::createMoveCommand(
+	const sf::Vector2i& src,
+	const sf::Vector2i& dest)
+{
+	commandQueue.push<MoveTriggerCommand>(
+		triggers,
+		selectedObjects,
+		dragContext,
+		src,
+		dest,
+		sf::Vector2u(levelSize));
+}
+
+void ToolTrigger::createDeleteCommand()
+{
+	commandQueue.push<DeleteTriggerCommand>(
+			triggers,
+			std::vector<std::size_t>(
+				selectedObjects.begin(),
+				selectedObjects.end()));
+}
+
+/* Rest of ToolTrigger */
 
 void ToolTrigger::updateVisForTrigger(sf::CircleShape& vis, const LevelD::Trigger& trig)
 {
@@ -62,39 +102,6 @@ void ToolTrigger::updateVisForTrigger(sf::RectangleShape& vis, const LevelD::Tri
 }
 
 /* Build & Draw */
-void ToolTrigger::buildSidebar(tgui::Gui& gui, tgui::Group::Ptr& sidebar, tgui::Theme& theme)
-{
-	const float SIDEBAR_WIDTH = sidebar->getSize().x;
-	const float OFFSET = 10.f;
-	const float BUTTON_SIZE = SIDEBAR_WIDTH - 2 * OFFSET;
-
-	auto cbtn = tgui::Button::create("Circular\nTrigger");
-	cbtn->setTextSize(0);
-	cbtn->setRenderer(theme.getRenderer("Button"));
-	cbtn->setSize(BUTTON_SIZE, BUTTON_SIZE);
-	cbtn->setPosition(OFFSET, OFFSET);
-	cbtn->connect("clicked", [this, &gui, &theme] ()
- {
-	 penType = PenType::Circle;
-	Tool::buildSidebar(theme); // to properly highlight active button
-	});
-	cbtn->getRenderer()->setOpacity(penType != PenType::Circle ? 0.25f : 1.f); // highlight
-	sidebar->add(cbtn);
-
-	auto rbtn = tgui::Button::create("Rectangular\nTrigger");
-	rbtn->setTextSize(0);
-	rbtn->setRenderer(theme.getRenderer("Button"));
-	rbtn->setSize(BUTTON_SIZE, BUTTON_SIZE);
-	rbtn->setPosition(OFFSET, 2 * OFFSET + BUTTON_SIZE);
-	rbtn->connect("clicked", [this, &gui, &theme] ()
- {
-	 penType = PenType::Rectangle;
-	Tool::buildSidebar(theme); // to properly highlight active button
-	});
-	rbtn->getRenderer()->setOpacity(penType == PenType::Circle ? 0.25f : 1.f); // highlight
-	sidebar->add(rbtn);
-}
-
 void ToolTrigger::configure(nlohmann::json& config)
 {
 	triggers.clear();
@@ -181,7 +188,7 @@ void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity)
 			updateVisForTrigger(circShape, trig);
 			canvas->draw(circShape);
 
-			if (selectedItems.count(i) > 0)
+			if (selectedObjects.contains(i))
 			{
 				updateVisForTrigger(circMarker, trig);
 				canvas->draw(circMarker);
@@ -192,7 +199,7 @@ void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity)
 			updateVisForTrigger(rectShape, trig);
 			canvas->draw(rectShape);
 
-			if (selectedItems.count(i) > 0)
+			if (selectedObjects.contains(i))
 			{
 				updateVisForTrigger(rectMarker, trig);
 				canvas->draw(rectMarker);
@@ -203,18 +210,20 @@ void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity)
 	// If drawing, render preview for drawing
 	if (drawing)
 	{
-		if (penType == PenType::Circle)
+		auto&& penPos = getPenPosition();
+
+		if (sidebarUser.getPenType() == PenType::Circle)
 		{
-			const float radius = dgm::Math::vectorSize(sf::Vector2f(getPenPosition() - drawStart));
+			const float radius = dgm::Math::vectorSize(sf::Vector2f(penPos - drawStart));
 			circShape.setOrigin(radius, radius);
 			circShape.setPosition(sf::Vector2f(drawStart));
 			circShape.setRadius(radius);
 			canvas->draw(circShape);
 		}
-		else if (penType == PenType::Rectangle)
+		else if (sidebarUser.getPenType() == PenType::Rectangle)
 		{
 			rectShape.setPosition(sf::Vector2f(drawStart));
-			rectShape.setSize(sf::Vector2f(getPenPosition() - drawStart));
+			rectShape.setSize(sf::Vector2f(penPos - drawStart));
 			canvas->draw(rectShape);
 		}
 	}
@@ -238,25 +247,28 @@ void ToolTrigger::penClicked(const sf::Vector2i& position)
 	std::size_t id;
 
 	if (!isValidPenPosForDrawing(position)) return;
-	if ((id = getTriggerFromPosition(position)) != -1)
+
+	auto itemId = getObjectIndexFromMousePos(position);
+	if (itemId.has_value())
 	{
-		if (selectedItems.count(id) > 0) selectedItems.erase(id);
-		else selectedItems.insert(id);
+		if (selectedObjects.contains(*itemId))
+			selectedObjects.erase(*itemId);
+		else selectedObjects.insert(*itemId);
 		return;
 	}
 
 	if (drawing)
 	{
 		LevelD::Trigger trigger;
-		trigger.areaType = penType;
+		trigger.areaType = sidebarUser.getPenType();
 
-		if (penType == PenType::Circle)
+		if (trigger.areaType == PenType::Circle)
 		{
 			trigger.x = drawStart.x;
 			trigger.y = drawStart.y;
 			trigger.radius = uint16_t(dgm::Math::vectorSize(sf::Vector2f(position - drawStart)));
 		}
-		else if (penType == PenType::Rectangle)
+		else if (trigger.areaType == PenType::Rectangle)
 		{
 			trigger.x = std::min(drawStart.x, position.x);
 			trigger.y = std::min(drawStart.y, position.y);
@@ -276,120 +288,16 @@ void ToolTrigger::penClicked(const sf::Vector2i& position)
 	drawing = !drawing;
 }
 
-void ToolTrigger::penDragStarted(const sf::Vector2i& start)
-{
-	// If mouse was pointing to trigger, then we're dragging
-	//   If trigger was already selected, we're moving all selected
-	//   If it was not, then we're moving only this one
-	// Else we're selecting
-	std::size_t itemId = getTriggerFromPosition(start);
-	if (itemId != -1)
-	{
-		dragging = true;
-		dragContext.leadingItemId = itemId;
-
-		if (selectedItems.count(dragContext.leadingItemId) == 0)
-			selectedItems.clear();
-		selectedItems.insert(dragContext.leadingItemId);
-
-		auto& trigger = triggers[dragContext.leadingItemId];
-		dragContext.initialDragOffset = sf::Vector2i(trigger.x, trigger.y) - start;
-	}
-	else
-	{
-		selecting = true;
-		selectMarker.setPosition(sf::Vector2f(start));
-	}
-}
-
-void ToolTrigger::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end)
-{
-	if (dragging)
-	{
-		CommandHelper::moveSelectedObjectsTo(
-			triggers,
-			selectedItems,
-			dragContext,
-			end,
-			sf::Vector2u(levelSize));
-	}
-
-	if (selecting)
-	{
-		selectMarker.setSize(sf::Vector2f(end - start));
-	}
-}
-
-void ToolTrigger::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
-{
-	if (selecting)
-	{
-		selectedItems.clear();
-		sf::IntRect selectedArea(
-			Helper::minVector(start, end),
-			{ std::abs(start.x - end.x), std::abs(start.y - end.y) });
-		selectItemsInArea(selectedArea);
-	}
-
-	if (dragging)
-	{
-		commandQueue.push<MoveTriggerCommand>(
-			triggers,
-			selectedItems,
-			dragContext,
-			start,
-			end,
-			sf::Vector2u(levelSize));
-	}
-
-	dragging = false;
-	selecting = false;
-}
-
-void ToolTrigger::penDragCancel(const sf::Vector2i& origin)
-{
-	if (dragging)
-	{
-		CommandHelper::moveSelectedObjectsTo(
-			triggers,
-			selectedItems,
-			dragContext,
-			origin,
-			sf::Vector2u(levelSize));
-	}
-
-	selectedItems.clear();
-	dragging = false;
-	selecting = false;
-}
-
-void ToolTrigger::penDelete()
-{
-	[[unlikely]]
-	if (selectedItems.empty())
-		return;
-
-	commandQueue.push<DeleteTriggerCommand>(
-		triggers,
-		std::vector<std::size_t>(
-			selectedItems.begin(),
-			selectedItems.end()));
-
-	selectedItems.clear();
-}
-
 /* Properties */
-std::unique_ptr<ToolProperty> ToolTrigger::getProperty() const
+std::unique_ptr<ToolProperty> ToolTrigger::getProperty(const sf::Vector2i& penPos) const
 {
-	auto pos = getPenPosition();
-
-	std::size_t trigId = getTriggerFromPosition(pos);
-	if (trigId == -1)
+	auto trigId = getObjectIndexFromMousePos(penPos);
+	if (!trigId.has_value())
 		return nullptr;
 
 	auto&& result = std::make_unique<ToolTriggerProperty>();
-	result->id = trigId;
-	result->data = triggers[trigId];
+	result->id = *trigId;
+	result->data = triggers[*trigId];
 
 	return std::move(result);
 }
@@ -400,9 +308,9 @@ void ToolTrigger::setProperty(const ToolProperty& prop)
 	triggers[property.id] = property.data;
 }
 
-std::optional<GenericObject> ToolTrigger::getHighlightedObject() const
+std::optional<GenericObject> ToolTrigger::getHighlightedObject(const sf::Vector2i& penPos) const
 {
-	auto&& prop = getProperty();
+	auto&& prop = getProperty(penPos);
 	if (!prop)
 		return {};
 

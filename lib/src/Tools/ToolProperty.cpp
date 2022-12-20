@@ -1,7 +1,8 @@
 #include "include/Tools/ToolProperty.hpp"
-#include "include/Tools/Tool.hpp"
+#include "include/Tools/ToolInterface.hpp"
 
-tgui::Panel::Ptr ToolProperty::getRowBackground(unsigned y, const std::string& tooltip) {
+tgui::Panel::Ptr ToolProperty::getRowBackground(unsigned y, const std::string& tooltip)
+{
 	auto tt = tgui::Label::create(tooltip);
 	tt->getRenderer()->setBackgroundColor(sf::Color::White);
 	tt->getRenderer()->setBorders(tgui::Borders::Outline(1));
@@ -15,7 +16,8 @@ tgui::Panel::Ptr ToolProperty::getRowBackground(unsigned y, const std::string& t
 	return row;
 }
 
-tgui::Label::Ptr ToolProperty::getLabel(const std::string& label) {
+tgui::Label::Ptr ToolProperty::getLabel(const std::string& label)
+{
 	auto l = tgui::Label::create(label);
 	l->setSize(LABEL_WIDTH, "100%");
 	l->setPosition(LABEL_LEFT_MARGIN, "0%");
@@ -23,7 +25,8 @@ tgui::Label::Ptr ToolProperty::getLabel(const std::string& label) {
 	return l;
 }
 
-void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, bool& val, unsigned ypos, bool enabled) {
+void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, bool& val, unsigned ypos, bool enabled)
+{
 	auto row = getRowBackground(ypos, tooltip);
 	target->add(row);
 
@@ -35,14 +38,15 @@ void ToolProperty::addOption(TargetPanel& target, const std::string& label, cons
 	checkbox->setPosition(VALUE_LEFT_MARGIN, "0%");
 	checkbox->setChecked(val);
 	checkbox->setEnabled(enabled);
-	checkbox->connect("Changed", [&val](bool newVal) { val = newVal; });
+	checkbox->connect("Changed", [&val] (bool newVal) { val = newVal; });
 
 	row->add(checkbox);
 }
 
 
 template<typename T>
-inline void ToolProperty::addOptionUint(tgui::Gui& gui, TargetPanel& target, const std::string& label, const std::string& tooltip, T& val, unsigned ypos, bool enabled, bool tag) {
+inline void ToolProperty::addOptionUint(tgui::Gui& gui, TargetPanel& target, const std::string& label, const std::string& tooltip, T& val, unsigned ypos, bool enabled, bool tag)
+{
 	auto row = getRowBackground(ypos, tooltip);
 	target->add(row);
 
@@ -57,32 +61,38 @@ inline void ToolProperty::addOptionUint(tgui::Gui& gui, TargetPanel& target, con
 	edit->getRenderer()->setBorderColor(sf::Color::Black);
 	edit->setInputValidator(tgui::EditBox::Validator::UInt);
 
-	if (enabled) {
-		edit->connect("TextChanged", [&, label] (const std::string& newVal) {
-			auto edit = gui.get<tgui::EditBox>("EditBox" + label);
-			try {
-				std::size_t endpos;
-				unsigned long value = std::stoul(newVal, &endpos);
-				if (value > T(-1)) throw 1;
-				val = T(value);
-				edit->getRenderer()->setBorderColor(sf::Color::Black);
-				formValid = true;
-			}
-			catch (...) {
-				edit->getRenderer()->setBorderColor(sf::Color::Red);
-				formValid = false;
-			}
+	if (enabled)
+	{
+		edit->connect("TextChanged", [&, label] (const std::string& newVal)
+ {
+	 auto edit = gui.get<tgui::EditBox>("EditBox" + label);
+		try
+		{
+			std::size_t endpos;
+			unsigned long value = std::stoul(newVal, &endpos);
+			if (value > T(-1)) throw 1;
+			val = T(value);
+			edit->getRenderer()->setBorderColor(sf::Color::Black);
+			formValid = true;
+		}
+		catch (...)
+		{
+			edit->getRenderer()->setBorderColor(sf::Color::Red);
+			formValid = false;
+		}
 		});
 	}
 
-	if (tag) {
+	if (tag)
+	{
 		auto btn = tgui::Button::create("New tag");
 		btn->setSize(VALUE_WIDTH, "100%");
 		btn->setPosition(TAG_LEFT_MARGIN, "0%");
 		btn->setEnabled(enabled);
-		btn->connect("pressed", [&, label] {
-			auto edit = gui.get<tgui::EditBox>("EditBox" + label);
-			edit->setText(std::to_string(PropertyTag::get().getNewTag()));
+		btn->connect("pressed", [&, label]
+ {
+	 auto edit = gui.get<tgui::EditBox>("EditBox" + label);
+		edit->setText(std::to_string(PropertyTag::get().getNewTag()));
 		});
 		row->add(btn);
 	}
@@ -91,15 +101,18 @@ inline void ToolProperty::addOptionUint(tgui::Gui& gui, TargetPanel& target, con
 }
 
 
-void ToolProperty::addOption(tgui::Gui& gui, TargetPanel& target, const std::string& label, const std::string& tooltip, uint32_t& val, unsigned ypos, bool enabled, bool tag) {
+void ToolProperty::addOption(tgui::Gui& gui, TargetPanel& target, const std::string& label, const std::string& tooltip, uint32_t& val, unsigned ypos, bool enabled, bool tag)
+{
 	addOptionUint(gui, target, label, tooltip, val, ypos, enabled, tag);
 }
 
-void ToolProperty::addOption(tgui::Gui& gui, TargetPanel& target, const std::string& label, const std::string& tooltip, uint16_t& val, unsigned ypos, bool enabled) {
+void ToolProperty::addOption(tgui::Gui& gui, TargetPanel& target, const std::string& label, const std::string& tooltip, uint16_t& val, unsigned ypos, bool enabled)
+{
 	addOptionUint(gui, target, label, tooltip, val, ypos, enabled, false);
 }
 
-void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, std::string& val, unsigned ypos, bool enabled) {
+void ToolProperty::addOption(TargetPanel& target, const std::string& label, const std::string& tooltip, std::string& val, unsigned ypos, bool enabled)
+{
 	auto row = getRowBackground(ypos, tooltip);
 	target->add(row);
 
@@ -114,8 +127,9 @@ void ToolProperty::addOption(TargetPanel& target, const std::string& label, cons
 	edit->setEnabled(enabled);
 	edit->getRenderer()->setBorderColor(sf::Color::Black);
 
-	if (enabled) {
-		edit->connect("TextChanged", [this, &val, label](const std::string& newVal) { val = newVal; });
+	if (enabled)
+	{
+		edit->connect("TextChanged", [this, &val, label] (const std::string& newVal) { val = newVal; });
 	}
 
 	row->add(edit, "EditBox" + label);
@@ -124,7 +138,7 @@ void ToolProperty::addOption(TargetPanel& target, const std::string& label, cons
 void ToolProperty::buildModal(
 	tgui::Gui& gui,
 	tgui::Theme& theme,
-	Tool& submitTarget)
+	ToolInterface& submitTarget)
 {
 	// Create wrapper window
 	auto modal = tgui::ChildWindow::create("Tile Properties");
@@ -142,7 +156,8 @@ void ToolProperty::buildModal(
 	buildModalSpecifics(gui, group);
 
 	// Bottom buttons
-	auto close = [] (tgui::Gui& gui) {
+	auto close = [] (tgui::Gui& gui)
+	{
 		auto modal = gui.get<tgui::ChildWindow>("ToolPropertyModal");
 		modal->close();
 		gui.remove(modal);
@@ -152,10 +167,11 @@ void ToolProperty::buildModal(
 	auto btn = tgui::Button::create("Ok");
 	btn->setSize("20%", "8%");
 	btn->setPosition("56%", "90%");
-	btn->connect("clicked", [&] {
-		if (!formValid) return;
-		submitTarget.setProperty(*this);
-		close(gui);
+	btn->connect("clicked", [&]
+ {
+	 if (!formValid) return;
+	submitTarget.setProperty(*this);
+	close(gui);
 	});
 	modal->add(btn);
 
@@ -168,7 +184,8 @@ void ToolProperty::buildModal(
 	formValid = true;
 }
 
-void ImageToolProperty::buildModalSpecifics(tgui::Gui& gui, tgui::Panel::Ptr& panel) {
+void ImageToolProperty::buildModalSpecifics(tgui::Gui& gui, tgui::Panel::Ptr& panel)
+{
 	const float SCROLLBAR_WIDTH = 20.f;
 
 	const float IMAGE_SIZE = panel->getSize().x / 4.f;
