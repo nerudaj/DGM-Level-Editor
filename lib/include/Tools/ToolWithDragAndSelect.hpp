@@ -17,7 +17,7 @@ public:
 	virtual void penDragStarted(const sf::Vector2i& start) final override;
 	virtual void penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) final override;
 	virtual void penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) final override;
-	virtual void penDragCancel(const sf::Vector2i& origin) final override;
+	virtual void penDragCancel(const sf::Vector2i& origin) override;
 	virtual void penDelete() final override;
 
 protected:

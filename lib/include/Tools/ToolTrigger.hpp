@@ -17,6 +17,9 @@ public:
 
 class ToolTrigger final : public ToolWithDragAndSelect
 {
+private:
+	using super = ToolWithDragAndSelect;
+
 public:
 	[[nodiscard]]
 	ToolTrigger(
@@ -52,6 +55,7 @@ protected: // ToolInterface
 	void buildCtxMenuInternal(tgui::MenuBar::Ptr&) override {}
 
 protected: // ToolWithDragAndSelect
+	virtual void penDragCancel(const sf::Vector2i& origin) override;
 	virtual std::optional<std::size_t> getObjectIndexFromMousePos(const sf::Vector2i& pos) const final override;
 	virtual sf::Vector2i getPositionOfObjectWithIndex(std::size_t index) const final override;
 	virtual void selectObjectsInArea(const sf::IntRect& selectedArea) final override;

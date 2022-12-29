@@ -288,6 +288,12 @@ void ToolTrigger::penClicked(const sf::Vector2i& position)
 	drawing = !drawing;
 }
 
+void ToolTrigger::penDragCancel(const sf::Vector2i& origin)
+{
+	drawing = false;
+	super::penDragCancel(origin);
+}
+
 /* Properties */
 std::unique_ptr<ToolProperty> ToolTrigger::getProperty(const sf::Vector2i& penPos) const
 {
