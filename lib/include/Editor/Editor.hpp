@@ -69,7 +69,7 @@ private:
 
 	CommandQueue& commandQueue;
 	ShortcutEngineInterface& shortcutEngine;
-	std::unique_ptr<ToolProperty> currentlyOpenedProperty;
+	SafePtr<ToolProperty> currentlyOpenedProperty = SafePtr<NullToolProperty>();
 
 	bool initialized = false;
 

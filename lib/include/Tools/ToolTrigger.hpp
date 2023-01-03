@@ -45,7 +45,7 @@ public: // ToolInterface
 	virtual void saveTo(LevelD& lvd) const override;
 	virtual void loadFrom(const LevelD& lvd) override;
 	virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
-	virtual std::unique_ptr<ToolProperty> getProperty(const sf::Vector2i& penPos) const override;
+	virtual ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const override;
 	virtual void setProperty(const ToolProperty& prop) override;
 
 	virtual std::optional<GenericObject> getHighlightedObject(const sf::Vector2i& penPos) const override;

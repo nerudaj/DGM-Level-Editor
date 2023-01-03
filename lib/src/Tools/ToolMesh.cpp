@@ -175,13 +175,13 @@ void ToolMesh::drawTo(tgui::Canvas::Ptr& canvas, uint8_t)
 	}
 }
 
-std::unique_ptr<ToolProperty> ToolMesh::getProperty(const sf::Vector2i& penPos) const
+ExpectedPropertyPtr ToolMesh::getProperty(const sf::Vector2i& penPos) const
 {
 	auto tilePos = worldToTilePos(penPos);
 	if (not isPositionValid(tilePos))
-		return nullptr;
+		return std::unexpected(BaseError());
 
-	auto&& result = std::make_unique<MeshToolProperty>();
+	auto&& result = SafePtr<MeshToolProperty>();
 
 	result->tileX = tilePos.x;
 	result->tileY = tilePos.y;

@@ -6,11 +6,16 @@
 #include <LevelD.hpp>
 
 #include <optional>
+#include <expected>
 
 #include "ToolProperty.hpp"
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Shortcuts/ShortcutEngineInterface.hpp"
 #include "include/Tools/PenUserInterface.hpp"
+#include "include/Utilities/SafePtr.hpp"
+#include "include/Utilities/Error.hpp"
+
+using ExpectedPropertyPtr = std::expected<SafePtr<ToolProperty>, BaseError>;
 
 struct GenericObject
 {
@@ -50,7 +55,7 @@ public: // Public virtual interface
 
 	// Returns nullptr if no property can be returned
 	[[nodiscard]]
-	virtual std::unique_ptr<ToolProperty> getProperty(const sf::Vector2i& penPos) const = 0;
+	virtual ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const = 0;
 	virtual void setProperty(const ToolProperty& prop) = 0;
 
 	[[nodiscard]]

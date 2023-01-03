@@ -213,13 +213,13 @@ void ToolItem::penClicked(const sf::Vector2i& position)
 	selectedObjects.clear();
 }
 
-std::unique_ptr<ToolProperty> ToolItem::getProperty(const sf::Vector2i& penPos) const
+ExpectedPropertyPtr ToolItem::getProperty(const sf::Vector2i& penPos) const
 {
 	const auto itemId = getObjectIndexFromMousePos(penPos);
 	if (!itemId)
-		return nullptr;
+		return std::unexpected(BaseError());
 
-	auto&& result = std::make_unique<ItemToolProperty>();
+	auto&& result = SafePtr<ItemToolProperty>();
 
 	result->imageTexture = sidebarUser.getSpriteAsTexture(items.at(*itemId).id);
 	result->data = items.at(*itemId);
@@ -263,7 +263,8 @@ std::optional<GenericObject> ToolItem::getHighlightedObject(const sf::Vector2i& 
 	if (!prop)
 		return {};
 
-	auto&& itemProp = dynamic_cast<ItemToolProperty&>(*prop);
+	auto&& itemProp = dynamic_cast<ItemToolProperty&>(
+		*(prop.value()));
 	return GenericObject{
 		.position = { itemProp.data.x, itemProp.data.y },
 		.tag = itemProp.data.tag

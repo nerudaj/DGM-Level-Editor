@@ -84,6 +84,15 @@ public:
 	virtual ~ToolProperty() = default;
 };
 
+class NullToolProperty : public ToolProperty
+{
+public:
+	void buildModalSpecifics(
+		tgui::Gui&,
+		tgui::Panel::Ptr&) override
+	{}
+};
+
 class ImageToolProperty : public ToolProperty
 {
 protected:

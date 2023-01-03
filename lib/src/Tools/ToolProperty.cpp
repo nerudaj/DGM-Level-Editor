@@ -38,7 +38,7 @@ void ToolProperty::addOption(TargetPanel& target, const std::string& label, cons
 	checkbox->setPosition(VALUE_LEFT_MARGIN, "0%");
 	checkbox->setChecked(val);
 	checkbox->setEnabled(enabled);
-	checkbox->connect("Changed", [&val] (bool newVal) { val = newVal; });
+	checkbox->connect("Changed", [&val](bool newVal) { val = newVal; });
 
 	row->add(checkbox);
 }
@@ -63,9 +63,9 @@ inline void ToolProperty::addOptionUint(tgui::Gui& gui, TargetPanel& target, con
 
 	if (enabled)
 	{
-		edit->connect("TextChanged", [&, label] (const std::string& newVal)
- {
-	 auto edit = gui.get<tgui::EditBox>("EditBox" + label);
+		edit->connect("TextChanged", [&, label](const std::string& newVal)
+			{
+				auto edit = gui.get<tgui::EditBox>("EditBox" + label);
 		try
 		{
 			std::size_t endpos;
@@ -80,7 +80,7 @@ inline void ToolProperty::addOptionUint(tgui::Gui& gui, TargetPanel& target, con
 			edit->getRenderer()->setBorderColor(sf::Color::Red);
 			formValid = false;
 		}
-		});
+			});
 	}
 
 	if (tag)
@@ -90,10 +90,10 @@ inline void ToolProperty::addOptionUint(tgui::Gui& gui, TargetPanel& target, con
 		btn->setPosition(TAG_LEFT_MARGIN, "0%");
 		btn->setEnabled(enabled);
 		btn->connect("pressed", [&, label]
- {
-	 auto edit = gui.get<tgui::EditBox>("EditBox" + label);
+			{
+				auto edit = gui.get<tgui::EditBox>("EditBox" + label);
 		edit->setText(std::to_string(PropertyTag::get().getNewTag()));
-		});
+			});
 		row->add(btn);
 	}
 
@@ -129,7 +129,7 @@ void ToolProperty::addOption(TargetPanel& target, const std::string& label, cons
 
 	if (enabled)
 	{
-		edit->connect("TextChanged", [this, &val, label] (const std::string& newVal) { val = newVal; });
+		edit->connect("TextChanged", [this, &val, label](const std::string& newVal) { val = newVal; });
 	}
 
 	row->add(edit, "EditBox" + label);
@@ -156,7 +156,7 @@ void ToolProperty::buildModal(
 	buildModalSpecifics(gui, group);
 
 	// Bottom buttons
-	auto close = [] (tgui::Gui& gui)
+	auto close = [](tgui::Gui& gui)
 	{
 		auto modal = gui.get<tgui::ChildWindow>("ToolPropertyModal");
 		modal->close();
@@ -168,11 +168,11 @@ void ToolProperty::buildModal(
 	btn->setSize("20%", "8%");
 	btn->setPosition("56%", "90%");
 	btn->connect("clicked", [&]
- {
-	 if (!formValid) return;
+		{
+			if (!formValid) return;
 	submitTarget.setProperty(*this);
 	close(gui);
-	});
+		});
 	modal->add(btn);
 
 	btn = tgui::Button::create("Cancel");

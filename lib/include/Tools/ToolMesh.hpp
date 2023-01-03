@@ -59,7 +59,7 @@ public: // ToolInterface
 
 	void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
 
-	std::unique_ptr<ToolProperty> getProperty(const sf::Vector2i& penPos) const override;
+	ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const override;
 
 	void setProperty(const ToolProperty& prop) override;
 

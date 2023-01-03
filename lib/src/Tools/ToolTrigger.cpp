@@ -295,13 +295,13 @@ void ToolTrigger::penDragCancel(const sf::Vector2i& origin)
 }
 
 /* Properties */
-std::unique_ptr<ToolProperty> ToolTrigger::getProperty(const sf::Vector2i& penPos) const
+ExpectedPropertyPtr ToolTrigger::getProperty(const sf::Vector2i& penPos) const
 {
 	auto trigId = getObjectIndexFromMousePos(penPos);
 	if (!trigId.has_value())
-		return nullptr;
+		return std::unexpected(BaseError());
 
-	auto&& result = std::make_unique<ToolTriggerProperty>();
+	auto&& result = SafePtr<ToolTriggerProperty>();
 	result->id = *trigId;
 	result->data = triggers[*trigId];
 
@@ -320,7 +320,8 @@ std::optional<GenericObject> ToolTrigger::getHighlightedObject(const sf::Vector2
 	if (!prop)
 		return {};
 
-	auto&& trigProp = dynamic_cast<ToolTriggerProperty&>(*prop);
+	auto&& trigProp = dynamic_cast<ToolTriggerProperty&>(
+		*(prop.value()));
 	return GenericObject{
 		.position = getNormalizedPosition(trigProp.data),
 		.tag = trigProp.data.tag
