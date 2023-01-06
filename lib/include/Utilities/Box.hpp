@@ -34,7 +34,6 @@ public:
 		std::swap(ptr, other.ptr);
 	}
 
-	[[nodiscard]]
 	constexpr Box& operator=(Box&& other) noexcept
 	{
 		std::swap(ptr, other.ptr);
@@ -59,7 +58,6 @@ public: // construct from derived
 
 	template<class D>
 		requires std::derived_from<D, T>
-	[[nodiscard]]
 	constexpr Box& operator=(Box<D>&& other) noexcept
 	{
 		ptr = other.ptr;
