@@ -1,18 +1,18 @@
 #pragma once
 
 #include "include/Commands/UndoableCommandInterface.hpp"
-#include "include/Utilities/Box.hpp"
+#include "include/Utilities/GC.hpp"
 
 #include <vector>
 #include <memory>
 
 class CommandHistory final
 {
-	std::vector<Box<UndoableCommandInterface>> commands;
+	std::vector<GC<UndoableCommandInterface>> commands;
 	unsigned index = 0;
 
 public:
-	void add(const Box<UndoableCommandInterface>& command);
+	void add(const GC<UndoableCommandInterface>& command);
 
 	void undo();
 

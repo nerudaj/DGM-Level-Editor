@@ -1,5 +1,5 @@
 #include <catch.hpp>
-#include "include/Utilities/Box.hpp"
+#include "include/Utilities/GC.hpp"
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -23,7 +23,7 @@ public:
 [[nodiscard]]
 constexpr bool create_update_test()
 {
-	Box<int> intBox = MakeBox<int>(10);
+	GC<int> intBox = GC<int>(10);
 	*intBox += 10;
 	return *intBox == 20;
 }
@@ -31,23 +31,23 @@ constexpr bool create_update_test()
 [[nodiscard]]
 constexpr bool constructs_from_derived()
 {
-	Box<Base> box = MakeBox<Derived>();
-	Box<Base> box2 = box;
-	Box<Derived> box3 = MakeBox<Derived>();
-	Box<Base> box4 = box3;
+	GC<Base> box = GC<Derived>();
+	GC<Base> box2 = box;
+	GC<Derived> box3 = GC<Derived>();
+	GC<Base> box4 = box3;
 	return true;
 }
 
 [[nodiscard]]
 constexpr bool can_be_rebound()
 {
-	Box<int> a = MakeBox<int>(10);
-	Box<int> b = MakeBox<int>(20);
+	GC<int> a = GC<int>(10);
+	GC<int> b = GC<int>(20);
 	a = b;
 	return *a == 20;
 }
 
-TEST_CASE("[Box]")
+TEST_CASE("[GC]")
 {
 	SECTION("constexpr tests")
 	{
@@ -58,9 +58,9 @@ TEST_CASE("[Box]")
 
 	SECTION("Works with std::vector")
 	{
-		std::vector<Box<int>> ints;
-		ints.push_back(MakeBox<int>(10));
-		ints.push_back(MakeBox<int>(20));
+		std::vector<GC<int>> ints;
+		ints.push_back(GC<int>(10));
+		ints.push_back(GC<int>(20));
 		ints.erase(ints.begin());
 		REQUIRE(ints.size() == 1);
 		REQUIRE(*ints.front() == 20);
@@ -68,9 +68,9 @@ TEST_CASE("[Box]")
 
 	SECTION("Works with std::queue")
 	{
-		std::queue<Box<int>> ints;
-		ints.push(MakeBox<int>(10));
-		ints.push(MakeBox<int>(20));
+		std::queue<GC<int>> ints;
+		ints.push(GC<int>(10));
+		ints.push(GC<int>(20));
 		ints.pop();
 		REQUIRE(ints.size() == 1);
 		REQUIRE(*ints.front() == 20);

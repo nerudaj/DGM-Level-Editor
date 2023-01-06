@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Use-after-move detection"
+  Description="Detects use-after-move and reports it as error."
+  ToolsVersion="17.0">
+  <Rules AnalyzerId="Microsoft.Analyzers.NativeCodeAnalysis" RuleNamespace="Microsoft.Rules.Native">
+    <Rule Id="C26800" Action="Error" />
+  </Rules>
+</RuleSet>

@@ -37,18 +37,18 @@ TEST_CASE("[CommandHistory]")
 
 	SECTION("Just adding items appends them")
 	{
-		history.add(MakeBox<TestCommand>(board));
+		history.add(GC<TestCommand>(board));
 		REQUIRE(history.test_getCommands().size() == 1u);
 		REQUIRE(history.test_getIndex() == 1u);
 
-		history.add(MakeBox<TestCommand>(board));
+		history.add(GC<TestCommand>(board));
 		REQUIRE(history.test_getCommands().size() == 2u);
 		REQUIRE(history.test_getIndex() == 2u);
 	}
 
 	SECTION("Add item, undo, then add will overwrite undoed command")
 	{
-		history.add(MakeBox<TestCommand>(board));
+		history.add(GC<TestCommand>(board));
 		REQUIRE(history.test_getCommands().size() == 1u);
 		REQUIRE(history.test_getIndex() == 1u);
 
@@ -58,7 +58,7 @@ TEST_CASE("[CommandHistory]")
 		REQUIRE(board.getInverseCalled == 1u);
 		REQUIRE(board.execCalled == 1u);
 
-		history.add(MakeBox<TestCommand>(board));
+		history.add(GC<TestCommand>(board));
 		REQUIRE(history.test_getCommands().size() == 1u);
 		REQUIRE(history.test_getIndex() == 1u);
 	}
@@ -73,7 +73,7 @@ TEST_CASE("[CommandHistory]")
 
 	SECTION("Add item, undo, redo, add item")
 	{
-		history.add(MakeBox<TestCommand>(board));
+		history.add(GC<TestCommand>(board));
 
 		history.undo();
 		REQUIRE(history.test_getCommands().size() == 1u);
@@ -83,14 +83,14 @@ TEST_CASE("[CommandHistory]")
 		REQUIRE(history.test_getCommands().size() == 1u);
 		REQUIRE(history.test_getIndex() == 1u);
 
-		history.add(MakeBox<TestCommand>(board));
+		history.add(GC<TestCommand>(board));
 		REQUIRE(history.test_getCommands().size() == 2u);
 		REQUIRE(history.test_getIndex() == 2u);
 	}
 
 	SECTION("Redoing not undoed history does nothing")
 	{
-		history.add(MakeBox<TestCommand>(board));
+		history.add(GC<TestCommand>(board));
 		history.redo();
 		REQUIRE(board.getInverseCalled == 0u);
 		REQUIRE(board.execCalled == 0u);

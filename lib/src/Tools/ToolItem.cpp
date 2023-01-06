@@ -219,7 +219,7 @@ ExpectedPropertyPtr ToolItem::getProperty(const sf::Vector2i& penPos) const
 	if (!itemId)
 		return std::unexpected(BaseError());
 
-	auto&& result = SafePtr<ItemToolProperty>();
+	auto&& result = Box<ItemToolProperty>();
 
 	result->imageTexture = sidebarUser.getSpriteAsTexture(items.at(*itemId).id);
 	result->data = items.at(*itemId);

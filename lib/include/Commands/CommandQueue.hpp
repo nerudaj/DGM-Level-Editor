@@ -2,7 +2,7 @@
 
 #include "include/Commands/UndoableCommandInterface.hpp"
 #include "include/Commands/CommandHistory.hpp"
-#include "include/Utilities/Box.hpp"
+#include "include/Utilities/GC.hpp"
 
 #include <queue>
 #include <memory>
@@ -11,7 +11,7 @@ class CommandQueue final
 {
 protected:
 	CommandHistory& history;
-	std::queue<Box<UndoableCommandInterface>> commands;
+	std::queue<GC<UndoableCommandInterface>> commands;
 
 public:
 	CommandQueue(CommandHistory& history)
@@ -25,7 +25,7 @@ public:
 		requires std::constructible_from<T, Args...>
 	void push(Args&& ... args)
 	{
-		commands.push(MakeBox<T>(std::forward<Args>(args)...));
+		commands.push(GC<T>(std::forward<Args>(args)...));
 	}
 
 	void processAll();

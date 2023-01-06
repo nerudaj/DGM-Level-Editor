@@ -69,7 +69,7 @@ private:
 
 	CommandQueue& commandQueue;
 	ShortcutEngineInterface& shortcutEngine;
-	SafePtr<ToolProperty> currentlyOpenedProperty = SafePtr<NullToolProperty>();
+	Box<ToolProperty> currentlyOpenedProperty = Box<NullToolProperty>();
 
 	bool initialized = false;
 

@@ -181,7 +181,7 @@ ExpectedPropertyPtr ToolMesh::getProperty(const sf::Vector2i& penPos) const
 	if (not isPositionValid(tilePos))
 		return std::unexpected(BaseError());
 
-	auto&& result = SafePtr<MeshToolProperty>();
+	auto&& result = Box<MeshToolProperty>();
 
 	result->tileX = tilePos.x;
 	result->tileY = tilePos.y;

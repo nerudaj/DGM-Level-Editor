@@ -1,6 +1,6 @@
 #include "include/Commands/CommandHistory.hpp"
 
-void CommandHistory::add(const Box<UndoableCommandInterface>& command)
+void CommandHistory::add(const GC<UndoableCommandInterface>& command)
 {
 	if (index < commands.size())
 	{

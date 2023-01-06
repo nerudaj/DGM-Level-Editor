@@ -45,9 +45,9 @@ public:
 	{}
 	virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override
 	{}
-	virtual std::unique_ptr<ToolProperty> getProperty(const sf::Vector2i& penPos) const override
+	virtual ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const override
 	{
-		return nullptr;
+		return std::unexpected(BaseError());
 	}
 	virtual void setProperty(const ToolProperty& prop) override
 	{}

@@ -1,83 +1,73 @@
 #pragma once
 
 #include <concepts>
-#include <memory>
+#include <exception>
 
 /**
- *  \brief Single-threaded smart pointer with following properties:
+ *  Memory safe version of std::unique_ptr
+ *  It cannot be null, it has to be initialized
+ *  and can be moved.
  *
- *  * Non-nullable
- *  * Non-movable
- *  * Has to be initialized
- *  * Owns memory
- *  * Can be copied (reference counting)
- *
- *  Due to this, following errors can never occur:
- *  * Use after free
- *  * Use after move
- *  * Null dereference
+ *  use-after-move static analysis should be
+ *  turned on for 100% safety.
  */
 template<class T>
 class Box
 {
 public:
-	Box() = delete;
-	Box(std::nullptr_t = nullptr) = delete;
-
-	constexpr Box(T* ptr) noexcept
+	template<class ... Args>
+		requires std::constructible_from<T, Args...>
+	[[nodiscard]]
+	constexpr Box(Args&& ... args)
 	{
-		this->ptr = ptr;
-		this->referenceCounter = new unsigned long(1);
+		ptr = new T(std::forward<Args>(args)...);
+		[[unlikely]]
+		if (!ptr) throw std::bad_alloc();
 	}
 
-	constexpr Box(const Box& other) noexcept
+	Box(std::nullptr_t) = delete;
+	Box(const Box&) = delete;
+
+	[[nodiscard]]
+	constexpr Box(Box&& other) noexcept
 	{
-		ptr = other.ptr;
-		referenceCounter = other.referenceCounter;
-		++(*referenceCounter);
+		std::swap(ptr, other.ptr);
 	}
 
-	constexpr Box& operator=(Box other) noexcept
+	[[nodiscard]]
+	constexpr Box& operator=(Box&& other) noexcept
 	{
-		swap(other);
+		std::swap(ptr, other.ptr);
 		return *this;
-	}
-
-	template<class Derived>
-		requires std::derived_from<Derived, T>
-	constexpr Box(const Box<Derived>& other) noexcept
-	{
-		ptr = dynamic_cast<T*>(other.ptr);
-		referenceCounter = other.referenceCounter;
-		++(*referenceCounter);
 	}
 
 	constexpr ~Box() noexcept
 	{
-		--(*referenceCounter);
-
-		if (*referenceCounter > 0)
-			return;
-
-		std::default_delete<T>()(ptr);
-		delete referenceCounter;
+		delete ptr;
 		ptr = nullptr;
-		referenceCounter = nullptr;
+	}
+
+public: // construct from derived
+	template<class D>
+		requires std::derived_from<D, T>
+	[[nodiscard]]
+	constexpr Box(Box<D>&& other) noexcept
+	{
+		ptr = other.ptr;
+		other.ptr = nullptr;
+	}
+
+	template<class D>
+		requires std::derived_from<D, T>
+	[[nodiscard]]
+	constexpr Box& operator=(Box<D>&& other) noexcept
+	{
+		ptr = other.ptr;
+		other.ptr = nullptr;
+		return *this;
 	}
 
 public:
-	[[nodiscard]]
-	constexpr T& operator*() noexcept
-	{
-		return *ptr;
-	}
-
-	[[nodiscard]]
-	constexpr const T& operator*() const noexcept
-	{
-		return *ptr;
-	}
-
 	[[nodiscard]]
 	constexpr T* operator->() noexcept
 	{
@@ -85,30 +75,26 @@ public:
 	}
 
 	[[nodiscard]]
-	constexpr T const* const operator->() const noexcept
+	constexpr T const* operator->() const noexcept
 	{
 		return ptr;
 	}
 
-protected:
-	template<class>
-	friend class Box;
-
-	constexpr void swap(Box& other) noexcept
+	[[nodiscard]]
+	constexpr T& operator*() noexcept
 	{
-		using std::swap;
-		swap(ptr, other.ptr);
-		swap(referenceCounter, other.referenceCounter);
+		return *ptr;
 	}
 
-protected:
-	T* ptr = nullptr;
-	unsigned long* referenceCounter = nullptr;
-};
+	[[nodiscard]]
+	constexpr T const& operator*() const noexcept
+	{
+		return *ptr;
+	}
 
-template<class T, class ... Args>
-	requires std::constructible_from<T, Args...>
-constexpr Box<T> MakeBox(Args&&... args) noexcept
-{
-	return Box<T>(new T(std::forward<Args>(args)...));
-}
+private:
+	T* ptr = nullptr;
+
+	// must be friend of itself so construction from derived works
+	friend class Box;
+};

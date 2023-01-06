@@ -71,13 +71,10 @@ void Editor::populateMenuBar()
 
 void Editor::handleRmbClicked()
 {
-	if (not canOpenPropertyDialog())
-		return;
-
 	auto prop = stateMgr.getActiveTool()
 		.getProperty(physicalPen.getCurrentPenPos());
 
-	if (!prop.has_value())
+	if (!canOpenPropertyDialog() || !prop.has_value())
 		return;
 
 	currentlyOpenedProperty = std::move(prop.value());

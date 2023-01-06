@@ -12,10 +12,10 @@
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Shortcuts/ShortcutEngineInterface.hpp"
 #include "include/Tools/PenUserInterface.hpp"
-#include "include/Utilities/SafePtr.hpp"
+#include "include/Utilities/Box.hpp"
 #include "include/Utilities/Error.hpp"
 
-using ExpectedPropertyPtr = std::expected<SafePtr<ToolProperty>, BaseError>;
+using ExpectedPropertyPtr = std::expected<Box<ToolProperty>, BaseError>;
 
 struct GenericObject
 {

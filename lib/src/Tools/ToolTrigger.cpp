@@ -301,7 +301,7 @@ ExpectedPropertyPtr ToolTrigger::getProperty(const sf::Vector2i& penPos) const
 	if (!trigId.has_value())
 		return std::unexpected(BaseError());
 
-	auto&& result = SafePtr<ToolTriggerProperty>();
+	auto&& result = Box<ToolTriggerProperty>();
 	result->id = *trigId;
 	result->data = triggers[*trigId];
 
