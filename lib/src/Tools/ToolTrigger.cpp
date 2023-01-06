@@ -68,7 +68,7 @@ void ToolTrigger::createMoveCommand(
 	const sf::Vector2i& src,
 	const sf::Vector2i& dest)
 {
-	commandQueue.push<MoveTriggerCommand>(
+	commandQueue->push<MoveTriggerCommand>(
 		triggers,
 		selectedObjects,
 		dragContext,
@@ -79,7 +79,7 @@ void ToolTrigger::createMoveCommand(
 
 void ToolTrigger::createDeleteCommand()
 {
-	commandQueue.push<DeleteTriggerCommand>(
+	commandQueue->push<DeleteTriggerCommand>(
 			triggers,
 			std::vector<std::size_t>(
 				selectedObjects.begin(),
@@ -276,7 +276,7 @@ void ToolTrigger::penClicked(const sf::Vector2i& position)
 			trigger.height = std::abs(position.y - drawStart.y);
 		}
 
-		commandQueue.push<CreateTriggerCommand>(
+		commandQueue->push<CreateTriggerCommand>(
 			triggers,
 			trigger);
 	}

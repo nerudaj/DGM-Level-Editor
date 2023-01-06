@@ -29,10 +29,10 @@ public:
 	[[nodiscard]]
 	ToolMesh(
 		std::function<void(void)> onStateChanged,
-		ShortcutEngineInterface& shortcutEngine,
+		GC<ShortcutEngineInterface> shortcutEngine,
 		tgui::Gui& gui,
 		tgui::Theme& theme,
-		CommandQueue& commandQueue) noexcept
+		GC<CommandQueue> commandQueue) noexcept
 		: ToolInterface(onStateChanged, shortcutEngine)
 		, sidebarUser(gui, theme)
 		, commandQueue(commandQueue)
@@ -93,7 +93,7 @@ private:
 	sf::RectangleShape rectShape;
 	DrawableLeveldMesh map;
 	SidebarUserMesh sidebarUser;
-	CommandQueue& commandQueue;
+	GC<CommandQueue> commandQueue;
 
 	std::vector<bool> defaultBlocks;
 

@@ -7,6 +7,6 @@ void CommandQueue::processAll()
 		auto command = commands.front();
 		commands.pop();
 		command->exec();
-		history.add(command);
+		history->add(command);
 	}
 }

@@ -29,7 +29,7 @@ void Editor::populateMenuBar()
 
 	// Cleanup previously built data
 	menu->removeMenu(MENU_NAME);
-	shortcutEngine.unregisterShortcutGroup(MENU_NAME);
+	shortcutEngine->unregisterShortcutGroup(MENU_NAME);
 
 	auto addEditorMenuItem = [&](
 		const std::string& label,
@@ -39,7 +39,7 @@ void Editor::populateMenuBar()
 		menu->addMenuItem(label);
 		menu->connectMenuItem(MENU_NAME, label, callback);
 
-		shortcutEngine.registerShortcut(
+		shortcutEngine->registerShortcut(
 			MENU_NAME,
 			{ false, false, shortcut },
 			callback);
@@ -230,7 +230,7 @@ void Editor::resizeDialog()
 {
 	dialog.open([this]
 	{
-		commandQueue.push<ResizeCommand>(
+		commandQueue->push<ResizeCommand>(
 			*this,
 			dialog.getLevelWidth(),
 			dialog.getLevelHeight());
@@ -253,8 +253,8 @@ Editor::Editor(
 	tgui::Theme& themeRef,
 	tgui::Canvas::Ptr& canvas,
 	std::function<void(void)> onStateChanged,
-	CommandQueue& commandQueueRef,
-	ShortcutEngineInterface& shortcutEngineRef)
+	GC<CommandQueue> commandQueueRef,
+	GC<ShortcutEngineInterface> shortcutEngineRef)
 	: gui(guiRef)
 	, theme(themeRef)
 	, canvas(canvas)

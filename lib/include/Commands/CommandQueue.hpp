@@ -10,11 +10,11 @@
 class CommandQueue final
 {
 protected:
-	CommandHistory& history;
+	GC<CommandHistory> history;
 	std::queue<GC<UndoableCommandInterface>> commands;
 
 public:
-	CommandQueue(CommandHistory& history)
+	CommandQueue(GC<CommandHistory> history)
 		: history(history)
 	{}
 	CommandQueue(CommandQueue&&) = delete;

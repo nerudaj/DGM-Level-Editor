@@ -6,12 +6,15 @@
 #include "Dialogs/NewLevelDialog.hpp"
 #include "include/Dialogs/YesNoCancelDialog.hpp"
 #include "LogConsole.hpp"
-#include "include/Editor/Editor.hpp"
+#include "include/Editor/EditorInterface.hpp"
+#include "include/Editor/NullEditor.hpp"
 #include "include/Utilities/FileApi.hpp"
 #include <optional>
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Commands/CommandHistory.hpp"
 #include "include/Shortcuts/ShortcutEngineInterface.hpp"
+#include "include/Utilities/GC.hpp"
+#include "include/Utilities/Box.hpp"
 
 /**
  *  This class is responsible for drawing top level gui - topbar, canvas, console, bootstrapping
@@ -35,9 +38,9 @@ protected:
 	tgui::Gui gui;
 	tgui::Canvas::Ptr canvas;
 
-	// History
-	CommandHistory commandHistory;
-	CommandQueue commandQueue = CommandQueue(commandHistory);
+	GC<CommandHistory> commandHistory;
+	GC<CommandQueue> commandQueue = GC<CommandQueue>(commandHistory);
+	Box<EditorInterface> editor = Box<NullEditor>();
 
 	/*
 	*  HOW TO MAKE THIS NICER:
@@ -54,9 +57,10 @@ protected:
 	NewLevelDialog dialogNewLevel = NewLevelDialog(gui, theme, ini);
 	YesNoCancelDialog dialogConfirmExit = YesNoCancelDialog(gui, theme);
 
-	std::unique_ptr<EditorInterface> editor;
-	std::unique_ptr<ShortcutEngineInterface> shortcutEngine;
-	std::unique_ptr<FileApiInterface> fileApi;
+
+	// Dependencies
+	GC<ShortcutEngineInterface> shortcutEngine;
+	GC<FileApiInterface> fileApi;
 
 protected:
 	void updateWindowTitle()
@@ -125,6 +129,6 @@ public:
 		dgm::App& app,
 		cfg::Ini& ini,
 		const std::string& rootDir,
-		std::unique_ptr<FileApiInterface> fileApi,
-		std::unique_ptr<ShortcutEngineInterface> shortcutEngine);
+		GC<FileApiInterface> fileApi,
+		GC<ShortcutEngineInterface> shortcutEngine);
 };

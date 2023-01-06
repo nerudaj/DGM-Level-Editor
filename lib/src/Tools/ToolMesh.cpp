@@ -12,7 +12,7 @@ void ToolMesh::penClicked(const sf::Vector2i& position)
 	const auto tilePos = worldToTilePos(position);
 	if (isPositionValid(tilePos) && sidebarUser.getPenValue() != map.getTileValue(tilePos))
 	{
-		commandQueue.push<SetTileCommand>(
+		commandQueue->push<SetTileCommand>(
 			map,
 			tilePos,
 			sidebarUser.getPenValue(),
@@ -49,7 +49,7 @@ void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 	if (mode == DrawMode::RectEdge)
 	{
 		constexpr bool DONT_FILL = false;
-		commandQueue.push<SetTileAreaCommand>(
+		commandQueue->push<SetTileAreaCommand>(
 			map,
 			startTile,
 			endTile,
@@ -60,7 +60,7 @@ void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 	else if (mode == DrawMode::RectFill)
 	{
 		constexpr bool FILL = true;
-		commandQueue.push<SetTileAreaCommand>(
+		commandQueue->push<SetTileAreaCommand>(
 			map,
 			startTile,
 			endTile,

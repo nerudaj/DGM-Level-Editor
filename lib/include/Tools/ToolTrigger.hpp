@@ -24,10 +24,10 @@ public:
 	[[nodiscard]]
 	ToolTrigger(
 		std::function<void(void)> onStateChanged,
-		ShortcutEngineInterface& shortcutEngine,
+		GC<ShortcutEngineInterface> shortcutEngine,
 		tgui::Gui& gui,
 		tgui::Theme& theme,
-		CommandQueue& commandQueue,
+		GC<CommandQueue> commandQueue,
 		std::function<sf::Vector2i()> getPenPosition) noexcept
 		: ToolWithDragAndSelect(onStateChanged, shortcutEngine)
 		, sidebarUser(gui, theme)
@@ -93,7 +93,7 @@ private:
 	sf::Vector2i levelSize;
 
 	// Dependencies
-	CommandQueue& commandQueue;
+	GC<CommandQueue> commandQueue;
 	SidebarUserTrigger sidebarUser;
 	std::function<sf::Vector2i()> getPenPosition;
 };

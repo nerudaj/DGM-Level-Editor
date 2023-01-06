@@ -26,10 +26,10 @@ public:
 	[[nodiscard]]
 	ToolItem(
 		std::function<void(void)> onStateChanged,
-		ShortcutEngineInterface& shortcutEngine,
+		GC<ShortcutEngineInterface> shortcutEngine,
 		tgui::Gui& gui,
 		tgui::Theme& theme,
-		CommandQueue& commandQueue) noexcept
+		GC<CommandQueue> commandQueue) noexcept
 		: ToolWithDragAndSelect(onStateChanged, shortcutEngine)
 		, sidebarUser(gui, theme)
 		, commandQueue(commandQueue)
@@ -85,8 +85,7 @@ private:
 	sf::Vector2i levelSize;
 	EditMode editMode = EditMode::ModeDraw;
 	SidebarUserItem sidebarUser;
-	CommandQueue& commandQueue;
-
+	GC<CommandQueue> commandQueue;
 };
 
 namespace std

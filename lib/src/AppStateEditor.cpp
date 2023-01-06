@@ -4,6 +4,7 @@
 #include "include/Dialogs/NewLevelDialog.hpp"
 #include "include/Configs/Sizers.hpp"
 #include "include/Globals.hpp"
+#include "include/Editor/Editor.hpp"
 #include <iostream>
 
 void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
@@ -89,13 +90,13 @@ void AppStateEditor::input()
 
 void AppStateEditor::update()
 {
-	if (commandQueue.isEmpty())
+	if (commandQueue->isEmpty())
 		return;
 
 	unsavedChanges = true;
 	updateWindowTitle();
 
-	commandQueue.processAll();
+	commandQueue->processAll();
 }
 
 void AppStateEditor::draw()
@@ -115,14 +116,14 @@ AppStateEditor::AppStateEditor(
 	dgm::App& app,
 	cfg::Ini& ini,
 	const std::string& rootDir,
-	std::unique_ptr<FileApiInterface> fileApi,
-	std::unique_ptr<ShortcutEngineInterface> shortcutEngine)
+	GC<FileApiInterface> fileApi,
+	GC<ShortcutEngineInterface> shortcutEngine)
 	:
 	dgm::AppState(app),
 	ini(ini),
 	rootDir(rootDir),
-	fileApi(std::move(fileApi)),
-	shortcutEngine(std::move(shortcutEngine))
+	fileApi(fileApi),
+	shortcutEngine(shortcutEngine)
 {
 	try
 	{
@@ -161,13 +162,13 @@ AppStateEditor::AppStateEditor(
 		updateWindowTitle();
 	};
 
-	editor = std::make_unique<Editor>(
+	editor = Box<Editor>(
 		gui,
 		theme,
 		canvas,
 		onStateChanged,
 		commandQueue,
-		*(this->shortcutEngine));
+		this->shortcutEngine);
 
 	updateWindowTitle();
 }
@@ -368,11 +369,11 @@ void AppStateEditor::handleSaveLevel(bool forceNewPath) noexcept
 void AppStateEditor::handleUndo()
 {
 	Log::write("Undo");
-	commandHistory.undo();
+	commandHistory->undo();
 }
 
 void AppStateEditor::handleRedo()
 {
 	Log::write("Redo");
-	commandHistory.redo();
+	commandHistory->redo();
 }

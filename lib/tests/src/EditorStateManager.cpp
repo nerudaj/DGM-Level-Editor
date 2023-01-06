@@ -10,7 +10,7 @@ class ToolMock : public ToolInterface
 public:
 	ToolMock(
 		std::function<void(void)> onStateChanged,
-		ShortcutEngineInterface& shortcutEngine,
+		GC<ShortcutEngineInterface> shortcutEngine,
 		const std::string& name,
 		std::vector<std::string>& invocations)
 		: ToolInterface(onStateChanged, shortcutEngine)
@@ -69,7 +69,7 @@ private:
 
 TEST_CASE("[EditorStateManager]")
 {
-	ShortcutEngine engine;
+	GC<ShortcutEngine> engine;
 
 	std::vector<std::string> invocations;
 

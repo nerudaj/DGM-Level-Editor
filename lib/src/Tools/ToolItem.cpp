@@ -54,7 +54,7 @@ void ToolItem::createMoveCommand(
 	const sf::Vector2i& src,
 	const sf::Vector2i& dest)
 {
-	commandQueue.push<MoveItemCommand>(
+	commandQueue->push<MoveItemCommand>(
 		items,
 		selectedObjects,
 		dragContext,
@@ -65,7 +65,7 @@ void ToolItem::createMoveCommand(
 
 void ToolItem::createDeleteCommand()
 {
-	commandQueue.push<DeleteItemCommand>(
+	commandQueue->push<DeleteItemCommand>(
 			items,
 			std::vector<std::size_t>(
 				selectedObjects.begin(),
@@ -206,7 +206,7 @@ void ToolItem::penClicked(const sf::Vector2i& position)
 		.metadata = ""
 	};
 
-	commandQueue.push<CreateItemCommand>(
+	commandQueue->push<CreateItemCommand>(
 		items,
 		itemToCreate);
 

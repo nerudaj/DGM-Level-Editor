@@ -4,6 +4,7 @@
 #include "include/AppStateEditor.hpp"
 #include "include/Utilities/FileApi.hpp"
 #include "include/Shortcuts/ShortcutEngine.hpp"
+#include "include/Utilities/GC.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -13,7 +14,7 @@ int main(int argc, char* argv[])
 		rootDir = argv[1];
 	}
 
-	auto fileApi = std::make_unique<FileApi>();
+	auto fileApi = GC<FileApi>();
 	const auto APPDATA = fileApi->resolveAppdata();
 
 	cfg::Ini ini;
@@ -37,12 +38,11 @@ int main(int argc, char* argv[])
 	dgm::Window window(windowSettings);
 	dgm::App app(window);
 
-	auto shortcutEngine = std::make_unique<ShortcutEngine>();
 	app.pushState<AppStateEditor>(
 		ini,
 		rootDir,
-		std::move(fileApi),
-		std::move(shortcutEngine));
+		fileApi,
+		GC<ShortcutEngine>());
 	app.run();
 
 	windowSettings = window.close();

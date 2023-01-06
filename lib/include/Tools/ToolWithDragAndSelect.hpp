@@ -3,13 +3,14 @@
 #include "include/Tools/ToolInterface.hpp"
 #include "include/Utilities/DragContext.hpp"
 #include "include/Tools/PenUserInterface.hpp"
+#include "include/Utilities/GC.hpp"
 
 class ToolWithDragAndSelect : public ToolInterface
 {
 public:
 	ToolWithDragAndSelect(
 		std::function<void(void)> onStateChanged,
-		ShortcutEngineInterface& shortcutEngine)
+		GC<ShortcutEngineInterface> shortcutEngine)
 		: ToolInterface(onStateChanged, shortcutEngine)
 	{}
 

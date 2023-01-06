@@ -14,6 +14,7 @@
 #include "include/Tools/PenUserInterface.hpp"
 #include "include/Utilities/Box.hpp"
 #include "include/Utilities/Error.hpp"
+#include "include/Utilities/GC.hpp"
 
 using ExpectedPropertyPtr = std::expected<Box<ToolProperty>, BaseError>;
 
@@ -29,7 +30,7 @@ public:
 	[[nodiscard]]
 	ToolInterface(
 		std::function<void(void)> onStateChanged,
-		ShortcutEngineInterface& shortcutEngine) noexcept
+		GC<ShortcutEngineInterface> shortcutEngine) noexcept
 		: onStateChangedCallback(onStateChanged)
 		, shortcutEngine(shortcutEngine)
 	{}
@@ -81,7 +82,7 @@ protected: // Protected virtual interface
 
 protected:
 	std::function<void(void)> onStateChangedCallback;
-	ShortcutEngineInterface& shortcutEngine;
+	GC<ShortcutEngineInterface> shortcutEngine;
 };
 
 template<class T>

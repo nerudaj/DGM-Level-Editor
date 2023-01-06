@@ -5,7 +5,7 @@ static inline const std::string CTX_MENU_NAME = "Tool";
 void ToolInterface::buildCtxMenu(tgui::MenuBar::Ptr& menu)
 {
 	destroyCtxMenu(menu);
-	shortcutEngine.unregisterShortcutGroup(CTX_MENU_NAME);
+	shortcutEngine->unregisterShortcutGroup(CTX_MENU_NAME);
 	menu->addMenu(CTX_MENU_NAME);
 
 	buildCtxMenuInternal(menu);
@@ -19,7 +19,7 @@ void ToolInterface::addCtxMenuItem(
 {
 	menu->addMenuItem(label);
 	menu->connectMenuItem(CTX_MENU_NAME, label, callback);
-	shortcutEngine.registerShortcut(
+	shortcutEngine->registerShortcut(
 		CTX_MENU_NAME,
 		{ false, true, key },
 		callback);

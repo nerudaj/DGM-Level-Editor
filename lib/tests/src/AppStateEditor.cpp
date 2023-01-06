@@ -25,7 +25,7 @@ public:
 		handleExit(dialog);
 	}
 
-	void injectEditorMock(std::unique_ptr<EditorInterface> mock)
+	void injectEditorMock(Box<EditorInterface> mock)
 	{
 		editor = std::move(mock);
 	}
@@ -34,9 +34,9 @@ public:
 		dgm::App& app,
 		cfg::Ini& ini,
 		const std::string& rootDir,
-		std::unique_ptr<FileApiInterface> fileApi,
-		std::unique_ptr<ShortcutEngineInterface> shortcutEngine)
-		: AppStateEditor(app, ini, rootDir, std::move(fileApi), std::move(shortcutEngine))
+		GC<FileApiInterface> fileApi,
+		GC<ShortcutEngineInterface> shortcutEngine)
+		: AppStateEditor(app, ini, rootDir, fileApi, shortcutEngine)
 	{}
 };
 
@@ -68,10 +68,10 @@ TEST_CASE("[AppStateEditor]")
 	DgmAppTestable app(window);
 	cfg::Ini ini;
 	std::string rootDir = getRootPath();
-	auto fileApiMock = std::make_unique<FileApiMock>();
-	auto shortcutEngine = std::make_unique<ShortcutEngine>();
+	auto fileApiMock = GC<FileApiMock>();
+	auto shortcutEngine = GC<ShortcutEngine>();
 	EditorMockState editorMockState;
-	auto editorMock = std::make_unique<EditorMock>(&editorMockState);
+	auto editorMock = Box<EditorMock>(&editorMockState);
 
 	SECTION("handleExit")
 	{
