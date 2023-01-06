@@ -19,11 +19,6 @@ class EditorMock final : public EditorInterface
 public:
 	EditorMockState* state;
 
-	virtual bool isInitialized() const noexcept override
-	{
-		return state->initCallCounter > 0;
-	}
-
 	virtual void draw() override
 	{
 		state->drawCallCounter++;

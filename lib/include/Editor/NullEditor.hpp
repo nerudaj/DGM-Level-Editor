@@ -5,9 +5,6 @@
 class NullEditor final : public EditorInterface
 {
 public:
-	[[nodiscard]]
-	bool isInitialized() const noexcept override { return false; }
-
 	void draw() override {}
 
 	void init(unsigned, unsigned, const std::string&)  override {}

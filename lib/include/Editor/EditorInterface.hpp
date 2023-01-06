@@ -8,9 +8,6 @@
 class EditorInterface
 {
 public:
-	[[nodiscard]]
-	virtual bool isInitialized() const noexcept = 0;
-
 	virtual void draw() = 0;
 
 	virtual void init(unsigned levelWidth, unsigned levelHeight, const std::string& configPath) = 0;

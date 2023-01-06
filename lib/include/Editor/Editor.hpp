@@ -73,7 +73,7 @@ protected:
 
 public:
 	[[nodiscard]]
-	virtual bool isInitialized() const noexcept override
+	bool isInitialized() const noexcept
 	{
 		return initialized;
 	}

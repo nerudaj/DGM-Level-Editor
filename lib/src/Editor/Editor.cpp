@@ -109,7 +109,7 @@ void Editor::drawTagHighlight()
 
 void Editor::handleEvent(const sf::Event& event, const sf::Vector2i& mousePos)
 {
-	if (!initialized) return;
+	if (!isInitialized()) return;
 
 	// Update mouse position for both indicator and current tool
 	auto realMousePos = camera.getWorldCoordinates(sf::Vector2f(mousePos));
@@ -134,7 +134,7 @@ void Editor::handleEvent(const sf::Event& event, const sf::Vector2i& mousePos)
 
 void Editor::draw()
 {
-	if (!initialized) return;
+	if (!isInitialized()) return;
 
 	stateMgr.forallStates([this] (ToolInterface& tool, bool active)
 	{
