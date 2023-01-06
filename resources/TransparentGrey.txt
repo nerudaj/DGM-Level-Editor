@@ -1,37 +1,37 @@
 Button {
-    BackgroundColor = rgba(180, 180, 180, 215);
-    BackgroundColorHover = rgba(190, 190, 190, 215);
-    BackgroundColorDown = rgba(150, 150, 150, 215);
-    TextColor = rgba(255, 255, 255, 215);
-    TextColorHover = rgba(255, 255, 255, 235);
-    TextColorDown = rgba(255, 255, 255, 235);
-    BorderColor = rgba(240, 240, 240, 215);
+    BackgroundColor = rgb(180, 180, 180);
+    BackgroundColorHover = rgb(190, 190, 190);
+    BackgroundColorDown = rgb(150, 150, 150);
+    TextColor = rgb(255, 255, 255);
+    TextColorHover = rgb(255, 255, 255);
+    TextColorDown = rgb(255, 255, 255);
+    BorderColor = rgb(240, 240, 240);
     Borders = (1, 1, 1, 1);
 }
 
 ChatBox {
-    BackgroundColor = rgba(180, 180, 180, 215);
-    BorderColor = rgba(240, 240, 240, 215);
+    BackgroundColor = rgb(180, 180, 180);
+    BorderColor = rgb(240, 240, 240);
     Borders = (1, 1, 1, 1);
     Scrollbar = &Scrollbar;
 }
 
 CheckBox {
-    BorderColor = rgba(240, 240, 240, 215);
-    BackgroundColor = rgba(180, 180, 180, 215);
-    BackgroundColorHover = rgba(190, 190, 190, 215);
-    TextColor = rgba(255, 255, 255, 215);
-    TextColorHover = rgba(255, 255, 255, 235);
-    CheckColor = rgba(255, 255, 255, 180);
-    CheckColorHover = rgba(255, 255, 255, 200);
+    BorderColor = rgb(240, 240, 240);
+    BackgroundColor = rgb(180, 180, 180);
+    BackgroundColorHover = rgb(190, 190, 190);
+    TextColor = rgb(255, 255, 255);
+    TextColorHover = rgb(255, 255, 255);
+    CheckColor = rgb(255, 255, 255, 180);
+    CheckColorHover = rgb(255, 255, 255);
     Borders = (1, 1, 1, 1);
 }
 
 ChildWindow {
-    TitleColor = rgba(255, 255, 255, 215);
-    TitleBarColor = rgba(170, 170, 170, 215);
-    BackgroundColor = rgba(180, 180, 180, 215);
-    BorderColor = rgba(240, 240, 240, 215);
+    TitleColor = rgb(255, 255, 255);
+    TitleBarColor = rgb(170, 170, 170);
+    BackgroundColor = rgb(180, 180, 180);
+    BorderColor = rgb(240, 240, 240);
     Borders = (1, 1, 1, 1);
     DistanceToSide = 3;
     PaddingBetweenButtons = 1;
@@ -42,145 +42,146 @@ ChildWindow {
 }
 
 ComboBox {
-    BackgroundColor = rgba(180, 180, 180, 215);
-    TextColor = rgba(255, 255, 255, 215);
-    ArrowBackgroundColor = rgba(160, 160, 160, 215);
-    ArrowBackgroundColorHover = rgba(170, 170, 170, 215);
-    ArrowColor = rgba(200, 200, 200, 215);
-    ArrowColorHover = rgba(225, 225, 225, 215);
-    BorderColor = rgba(240, 240, 240, 215);
+    BackgroundColor = rgb(180, 180, 180);
+    TextColor = rgb(255, 255, 255);
+    ArrowBackgroundColor = rgb(160, 160, 160);
+    ArrowBackgroundColorHover = rgb(170, 170, 170);
+    ArrowColor = rgb(200, 200, 200);
+    ArrowColorHover = rgb(225, 225, 225);
+    BorderColor = rgb(240, 240, 240);
     Borders = (1, 1, 1, 1);
     ListBox = &ListBox;
 }
 
 EditBox {
-    BackgroundColor = rgba(160, 160, 160, 215);
-    BackgroundColorHover = rgba(170, 170, 170, 215);
-    TextColor = rgba(255, 255, 255, 215);
-    SelectedTextColor = rgba(255, 255, 255, 245);
-    SelectedTextBackgroundColor = rgba(0, 110, 200, 130);
-    DefaultTextColor = rgba(240, 240, 240, 175);
-    CaretColor = rgba(255, 255, 255, 215);
-    BorderColor = rgba(240, 240, 240, 215);
+    BackgroundColor = rgb(160, 160, 160);
+    BackgroundColorHover = rgb(170, 170, 170);
+    TextColor = rgb(255, 255, 255);
+    SelectedTextColor = rgb(255, 255, 255);
+    SelectedTextBackgroundColor = rgb(0, 110, 200);
+    DefaultTextColor = rgb(240, 240, 240, 175);
+    CaretColor = rgb(255, 255, 255);
+    BorderColor = rgb(240, 240, 240);
     Borders = (1, 1, 1, 1);
 }
 
 Label {
-    TextColor = rgba(255, 255, 255, 215);
+    TextColor = rgb(255, 255, 255);
     Scrollbar = &Scrollbar;
 }
 
 ListBox {
-    BackgroundColor = rgba(180, 180, 180, 215);
-    BackgroundColorHover = rgba(190, 190, 190, 215);
-    SelectedBackgroundColor = rgba(0, 110, 200, 130);
-    SelectedTextColor = rgba(255, 255, 255, 245);
-    TextColor = rgba(255, 255, 255, 215);
-    TextColorHover = rgba(255, 255, 255, 235);
-    BorderColor = rgba(240, 240, 240, 215);
+    BackgroundColor = rgb(180, 180, 180);
+    BackgroundColorHover = rgb(190, 190, 190);
+    SelectedBackgroundColor = rgb(0, 110, 200);
+    SelectedTextColor = rgb(255, 255, 255);
+    TextColor = rgb(255, 255, 255);
+    TextColorHover = rgb(255, 255, 255, 235);
+    BorderColor = rgb(240, 240, 240);
     Borders = (1, 1, 1, 1);
     Scrollbar = &Scrollbar;
 }
 
 MenuBar {
-    BackgroundColor = rgba(180, 180, 180, 215);
-    SelectedBackgroundColor = rgba(0, 110, 200, 130);
-    TextColor = rgb(255, 255, 255, 215);
-    SelectedTextColor = rgba(255, 255, 255, 245);
+    BackgroundColor = rgb(180, 180, 180);
+    SelectedBackgroundColor = rgb(0, 110, 200);
+    TextColor = rgb(0, 0, 0);
+    SelectedTextColor = rgb(0, 0, 0);
 }
 
 MessageBox {
     Button = &Button;
-    TextColor = rgb(255, 255, 255, 215);
+    TextColor = rgb(255, 255, 255);
 
-    TitleColor = rgba(255, 255, 255, 215);
-    TitleBarColor = rgba(170, 170, 170, 215);
-    BackgroundColor = rgba(180, 180, 180, 215);
-    BorderColor = rgba(240, 240, 240, 215);
+    TitleColor = rgb(255, 255, 255);
+    TitleBarColor = rgb(170, 170, 170);
+    BackgroundColor = rgb(180, 180, 180);
+    BorderColor = rgb(240, 240, 240);
     Borders = (1, 1, 1, 1);
+
     CloseButton = &Button;
 }
 
 Panel {
-    BackgroundColor = rgba(180, 180, 180, 215);
+    BackgroundColor = rgb(180, 180, 180);
 }
 
 ProgressBar {
-    BackgroundColor = rgba(180, 180, 180, 215);
-    FillColor = rgba(0, 110, 200, 130);
-    TextColor = rgba(255, 255, 255, 215);
-    TextColorFilled = rgba(255, 255, 255, 245);
-    BorderColor = rgba(240, 240, 240, 215);
+    BackgroundColor = rgb(180, 180, 180);
+    FillColor = rgb(0, 110, 200);
+    TextColor = rgb(255, 255, 255);
+    TextColorFilled = rgb(255, 255, 255);
+    BorderColor = rgb(240, 240, 240);
     Borders = (1, 1, 1, 1);
 }
 
 RadioButton {
-    BorderColor = rgba(240, 240, 240, 215);
-    BackgroundColor = rgba(180, 180, 180, 215);
-    BackgroundColorHover = rgba(190, 190, 190, 215);
-    TextColor = rgba(255, 255, 255, 215);
-    TextColorHover = rgba(255, 255, 255, 235);
-    CheckColor = rgba(255, 255, 255, 180);
-    CheckColorHover = rgba(255, 255, 255, 200);
+    BorderColor = rgb(240, 240, 240);
+    BackgroundColor = rgb(180, 180, 180);
+    BackgroundColorHover = rgb(190, 190, 190);
+    TextColor = rgb(255, 255, 255);
+    TextColorHover = rgb(255, 255, 255);
+    CheckColor = rgb(255, 255, 255);
+    CheckColorHover = rgb(255, 255, 255);
     Borders = (1, 1, 1, 1);
 }
 
 Scrollbar {
-    TrackColor = rgba(160, 160, 160, 215);
-    TrackColorHover = rgba(170, 170, 170, 215);
-    ThumbColor = rgba(185, 185, 185, 215);
-    ThumbColorHover = rgba(195, 195, 195, 215);
-    ArrowBackgroundColor = rgba(160, 160, 160, 215);
-    ArrowBackgroundColorHover = rgba(170, 170, 170, 215);
-    ArrowColor = rgba(200, 200, 200, 215);
-    ArrowColorHover = rgba(225, 225, 225, 215);
-    // BorderColor = rgba(240, 240, 240, 215);
+    TrackColor = rgb(160, 160, 160);
+    TrackColorHover = rgb(170, 170, 170);
+    ThumbColor = rgb(185, 185, 185);
+    ThumbColorHover = rgb(195, 195, 195);
+    ArrowBackgroundColor = rgb(160, 160, 160);
+    ArrowBackgroundColorHover = rgb(170, 170, 170);
+    ArrowColor = rgb(200, 200, 200);
+    ArrowColorHover = rgb(225, 225, 225);
+    // BorderColor = rgb(240, 240, 240);
     // Borders = (1, 1, 1, 1);
 }
 
 Slider {
-    TrackColor = rgba(160, 160, 160, 215);
-    TrackColorHover = rgba(170, 170, 170, 215);
-    ThumbColor = rgba(160, 160, 160, 215);
-    ThumbColorHover = rgba(170, 170, 170, 215);
-    BorderColor = rgba(240, 240, 240, 215);
+    TrackColor = rgb(160, 160, 160);
+    TrackColorHover = rgb(170, 170, 170);
+    ThumbColor = rgb(160, 160, 160);
+    ThumbColorHover = rgb(170, 170, 170);
+    BorderColor = rgb(240, 240, 240);
     Borders = (1, 1, 1, 1);
 }
 
 SpinButton {
-    BackgroundColor = rgba(160, 160, 160, 215);
-    BackgroundColorHover = rgba(170, 170, 170, 215);
-    ArrowColor = rgba(200, 200, 200, 215);
-    ArrowColorHover = rgba(225, 225, 225, 215);
-    BorderColor = rgba(240, 240, 240, 215);
+    BackgroundColor = rgb(160, 160, 160);
+    BackgroundColorHover = rgb(170, 170, 170);
+    ArrowColor = rgb(200, 200, 200);
+    ArrowColorHover = rgb(225, 225, 225);
+    BorderColor = rgb(240, 240, 240);
     Borders = (1, 1, 1, 1);
     BorderBetweenArrows = 1;
 }
 
 Tabs {
-    BackgroundColor = rgba(180, 180, 180, 215);
-    SelectedBackgroundColor = rgba(0, 110, 200, 130);
-    TextColor = rgba(255, 255, 255, 215);
-    SelectedTextColor = rgba(255, 255, 255, 245);
-    BorderColor = rgba(240, 240, 240, 215);
+    BackgroundColor = rgb(180, 180, 180);
+    SelectedBackgroundColor = rgb(0, 110, 200);
+    TextColor = rgb(255, 255, 255);
+    SelectedTextColor = rgb(255, 255, 255);
+    BorderColor = rgb(240, 240, 240);
     Borders = (1, 1, 1, 1);
 }
 
 TextBox {
-    BackgroundColor = rgba(180, 180, 180, 215);
-    BorderColor = rgba(240, 240, 240, 215);
-    TextColor = rgba(255, 255, 255, 215);
-    SelectedTextColor = rgba(255, 255, 255, 245);
-    SelectedTextBackgroundColor = rgba(0, 110, 200, 130);
-    CaretColor = rgba(255, 255, 255, 215);
+    BackgroundColor = rgb(180, 180, 180);
+    BorderColor = rgb(240, 240, 240);
+    TextColor = rgb(255, 255, 255);
+    SelectedTextColor = rgb(255, 255, 255);
+    SelectedTextBackgroundColor = rgb(0, 110, 200);
+    CaretColor = rgb(255, 255, 255);
     Borders = (1, 1, 1, 1);
     Scrollbar = &Scrollbar;
 }
 
 Tooltip {
-    TextColor       = rgb(255, 255, 255, 215);
-    BackgroundColor = rgb(180, 180, 180, 215);
-    BorderColor     = rgb(240, 240, 240, 215);
+    TextColor       = rgb(255, 255, 255);
+    BackgroundColor = rgb(180, 180, 180);
+    BorderColor     = rgb(240, 240, 240);
     Borders         = (1, 1, 1, 1);
     Padding         = (2, 2, 2, 2);
 }

@@ -24,3 +24,23 @@ function (copy_dlls_to_build_folders)
 		configure_file ( ${DLL} ${CMAKE_CURRENT_BINARY_DIR}/Release/ COPYONLY )
 	endforeach ( DLL )
 endfunction (copy_dlls_to_build_folders)
+
+function ( glob_sources_and_headers outvarname subfoldername )
+
+    file (
+        GLOB HEADERS
+        CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/${subfoldername}/*.hpp"
+    )
+    
+    set ( "${outvarname}_HEADERS" "${HEADERS}" PARENT_SCOPE )
+    
+    file (
+        GLOB SOURCES
+        CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/${subfoldername}/*.cpp"
+    )
+    
+    set ( "${outvarname}_SOURCES" "${SOURCES}" PARENT_SCOPE )
+
+endfunction ()

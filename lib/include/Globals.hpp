@@ -1,6 +1,7 @@
 #pragma once
 
-struct Settings {
+struct Settings
+{
 	float soundVolume;
 	float musicVolume;
 };
@@ -8,11 +9,18 @@ struct Settings {
 const float SCROLLBAR_WIDTH = 40.f;
 const float TITLEBAR_HEIGHT = 50.f;
 
-#include <TGUI/TGUI.hpp>
+#include "Configs/Sizers.hpp"
 
-static inline tgui::ChildWindow::Ptr createNewChildWindow(const std::string& title) {
+static inline tgui::ChildWindow::Ptr createNewChildWindow(tgui::Theme& theme, const std::string& title)
+{
 	auto modal = tgui::ChildWindow::create(title);
-	modal->getRenderer()->setTitleBarHeight(SCROLLBAR_WIDTH);
-	modal->setTitleTextSize(0);
+	modal->setRenderer(theme.getRenderer("ChildWindow"));
+	modal->getRenderer()->setTitleBarHeight(
+		Sizers::GetMenuBarHeight());
+	modal->setTitleTextSize(
+		Sizers::GetMenuBarTextHeight());
 	return modal;
 }
+
+constexpr const char* DIALOG_TITLE_WARNING = "Warning";
+constexpr const char* DIALOG_TEXT_UNSAVED_EXIT = "You have some unsaved changes. Do you want to save them before exiting?";

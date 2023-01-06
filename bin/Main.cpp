@@ -1,32 +1,55 @@
 #include <DGM/dgm.hpp>
+#include <Config.hpp>
 
 #include "include/AppStateEditor.hpp"
-#include "include/FileApi.hpp"
+#include "include/Utilities/FileApi.hpp"
+#include "include/Shortcuts/ShortcutEngine.hpp"
+#include "include/Utilities/GC.hpp"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
 	std::string rootDir = "..";
-	if (argc == 2) {
+	if (argc == 2)
+	{
 		rootDir = argv[1];
 	}
 
-	const auto APPDATA = FileApi::resolveAppdata();
+	auto fileApi = GC<FileApi>();
+	const auto APPDATA = fileApi->resolveAppdata();
 
 	cfg::Ini ini;
-	try {
+	try
+	{
 		ini.loadFromFile(APPDATA + "/leveld-editor.ini");
-	} catch (...) {
+	}
+	catch (...)
+	{
 		ini["Window"]["title"] = "LevelD file editor";
 		ini["Window"]["width"] = 1280;
 		ini["Window"]["height"] = 720;
 	}
 
-	dgm::Window window(ini);
+	dgm::WindowSettings windowSettings = {
+		.resolution = sf::Vector2u(ini["Window"]["width"].asInt(), ini["Window"]["height"].asInt()),
+		.title = ini["Window"]["title"].asString(),
+		.useFullscreen = false
+	};
+
+	dgm::Window window(windowSettings);
 	dgm::App app(window);
-	
-	app.pushState<AppStateEditor>(ini, rootDir);
+
+	app.pushState<AppStateEditor>(
+		ini,
+		rootDir,
+		fileApi,
+		GC<ShortcutEngine>());
 	app.run();
 
-	window.close(ini);
+	windowSettings = window.close();
+
+	ini["Window"]["width"] = int(windowSettings.resolution.x);
+	ini["Window"]["height"] = int(windowSettings.resolution.y);
+	ini["Window"]["title"] = windowSettings.title;
 
 	ini.saveToFile(APPDATA + "/leveld-editor.ini");
 
