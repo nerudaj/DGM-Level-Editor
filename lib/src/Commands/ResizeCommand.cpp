@@ -2,7 +2,6 @@
 
 void ResizeCommandInverse::exec()
 {
-	// TODO: probably fails due to missing config path
 	editor.loadFrom(snapshot, true);
 }
 
