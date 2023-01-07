@@ -69,6 +69,9 @@ public: // ToolInterface
 	virtual std::optional<GenericObject> getHighlightedObject(const sf::Vector2i& penPos) const override { return {}; }
 	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override { return {}; }
 
+	[[nodiscard]]
+	std::optional<sf::IntRect> getBoundingBox() const noexcept override;
+
 private:
 	void changeDrawingMode(DrawMode newMode);
 

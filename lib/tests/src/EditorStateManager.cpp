@@ -62,6 +62,11 @@ public:
 	virtual void buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) override
 	{}
 
+	std::optional<sf::IntRect> getBoundingBox() const noexcept override
+	{
+		return sf::IntRect();
+	}
+
 private:
 	std::string name;
 	std::vector<std::string>& invocations;
@@ -70,9 +75,7 @@ private:
 TEST_CASE("[EditorStateManager]")
 {
 	GC<ShortcutEngine> engine;
-
 	std::vector<std::string> invocations;
-
 	EditorStateManager manager;
 
 	manager.addState<ToolMock>(

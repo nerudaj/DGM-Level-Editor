@@ -308,6 +308,19 @@ ExpectedPropertyPtr ToolTrigger::getProperty(const sf::Vector2i& penPos) const
 	return std::move(result);
 }
 
+std::optional<sf::IntRect> ToolTrigger::getBoundingBox() const noexcept
+{
+	const auto getPosition = [this] (const LevelD::Trigger& trigger) -> sf::Vector2i
+	{
+		return sf::Vector2i(getNormalizedPosition(trigger));
+	};
+
+	return CommandHelper::getBoundingBox<LevelD::Trigger>(
+		triggers,
+		levelSize,
+		getPosition);
+}
+
 void ToolTrigger::setProperty(const ToolProperty& prop)
 {
 	auto&& property = dynamic_cast<const ToolTriggerProperty&>(prop);

@@ -283,6 +283,19 @@ std::vector<sf::Vector2u> ToolItem::getPositionsOfObjectsWithTag(unsigned tag) c
 	return result;
 }
 
+std::optional<sf::IntRect> ToolItem::getBoundingBox() const noexcept
+{
+	const auto getPosition = [] (const LevelD::Thing& item) -> sf::Vector2i
+	{
+		return sf::Vector2i(item.x, item.y);
+	};
+
+	return CommandHelper::getBoundingBox<LevelD::Thing>(
+		items,
+		levelSize,
+		getPosition);
+}
+
 void ItemToolProperty::buildModalSpecifics(tgui::Gui& gui, tgui::ScrollablePanel::Ptr& dst)
 {
 	constexpr bool DISABLED = false;

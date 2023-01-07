@@ -217,6 +217,36 @@ void ToolMesh::buildCtxMenuInternal(tgui::MenuBar::Ptr& menu)
 	addCtxMenuItem(menu, OPTION_OVERLAY, [this] () { enableOverlay = !enableOverlay; }, sf::Keyboard::O);
 }
 
+std::optional<sf::IntRect> ToolMesh::getBoundingBox() const noexcept
+{
+	sf::Vector2u topLeftTile = map.getMapDimensions() / 2u;
+	sf::Vector2u bottomRightTile = map.getMapDimensions() / 2u;
+
+	for (unsigned y = 0; y < map.getMapDimensions().y; y++)
+	{
+		for (unsigned x = 0; x < map.getMapDimensions().x; x++)
+		{
+			if (map.getTileValue({ x, y }) != 0)
+			{
+				if (x < topLeftTile.x) topLeftTile.x = x;
+				else if (x > bottomRightTile.x) bottomRightTile.x = x;
+				if (y < topLeftTile.y) topLeftTile.y = y;
+				else if (y > bottomRightTile.y) bottomRightTile.y = y;
+			}
+		}
+	}
+
+	const auto topLeft = sf::Vector2i(
+			topLeftTile.x * map.getTileSize().x,
+			topLeftTile.y * map.getTileSize().y);
+
+	const auto bottomRight = sf::Vector2i(
+			(bottomRightTile.x + 1) * map.getTileSize().x,
+			(bottomRightTile.y + 1) * map.getTileSize().y);
+
+	return sf::IntRect(topLeft, bottomRight - topLeft);
+}
+
 void ToolMesh::changeDrawingMode(ToolMesh::DrawMode newMode)
 {
 	mode = newMode;

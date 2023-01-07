@@ -58,6 +58,9 @@ public: // ToolInterface
 	std::optional<GenericObject> getHighlightedObject(const sf::Vector2i& penPos) const override;
 	std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override;
 
+	[[nodiscard]]
+	std::optional<sf::IntRect> getBoundingBox() const noexcept override;
+
 protected: // ToolInterface
 	void buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) override;
 
