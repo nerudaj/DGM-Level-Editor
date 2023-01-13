@@ -3,6 +3,7 @@
 #include "include/Tools/ToolInterface.hpp"
 #include "include/Tools/ToolWithDragAndSelect.hpp"
 #include "include/Tools/SidebarUserItem.hpp"
+#include "include/Utilities/CoordConverter.hpp"
 
 class ItemToolProperty : public ImageToolProperty
 {
@@ -43,7 +44,10 @@ public: // ToolInterface
 
 	void configure(nlohmann::json& config) override;
 
+	// Note: this could be modified to specify topleft offset
 	void resize(unsigned width, unsigned height) override;
+
+	void resize(const sf::IntRect& boundingBox) override;
 
 	void saveTo(LevelD& lvd) const override;
 
@@ -59,7 +63,7 @@ public: // ToolInterface
 	std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override;
 
 	[[nodiscard]]
-	std::optional<sf::IntRect> getBoundingBox() const noexcept override;
+	std::optional<TileRect> getBoundingBox() const noexcept override;
 
 protected: // ToolInterface
 	void buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) override;
@@ -84,7 +88,7 @@ protected:
 
 private:
 	std::vector<LevelD::Thing> items;
-	sf::Vector2u tileSize;
+	CoordConverter coordConverter;
 	sf::Vector2i levelSize;
 	EditMode editMode = EditMode::ModeDraw;
 	SidebarUserItem sidebarUser;

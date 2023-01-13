@@ -15,6 +15,7 @@
 #include "include/Utilities/Box.hpp"
 #include "include/Utilities/Error.hpp"
 #include "include/Utilities/GC.hpp"
+#include "include/Utilities/Rect.hpp"
 
 using ExpectedPropertyPtr = std::expected<Box<ToolProperty>, BaseError>;
 
@@ -70,7 +71,7 @@ public: // Public virtual interface
 	 * \Return a bounding box around the contents of the tool
 	 */
 	[[nodiscard]]
-	virtual std::optional<sf::IntRect> getBoundingBox() const noexcept = 0;
+	virtual std::optional<TileRect> getBoundingBox() const noexcept = 0;
 
 protected: // Protected non-virtual interface
 	void addCtxMenuItem(

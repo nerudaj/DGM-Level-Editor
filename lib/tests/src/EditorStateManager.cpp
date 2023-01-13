@@ -39,6 +39,7 @@ public:
 	{}
 	virtual void resize(unsigned width, unsigned height) override
 	{}
+	virtual void resize(const sf::IntRect& r) override {}
 	virtual void saveTo(LevelD& lvd) const override
 	{}
 	virtual void loadFrom(const LevelD& lvd) override
@@ -62,9 +63,9 @@ public:
 	virtual void buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) override
 	{}
 
-	std::optional<sf::IntRect> getBoundingBox() const noexcept override
+	std::optional<TileRect> getBoundingBox() const noexcept override
 	{
-		return sf::IntRect();
+		return TileRect();
 	}
 
 private:

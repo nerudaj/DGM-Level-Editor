@@ -5,6 +5,7 @@
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Utilities/DragContext.hpp"
 #include "include/Tools/SidebarUserTrigger.hpp"
+#include "include/Utilities/CoordConverter.hpp"
 
 class ToolTriggerProperty : public ToolProperty
 {
@@ -42,6 +43,7 @@ public: // ToolInterface
 	void buildSidebar() override { sidebarUser.buildSidebar(); }
 	void configure(nlohmann::json& config) override;
 	void resize(unsigned width, unsigned height) override;
+	void resize(const sf::IntRect& boundingBox) override {}
 	void saveTo(LevelD& lvd) const override;
 	void loadFrom(const LevelD& lvd) override;
 	void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
@@ -52,7 +54,7 @@ public: // ToolInterface
 	std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override;
 
 	[[nodiscard]]
-	std::optional<sf::IntRect> getBoundingBox() const noexcept override;
+	std::optional<TileRect> getBoundingBox() const noexcept override;
 
 protected: // ToolInterface
 	void buildCtxMenuInternal(tgui::MenuBar::Ptr&) override {}
@@ -92,7 +94,7 @@ private:
 
 	// Actual data
 	std::vector<LevelD::Trigger> triggers;
-	sf::Vector2u tileSize;
+	CoordConverter coordConverter;
 	sf::Vector2i levelSize;
 
 	// Dependencies

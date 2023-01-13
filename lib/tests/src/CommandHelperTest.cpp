@@ -48,8 +48,8 @@ TEST_CASE("[CommandHelper]")
 			REQUIRE(boundingBox.has_value());
 			REQUIRE(boundingBox->left == 24);
 			REQUIRE(boundingBox->top == 65);
-			REQUIRE(boundingBox->width == (106 - 24));
-			REQUIRE(boundingBox->height == (6969 - 65));
+			REQUIRE(boundingBox->right == 106);
+			REQUIRE(boundingBox->bottom == 6969);
 		}
 	}
 }

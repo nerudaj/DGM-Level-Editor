@@ -2,6 +2,7 @@
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
 #include "include/Commands/ResizeCommand.hpp"
+#include "include/Utilities/Utilities.hpp"
 
 #include <fstream>
 #include <filesystem>
@@ -246,7 +247,21 @@ void Editor::resize(unsigned width, unsigned height)
 }
 
 void Editor::shrinkToFit()
-{}
+{
+	/*std::optional<sf::IntRect> boundingBox;
+	stateMgr.forallStates([&boundingBox] (const ToolInterface& t)
+	{
+		boundingBox = Utilities::unifyRects(boundingBox, t.getBoundingBox());
+	});
+
+	boundingBox.and_then([this] (sf::IntRect& box)
+	{
+		stateMgr.forallStates([&box] (ToolInterface& t)
+			{
+				t.resize(box);
+			});
+	});*/
+}
 
 Editor::Editor(
 	tgui::Gui& guiRef,

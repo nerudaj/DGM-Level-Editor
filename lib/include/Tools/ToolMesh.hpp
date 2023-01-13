@@ -53,6 +53,8 @@ public: // ToolInterface
 
 	void resize(unsigned width, unsigned height) override;
 
+	void resize(const sf::IntRect& boundingBox) override;
+
 	void saveTo(LevelD& lvd) const override;
 
 	void loadFrom(const LevelD& lvd) override;
@@ -70,7 +72,7 @@ public: // ToolInterface
 	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override { return {}; }
 
 	[[nodiscard]]
-	std::optional<sf::IntRect> getBoundingBox() const noexcept override;
+	std::optional<TileRect> getBoundingBox() const noexcept override;
 
 private:
 	void changeDrawingMode(DrawMode newMode);

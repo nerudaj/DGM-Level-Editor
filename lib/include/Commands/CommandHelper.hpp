@@ -1,8 +1,8 @@
 #pragma once
 
 #include "include/Utilities/DragContext.hpp"
+#include "include/Utilities/Rect.hpp"
 
-#include <SFML/Graphics/Rect.hpp>
 #include <LevelD.hpp>
 #include <set>
 #include <vector>
@@ -99,7 +99,7 @@ public:
 	}
 
 	template<TriggerOrThing ObjectType>
-	static std::optional<sf::IntRect> getBoundingBox(
+	static std::optional<CoordRect> getBoundingBox(
 		const std::vector<ObjectType>& objects,
 		const sf::Vector2i levelSize,
 		std::function<sf::Vector2i(const ObjectType&)> getNormalizedPosition)
@@ -120,6 +120,12 @@ public:
 			bottomRight.y = std::max(pos.y, bottomRight.y);
 		}
 
-		return sf::IntRect(topLeft, bottomRight - topLeft);
+		return CoordRect
+		{
+			.left = topLeft.x,
+			.top = topLeft.y,
+			.right = bottomRight.x,
+			.bottom = bottomRight.y
+		};
 	}
 };
