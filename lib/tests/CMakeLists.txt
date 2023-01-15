@@ -14,6 +14,11 @@ configure_file (
 	${CMAKE_CURRENT_BINARY_DIR}/Release/ COPYONLY
 )
 
+configure_file (
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/MeshAssets.hpp.in"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/MeshAssets.hpp"
+)
+
 file (
 	GLOB HEADERS
 	CONFIGURE_DEPENDS

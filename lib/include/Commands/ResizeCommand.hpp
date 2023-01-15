@@ -1,28 +1,9 @@
 #pragma once
 
-#include "include/Commands/CommandInterface.hpp"
 #include "include/Commands/UndoableCommandInterface.hpp"
 #include "include/Editor/Editor.hpp"
 
 #include <LevelD.hpp>
-
-class ResizeCommandInverse final : public CommandInterface
-{
-protected:
-	Editor& editor;
-	LevelD snapshot;
-
-public:
-	[[nodiscard]]
-	ResizeCommandInverse(
-		Editor& editor,
-		LevelD snapshot) noexcept
-		: editor(editor), snapshot(snapshot)
-	{}
-
-public:
-	void exec() override;
-};
 
 class ResizeCommand final : public UndoableCommandInterface
 {

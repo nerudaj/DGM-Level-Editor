@@ -73,30 +73,59 @@ void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 void ToolMesh::configure(nlohmann::json& config)
 {
 	const std::string TOOL_STR = "toolMesh";
-	const auto rootPath = std::filesystem::path(config["configFolder"].get<std::string>());
+	const auto rootPath = std::filesystem::path(
+		config["configFolder"].get<std::string>());
 
-	auto texturePath = std::filesystem::path(config[TOOL_STR]["texture"]["path"].get<std::string>());
+	auto texturePath = std::filesystem::path(
+		config[TOOL_STR]["texture"]["path"].get<std::string>());
 	if (texturePath.is_relative())
 		texturePath = rootPath / texturePath;
 
-	sf::Vector2u tileDims = JsonHelper::arrayToVector2u(config[TOOL_STR]["texture"]["tileDimensions"]);
-	sf::Vector2u tileOffs = JsonHelper::arrayToVector2u(config[TOOL_STR]["texture"]["tileOffsets"]);
-	sf::IntRect  bounds = JsonHelper::arrayToIntRect(config[TOOL_STR]["texture"]["boundaries"]);
+	sf::Vector2u tileDims = JsonHelper::arrayToVector2u(
+		config[TOOL_STR]["texture"]["tileDimensions"]);
+	sf::Vector2u tileOffs = JsonHelper::arrayToVector2u(
+		config[TOOL_STR]["texture"]["tileOffsets"]);
+	sf::IntRect  bounds = JsonHelper::arrayToIntRect(
+		config[TOOL_STR]["texture"]["boundaries"]);
 
-	defaultBlocks.resize(config[TOOL_STR]["defaultProperties"]["count"]);
+	std::vector<bool> blocks(
+		config[TOOL_STR]["defaultProperties"]["count"],
+		false);
+
 	unsigned i = 0;
 	for (auto& item : config[TOOL_STR]["defaultProperties"]["solids"])
 	{
-		defaultBlocks[i++] = bool(int(item));
+		blocks[i++] = bool(int(item));
 	}
 
-	sidebarUser.configure(
+	configure(
 		texturePath,
-		dgm::Clip(tileDims, bounds, 0, tileOffs));
-	map = DrawableLeveldMesh(sidebarUser.getTexture(), sidebarUser.getClip());
+		tileDims,
+		tileOffs,
+		bounds,
+		blocks);
+}
 
-	rectShape.setOutlineColor(sf::Color(255, 0, 0, 128));
-	rectShape.setOutlineThickness(2.f);
+void ToolMesh::copySourceRectToTarget(
+	sf::Vector2u const& start,
+	sf::Vector2u const& end,
+	sf::Vector2i const& translation,
+	std::vector<int>& targetTileValues,
+	std::vector<int>& targetSolidValues,
+	unsigned targetWidth)
+{
+	for (unsigned y = start.y; y < end.y; y++)
+	{
+		for (unsigned x = start.x; x < end.x; x++)
+		{
+			const unsigned targetX = x + translation.x;
+			const unsigned targetY = y + translation.y;
+			const unsigned targetI = targetY * targetWidth + targetX;
+
+			targetTileValues[targetI] = map.getTileValue({ x, y });
+			targetSolidValues[targetI] = map.isTileSolid({ x, y });
+		}
+	}
 }
 
 void ToolMesh::resize(unsigned width, unsigned height)
@@ -113,29 +142,46 @@ void ToolMesh::resize(unsigned width, unsigned height)
 		? (height - map.getMapDimensions().y) / 2u
 		: 0;
 
-	for (unsigned y = 0; y < std::min(height, map.getMapDimensions().y); y++)
-	{
-		for (unsigned x = 0; x < std::min(width, map.getMapDimensions().x); x++)
-		{
-			const unsigned targetX = x + offsetX;
-			const unsigned targetY = y + offsetY;
-			const unsigned targetI = targetY * width + targetX;
+	const sf::Vector2u end(
+		std::min(width, map.getMapDimensions().x),
+		std::min(height, map.getMapDimensions().y));
 
-			tileValues[targetI] = map.getTileValue({ x, y });
-			solidValues[targetI] = map.isTileSolid({ x, y });
-		}
-	}
+	copySourceRectToTarget(
+		{ 0u, 0u },
+		end,
+		sf::Vector2i(offsetX, offsetY),
+		tileValues,
+		solidValues,
+		width);
 
 	map.build(tileValues, solidValues, { width, height });
-
-	// TODO: Testing scenario:
-	// resizing (bigger, smaller)
 }
 
-void ToolMesh::resize(const sf::IntRect& boundingBox)
+void ToolMesh::shrinkTo(TileRect const& boundingBox)
 {
-	// Bounding box needs to be normalized to tile coordinates...
-	// problem for other tools?
+	const auto width = boundingBox.right - boundingBox.left + 1;
+	const auto height = boundingBox.bottom - boundingBox.top + 1;
+
+	auto tileValues = std::vector<int>(width * height, 0);
+	auto solidValues = std::vector<int>(width * height, 0);
+
+	const int offsetX = -boundingBox.left;
+	const int offsetY = -boundingBox.top;
+
+	const sf::Vector2i translation(
+		boundingBox.left,
+		boundingBox.top);
+
+	// BUG: start, end should be properly defined
+	copySourceRectToTarget(
+		{ boundingBox.left, boundingBox.top },
+		{ boundingBox.right + 1, boundingBox.bottom + 1 },
+		-translation,
+		tileValues,
+		solidValues,
+		width);
+
+	map.build(tileValues, solidValues, { width, height });
 }
 
 void ToolMesh::saveTo(LevelD& lvd) const
@@ -259,6 +305,26 @@ std::optional<TileRect> ToolMesh::getBoundingBox() const noexcept
 	if (nonZeroTileDetected)
 		return result;
 	return {};
+}
+
+void ToolMesh::configure(
+	std::filesystem::path const& texturePath,
+	sf::Vector2u const& frameSize,
+	sf::Vector2u const& frameSpacing,
+	sf::IntRect const& textureBounds,
+	std::vector<bool> const& defaultBlockSetting)
+{
+	defaultBlocks = defaultBlockSetting;
+
+	sidebarUser.configure(
+		texturePath,
+		dgm::Clip(frameSize, textureBounds, 0, frameSpacing));
+	map = DrawableLeveldMesh(
+		sidebarUser.getTexture(),
+		sidebarUser.getClip());
+
+	rectShape.setOutlineColor(sf::Color(255, 0, 0, 128));
+	rectShape.setOutlineThickness(2.f);
 }
 
 void ToolMesh::changeDrawingMode(ToolMesh::DrawMode newMode)

@@ -10,3 +10,13 @@ TileRect CoordConverter::convertCoordToTileRect(const CoordRect& box) const noex
 		.bottom = box.bottom / tileSize.y
 	};
 }
+
+CoordRect CoordConverter::convertTileToCoordRect(
+	TileRect const& box) const noexcept
+{
+	return CoordRect{
+		.left = int(box.left * tileSize.x),
+		.top = int(box.top * tileSize.y),
+		.right = int((box.right + 1) * tileSize.x),
+		.bottom = int((box.bottom + 1) * tileSize.y) };
+}

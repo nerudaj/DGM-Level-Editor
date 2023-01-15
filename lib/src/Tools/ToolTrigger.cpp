@@ -157,6 +157,18 @@ void ToolTrigger::resize(unsigned width, unsigned height)
 	levelSize.y = int(tileSize.y * height);
 }
 
+void ToolTrigger::shrinkTo(TileRect const& boundingBox)
+{
+	const auto coordBox = coordConverter.convertTileToCoordRect(
+		boundingBox);
+
+	for (auto&& trigger : triggers)
+	{
+		trigger.x -= coordBox.left;
+		trigger.y -= coordBox.top;
+	}
+}
+
 void ToolTrigger::saveTo(LevelD& lvd) const
 {
 	lvd.triggers = triggers;
@@ -241,7 +253,8 @@ void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity)
 	}
 }
 
-sf::Vector2u ToolTrigger::getNormalizedPosition(const LevelD::Trigger& trigger)
+sf::Vector2u ToolTrigger::getNormalizedPosition(
+	const LevelD::Trigger& trigger)
 {
 	if (trigger.areaType == PenType::Rectangle)
 		return sf::Vector2u(trigger.x, trigger.y) + sf::Vector2u(trigger.width, trigger.height) / 2u;

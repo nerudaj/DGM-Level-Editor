@@ -43,7 +43,7 @@ public: // ToolInterface
 	void buildSidebar() override { sidebarUser.buildSidebar(); }
 	void configure(nlohmann::json& config) override;
 	void resize(unsigned width, unsigned height) override;
-	void resize(const sf::IntRect& boundingBox) override {}
+	void shrinkTo(TileRect const& boundingBox) override;
 	void saveTo(LevelD& lvd) const override;
 	void loadFrom(const LevelD& lvd) override;
 	void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;

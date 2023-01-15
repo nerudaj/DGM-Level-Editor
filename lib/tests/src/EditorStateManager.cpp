@@ -39,7 +39,7 @@ public:
 	{}
 	virtual void resize(unsigned width, unsigned height) override
 	{}
-	virtual void resize(const sf::IntRect& r) override {}
+	virtual void shrinkTo(TileRect const& r) override {}
 	virtual void saveTo(LevelD& lvd) const override
 	{}
 	virtual void loadFrom(const LevelD& lvd) override

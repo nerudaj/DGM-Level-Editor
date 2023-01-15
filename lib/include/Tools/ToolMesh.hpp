@@ -53,7 +53,7 @@ public: // ToolInterface
 
 	void resize(unsigned width, unsigned height) override;
 
-	void resize(const sf::IntRect& boundingBox) override;
+	void shrinkTo(const TileRect& boundingBox) override;
 
 	void saveTo(LevelD& lvd) const override;
 
@@ -73,6 +73,34 @@ public: // ToolInterface
 
 	[[nodiscard]]
 	std::optional<TileRect> getBoundingBox() const noexcept override;
+
+public:
+	void configure(
+		std::filesystem::path const& texturePath,
+		sf::Vector2u const& frameSize,
+		sf::Vector2u const& frameSpacing,
+		sf::IntRect const& textureBounds,
+		std::vector<bool> const& defaultBlockSetting);
+
+	/**
+	 *  Copy data from existing source map to target
+	 *  arrays.
+	 *
+	 *  translation vector defines how source data are
+	 *  mapped to target. Source point S will be mapped
+	 *  to target point T according to:
+	 *  S + translation = T
+	 *
+	 *  start bound is inclusive
+	 *  end bound is exclusive
+	 */
+	void copySourceRectToTarget(
+		sf::Vector2u const& start,
+		sf::Vector2u const& end,
+		sf::Vector2i const& translation,
+		std::vector<int>& targetTileValues,
+		std::vector<int>& targetSolidValues,
+		unsigned targetWidth);
 
 private:
 	void changeDrawingMode(DrawMode newMode);

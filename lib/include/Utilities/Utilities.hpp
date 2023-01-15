@@ -1,7 +1,8 @@
 #pragma once
 
+#include "include/Utilities/Rect.hpp"
+
 #include <SFML/Graphics/Image.hpp>
-#include <SFML/Graphics/Rect.hpp>
 #include <DGM/classes/Clip.hpp>
 #include <tuple>
 #include <optional>
@@ -14,7 +15,7 @@ namespace Utilities
 	// negative coordinates with zeroes
 	sf::Vector2i clipNegativeCoords(const sf::Vector2i& v);
 
-	std::optional<sf::IntRect> unifyRects(
-		const std::optional<sf::IntRect>& a,
-		const std::optional<sf::IntRect>& b) noexcept;
+	std::optional<TileRect> unifyRects(
+		const std::optional<TileRect>& a,
+		const std::optional<TileRect>& b) noexcept;
 }

@@ -18,7 +18,9 @@ sf::Vector2i Utilities::clipNegativeCoords(const sf::Vector2i& v)
 	);
 }
 
-std::optional<sf::IntRect> Utilities::unifyRects(const std::optional<sf::IntRect>& a, const std::optional<sf::IntRect>& b) noexcept
+std::optional<TileRect> Utilities::unifyRects(
+		const std::optional<TileRect>& a,
+		const std::optional<TileRect>& b) noexcept
 {
 	if (a.has_value() && !b.has_value())
 		return a;
@@ -32,10 +34,8 @@ std::optional<sf::IntRect> Utilities::unifyRects(const std::optional<sf::IntRect
 
 	const int left = std::min(aVal.left, bVal.left);
 	const int top = std::min(aVal.top, bVal.top);
-	const int right = std::max(aVal.left + aVal.width, bVal.left + bVal.width);
-	const int bottom = std::max(aVal.top + aVal.height, bVal.top + bVal.height);
+	const int right = std::max(aVal.right, bVal.right);
+	const int bottom = std::max(aVal.bottom, bVal.bottom);
 
-	return sf::IntRect(
-		sf::Vector2i(left, top),
-		sf::Vector2i(right - left, bottom - top));
+	return TileRect(left, top, right, bottom);
 }

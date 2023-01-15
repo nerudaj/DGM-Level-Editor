@@ -47,7 +47,7 @@ public: // ToolInterface
 	// Note: this could be modified to specify topleft offset
 	void resize(unsigned width, unsigned height) override;
 
-	void resize(const sf::IntRect& boundingBox) override;
+	void shrinkTo(TileRect const& boundingBox) override;
 
 	void saveTo(LevelD& lvd) const override;
 
@@ -55,12 +55,16 @@ public: // ToolInterface
 
 	void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
 
-	ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const override;
+	ExpectedPropertyPtr getProperty(
+		sf::Vector2i const& penPos) const override;
 
-	void setProperty(const ToolProperty& prop) override;
+	void setProperty(ToolProperty const& prop) override;
 
-	std::optional<GenericObject> getHighlightedObject(const sf::Vector2i& penPos) const override;
-	std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override;
+	std::optional<GenericObject> getHighlightedObject(
+		sf::Vector2i const& penPos) const override;
+
+	std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(
+		unsigned tag) const override;
 
 	[[nodiscard]]
 	std::optional<TileRect> getBoundingBox() const noexcept override;

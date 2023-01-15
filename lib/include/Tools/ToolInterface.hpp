@@ -48,7 +48,7 @@ public: // Public virtual interface
 
 	virtual void resize(unsigned width, unsigned height) = 0;
 
-	virtual void resize(const sf::IntRect& boundingBox) = 0;
+	virtual void shrinkTo(const TileRect& boundingBox) = 0;
 
 	virtual void saveTo(LevelD& lvd) const = 0;
 	virtual void loadFrom(const LevelD& lvd) = 0;

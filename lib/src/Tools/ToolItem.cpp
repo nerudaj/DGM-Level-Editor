@@ -143,8 +143,17 @@ void ToolItem::resize(unsigned width, unsigned height)
 	levelSize.y = int(tileSize.y * height);
 }
 
-void ToolItem::resize(const sf::IntRect& boundingBox)
-{}
+void ToolItem::shrinkTo(TileRect const& boundingBox)
+{
+	const auto coordBox = coordConverter.convertTileToCoordRect(
+		boundingBox);
+
+	for (auto&& item : items)
+	{
+		item.x -= coordBox.left;
+		item.y -= coordBox.top;
+	}
+}
 
 void ToolItem::saveTo(LevelD& lvd) const
 {

@@ -17,7 +17,12 @@ public:
 
 public:
 	[[nodiscard]]
-	TileRect convertCoordToTileRect(const CoordRect& box) const noexcept;
+	TileRect convertCoordToTileRect(
+		CoordRect const& box) const noexcept;
+
+	[[nodiscard]]
+	CoordRect convertTileToCoordRect(
+		TileRect const& box) const noexcept;
 
 	[[nodiscard]]
 	constexpr sf::Vector2u const& getTileSize() const noexcept

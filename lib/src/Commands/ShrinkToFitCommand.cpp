@@ -1,9 +1,5 @@
 #include "include/Commands/ShrinkToFitCommand.hpp"
-
-void ShrinkToFitCommandInverse::exec()
-{
-	editor.loadFrom(snapshot, true);
-}
+#include "include/Commands/RestoreFromSnapshotCommand.hpp"
 
 void ShrinkToFitCommand::exec()
 {
@@ -13,7 +9,7 @@ void ShrinkToFitCommand::exec()
 
 std::unique_ptr<CommandInterface> ShrinkToFitCommand::getInverse() const
 {
-	return std::make_unique<ShrinkToFitCommandInverse>(
+	return std::make_unique<RestoreFromSnapshotCommand>(
 		editor,
 		levelSnapshot);
 }

@@ -1,9 +1,5 @@
 #include "include/Commands/ResizeCommand.hpp"
-
-void ResizeCommandInverse::exec()
-{
-	editor.loadFrom(snapshot, true);
-}
+#include "include/Commands/RestoreFromSnapshotCommand.hpp"
 
 void ResizeCommand::exec()
 {
@@ -13,7 +9,7 @@ void ResizeCommand::exec()
 
 std::unique_ptr<CommandInterface> ResizeCommand::getInverse() const
 {
-	return std::make_unique<ResizeCommandInverse>(
+	return std::make_unique<RestoreFromSnapshotCommand>(
 		editor,
 		levelSnapshot);
 }
