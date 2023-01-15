@@ -70,6 +70,11 @@ target_compile_options ( ${PROJECT_NAME}
 	PRIVATE /MP
 )
 
+set_property(
+	TARGET ${PROJECT_NAME}
+	PROPERTY VS_USER_PROPS "${CMAKE_CURRENT_SOURCE_DIR}/../props/EnableUseAfterMoveAnalysis.props"
+)
+
 if ( NOT ${DISABLE_BENCHMARKS} )
 	add_subdirectory ( benchmarks )
 endif()

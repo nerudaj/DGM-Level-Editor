@@ -1,12 +1,15 @@
 #pragma once
 
 #include "include/Utilities/DragContext.hpp"
+#include "include/Utilities/Rect.hpp"
 
 #include <LevelD.hpp>
 #include <set>
 #include <vector>
 #include <concepts>
 #include <algorithm>
+#include <functional>
+#include <optional>
 
 template<class T>
 concept TriggerOrThing = std::is_same_v<T, LevelD::Thing>
@@ -93,5 +96,36 @@ public:
 				items[index].y + forward.y,
 				0, boundary.y);
 		}
+	}
+
+	template<TriggerOrThing ObjectType>
+	static std::optional<CoordRect> getBoundingBox(
+		const std::vector<ObjectType>& objects,
+		const sf::Vector2i levelSize,
+		std::function<sf::Vector2i(const ObjectType&)> getNormalizedPosition)
+	{
+		if (objects.empty()) return {};
+
+		sf::Vector2i topLeft = getNormalizedPosition(
+			objects.front());
+		sf::Vector2i bottomRight = getNormalizedPosition(
+			objects.front());
+
+		for (auto&& object : objects)
+		{
+			const auto pos = getNormalizedPosition(object);
+			topLeft.x = std::min(pos.x, topLeft.x);
+			bottomRight.x = std::max(pos.x, bottomRight.x);
+			topLeft.y = std::min(pos.y, topLeft.y);
+			bottomRight.y = std::max(pos.y, bottomRight.y);
+		}
+
+		return CoordRect
+		{
+			.left = topLeft.x,
+			.top = topLeft.y,
+			.right = bottomRight.x,
+			.bottom = bottomRight.y
+		};
 	}
 };

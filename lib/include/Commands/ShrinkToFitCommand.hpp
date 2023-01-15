@@ -5,18 +5,13 @@
 
 #include <LevelD.hpp>
 
-class ResizeCommand final : public UndoableCommandInterface
+class ShrinkToFitCommand final : public UndoableCommandInterface
 {
-protected:
-	unsigned width;
-	unsigned height;
-	Editor& editor;
-	LevelD levelSnapshot;
-
 public:
 	[[nodiscard]]
-	ResizeCommand(Editor& editor, unsigned width, unsigned height) noexcept
-		: editor(editor), width(width), height(height)
+	ShrinkToFitCommand(
+		Editor& editor) noexcept
+		: editor(editor)
 	{}
 
 public:
@@ -24,4 +19,8 @@ public:
 
 	[[nodiscard]]
 	std::unique_ptr<CommandInterface> getInverse() const override;
+
+protected:
+	Editor& editor;
+	LevelD levelSnapshot;
 };

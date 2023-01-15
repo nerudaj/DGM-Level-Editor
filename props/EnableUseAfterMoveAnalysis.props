@@ -1,0 +1,6 @@
+<Project>
+	<PropertyGroup>
+		<RunCodeAnalysis>true</RunCodeAnalysis>
+		<CodeAnalysisRuleset>$(SolutionDir)/../props/use-after-move.ruleset</CodeAnalysisRuleset>
+	</PropertyGroup>
+</Project>

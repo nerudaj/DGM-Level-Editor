@@ -1,13 +1,13 @@
-#include "include/Commands/ResizeCommand.hpp"
+#include "include/Commands/ShrinkToFitCommand.hpp"
 #include "include/Commands/RestoreFromSnapshotCommand.hpp"
 
-void ResizeCommand::exec()
+void ShrinkToFitCommand::exec()
 {
 	levelSnapshot = editor.save();
-	editor.resize(width, height);
+	editor.shrinkToFit();
 }
 
-std::unique_ptr<CommandInterface> ResizeCommand::getInverse() const
+std::unique_ptr<CommandInterface> ShrinkToFitCommand::getInverse() const
 {
 	return std::make_unique<RestoreFromSnapshotCommand>(
 		editor,

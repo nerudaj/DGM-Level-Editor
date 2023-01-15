@@ -42,7 +42,6 @@ public:
 		referenceCounter = other.referenceCounter;
 	}
 
-	[[nodiscard]]
 	constexpr GC& operator=(GC other) noexcept
 	{
 		swap(other);

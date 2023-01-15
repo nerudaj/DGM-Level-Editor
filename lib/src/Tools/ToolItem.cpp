@@ -43,11 +43,11 @@ void ToolItem::selectObjectsInArea(const sf::IntRect& selectedArea)
 void ToolItem::moveSelectedObjectsTo(const sf::Vector2i& point)
 {
 	CommandHelper::moveSelectedObjectsTo(
-			items,
-			selectedObjects,
-			dragContext,
-			point,
-			sf::Vector2u(levelSize));
+		items,
+		selectedObjects,
+		dragContext,
+		point,
+		sf::Vector2u(levelSize));
 }
 
 void ToolItem::createMoveCommand(
@@ -66,10 +66,10 @@ void ToolItem::createMoveCommand(
 void ToolItem::createDeleteCommand()
 {
 	commandQueue->push<DeleteItemCommand>(
-			items,
-			std::vector<std::size_t>(
-				selectedObjects.begin(),
-				selectedObjects.end()));
+		items,
+		std::vector<std::size_t>(
+			selectedObjects.begin(),
+			selectedObjects.end()));
 }
 
 /* Rest of ToolItem */
@@ -87,7 +87,9 @@ void ToolItem::configure(nlohmann::json& config)
 	const std::string TOOL_STR = "toolItem";
 	const auto rootPath = std::filesystem::path(config["configFolder"].get<std::string>());
 
-	tileSize = JsonHelper::arrayToVector2u(config["toolMesh"]["texture"]["tileDimensions"]);
+	coordConverter = CoordConverter(
+		JsonHelper::arrayToVector2u(
+			config["toolMesh"]["texture"]["tileDimensions"]));
 
 	std::vector<SidebarUserItem::PathRectPair> pathRectPairs;
 	auto itemsJ = config[TOOL_STR]["items"];
@@ -102,7 +104,7 @@ void ToolItem::configure(nlohmann::json& config)
 		pathRectPairs.push_back(SidebarUserItem::PathRectPair{
 			.texturePath = texturePath,
 			.clip = JsonHelper::arrayToIntRect(item["texture"]["clip"])
-		});
+			});
 	}
 
 	sidebarUser.configure(pathRectPairs);
@@ -114,6 +116,8 @@ void ToolItem::configure(nlohmann::json& config)
 
 void ToolItem::resize(unsigned width, unsigned height)
 {
+	auto&& tileSize = coordConverter.getTileSize();
+
 	const auto newLevelSize = sf::Vector2u(width, height);
 	const auto oldLevelSize = sf::Vector2u(
 		levelSize.x / tileSize.x,
@@ -139,6 +143,18 @@ void ToolItem::resize(unsigned width, unsigned height)
 	levelSize.y = int(tileSize.y * height);
 }
 
+void ToolItem::shrinkTo(TileRect const& boundingBox)
+{
+	const auto coordBox = coordConverter.convertTileToCoordRect(
+		boundingBox);
+
+	for (auto&& item : items)
+	{
+		item.x -= coordBox.left;
+		item.y -= coordBox.top;
+	}
+}
+
 void ToolItem::saveTo(LevelD& lvd) const
 {
 	lvd.things = items;
@@ -146,8 +162,8 @@ void ToolItem::saveTo(LevelD& lvd) const
 
 void ToolItem::loadFrom(const LevelD& lvd)
 {
-	levelSize.x = lvd.mesh.layerWidth * tileSize.x;
-	levelSize.y = lvd.mesh.layerHeight * tileSize.y;
+	levelSize.x = lvd.mesh.layerWidth * coordConverter.getTileSize().x;
+	levelSize.y = lvd.mesh.layerHeight * coordConverter.getTileSize().y;
 	items = lvd.things;
 
 	for (auto& item : items)
@@ -281,6 +297,22 @@ std::vector<sf::Vector2u> ToolItem::getPositionsOfObjectsWithTag(unsigned tag) c
 	}
 
 	return result;
+}
+
+std::optional<TileRect> ToolItem::getBoundingBox() const noexcept
+{
+	const auto getPosition = [] (const LevelD::Thing& item) -> sf::Vector2i
+	{
+		return sf::Vector2i(item.x, item.y);
+	};
+
+	return CommandHelper::getBoundingBox<LevelD::Thing>(
+		items,
+		levelSize,
+		getPosition).and_then([this] (const CoordRect& b) -> std::optional<TileRect>
+		{
+			return coordConverter.convertCoordToTileRect(b);
+		});
 }
 
 void ItemToolProperty::buildModalSpecifics(tgui::Gui& gui, tgui::ScrollablePanel::Ptr& dst)

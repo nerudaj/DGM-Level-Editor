@@ -3,6 +3,7 @@
 #include "include/Tools/ToolInterface.hpp"
 #include "include/Tools/ToolWithDragAndSelect.hpp"
 #include "include/Tools/SidebarUserItem.hpp"
+#include "include/Utilities/CoordConverter.hpp"
 
 class ItemToolProperty : public ImageToolProperty
 {
@@ -43,7 +44,10 @@ public: // ToolInterface
 
 	void configure(nlohmann::json& config) override;
 
+	// Note: this could be modified to specify topleft offset
 	void resize(unsigned width, unsigned height) override;
+
+	void shrinkTo(TileRect const& boundingBox) override;
 
 	void saveTo(LevelD& lvd) const override;
 
@@ -51,12 +55,19 @@ public: // ToolInterface
 
 	void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
 
-	ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const override;
+	ExpectedPropertyPtr getProperty(
+		sf::Vector2i const& penPos) const override;
 
-	void setProperty(const ToolProperty& prop) override;
+	void setProperty(ToolProperty const& prop) override;
 
-	std::optional<GenericObject> getHighlightedObject(const sf::Vector2i& penPos) const override;
-	std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override;
+	std::optional<GenericObject> getHighlightedObject(
+		sf::Vector2i const& penPos) const override;
+
+	std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(
+		unsigned tag) const override;
+
+	[[nodiscard]]
+	std::optional<TileRect> getBoundingBox() const noexcept override;
 
 protected: // ToolInterface
 	void buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) override;
@@ -81,7 +92,7 @@ protected:
 
 private:
 	std::vector<LevelD::Thing> items;
-	sf::Vector2u tileSize;
+	CoordConverter coordConverter;
 	sf::Vector2i levelSize;
 	EditMode editMode = EditMode::ModeDraw;
 	SidebarUserItem sidebarUser;

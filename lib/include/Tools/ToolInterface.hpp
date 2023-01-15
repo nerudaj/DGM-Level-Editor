@@ -15,6 +15,7 @@
 #include "include/Utilities/Box.hpp"
 #include "include/Utilities/Error.hpp"
 #include "include/Utilities/GC.hpp"
+#include "include/Utilities/Rect.hpp"
 
 using ExpectedPropertyPtr = std::expected<Box<ToolProperty>, BaseError>;
 
@@ -47,6 +48,8 @@ public: // Public virtual interface
 
 	virtual void resize(unsigned width, unsigned height) = 0;
 
+	virtual void shrinkTo(const TileRect& boundingBox) = 0;
+
 	virtual void saveTo(LevelD& lvd) const = 0;
 	virtual void loadFrom(const LevelD& lvd) = 0;
 
@@ -54,7 +57,6 @@ public: // Public virtual interface
 		tgui::Canvas::Ptr& canvas,
 		uint8_t opacity) = 0;
 
-	// Returns nullptr if no property can be returned
 	[[nodiscard]]
 	virtual ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const = 0;
 	virtual void setProperty(const ToolProperty& prop) = 0;
@@ -64,6 +66,12 @@ public: // Public virtual interface
 
 	[[nodiscard]]
 	virtual std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const = 0;
+
+	/**
+	 * \Return a bounding box around the contents of the tool
+	 */
+	[[nodiscard]]
+	virtual std::optional<TileRect> getBoundingBox() const noexcept = 0;
 
 protected: // Protected non-virtual interface
 	void addCtxMenuItem(

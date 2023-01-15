@@ -39,6 +39,7 @@ public:
 	{}
 	virtual void resize(unsigned width, unsigned height) override
 	{}
+	virtual void shrinkTo(TileRect const& r) override {}
 	virtual void saveTo(LevelD& lvd) const override
 	{}
 	virtual void loadFrom(const LevelD& lvd) override
@@ -62,6 +63,11 @@ public:
 	virtual void buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) override
 	{}
 
+	std::optional<TileRect> getBoundingBox() const noexcept override
+	{
+		return TileRect();
+	}
+
 private:
 	std::string name;
 	std::vector<std::string>& invocations;
@@ -70,9 +76,7 @@ private:
 TEST_CASE("[EditorStateManager]")
 {
 	GC<ShortcutEngine> engine;
-
 	std::vector<std::string> invocations;
-
 	EditorStateManager manager;
 
 	manager.addState<ToolMock>(

@@ -106,7 +106,10 @@ void ToolTrigger::configure(nlohmann::json& config)
 {
 	triggers.clear();
 
-	tileSize = JsonHelper::arrayToVector2u(config["toolMesh"]["texture"]["tileDimensions"]);
+	coordConverter =
+		CoordConverter(
+			JsonHelper::arrayToVector2u(
+				config["toolMesh"]["texture"]["tileDimensions"]));
 
 	// This is static, outline and fill colors of shapes are dependent on draw opacity
 	circShape.setOutlineThickness(2.f);
@@ -127,6 +130,8 @@ void ToolTrigger::configure(nlohmann::json& config)
 
 void ToolTrigger::resize(unsigned width, unsigned height)
 {
+	auto&& tileSize = coordConverter.getTileSize();
+
 	const auto newLevelSize = sf::Vector2u(width, height);
 	const auto oldLevelSize = sf::Vector2u(
 		levelSize.x / tileSize.x,
@@ -152,6 +157,18 @@ void ToolTrigger::resize(unsigned width, unsigned height)
 	levelSize.y = int(tileSize.y * height);
 }
 
+void ToolTrigger::shrinkTo(TileRect const& boundingBox)
+{
+	const auto coordBox = coordConverter.convertTileToCoordRect(
+		boundingBox);
+
+	for (auto&& trigger : triggers)
+	{
+		trigger.x -= coordBox.left;
+		trigger.y -= coordBox.top;
+	}
+}
+
 void ToolTrigger::saveTo(LevelD& lvd) const
 {
 	lvd.triggers = triggers;
@@ -159,6 +176,8 @@ void ToolTrigger::saveTo(LevelD& lvd) const
 
 void ToolTrigger::loadFrom(const LevelD& lvd)
 {
+	auto&& tileSize = coordConverter.getTileSize();
+
 	levelSize.x = lvd.mesh.layerWidth * tileSize.x;
 	levelSize.y = lvd.mesh.layerHeight * tileSize.y;
 	triggers = lvd.triggers;
@@ -234,7 +253,8 @@ void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity)
 	}
 }
 
-sf::Vector2u ToolTrigger::getNormalizedPosition(const LevelD::Trigger& trigger)
+sf::Vector2u ToolTrigger::getNormalizedPosition(
+	const LevelD::Trigger& trigger)
 {
 	if (trigger.areaType == PenType::Rectangle)
 		return sf::Vector2u(trigger.x, trigger.y) + sf::Vector2u(trigger.width, trigger.height) / 2u;
@@ -306,6 +326,22 @@ ExpectedPropertyPtr ToolTrigger::getProperty(const sf::Vector2i& penPos) const
 	result->data = triggers[*trigId];
 
 	return std::move(result);
+}
+
+std::optional<TileRect> ToolTrigger::getBoundingBox() const noexcept
+{
+	const auto getPosition = [this] (const LevelD::Trigger& trigger) -> sf::Vector2i
+	{
+		return sf::Vector2i(getNormalizedPosition(trigger));
+	};
+
+	return CommandHelper::getBoundingBox<LevelD::Trigger>(
+		triggers,
+		levelSize,
+		getPosition).and_then([this] (const CoordRect& b) -> std::optional<TileRect>
+		{
+			return coordConverter.convertCoordToTileRect(b);
+		});
 }
 
 void ToolTrigger::setProperty(const ToolProperty& prop)
