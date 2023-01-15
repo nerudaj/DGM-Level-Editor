@@ -172,7 +172,6 @@ void ToolMesh::shrinkTo(TileRect const& boundingBox)
 		boundingBox.left,
 		boundingBox.top);
 
-	// BUG: start, end should be properly defined
 	copySourceRectToTarget(
 		{ boundingBox.left, boundingBox.top },
 		{ boundingBox.right + 1, boundingBox.bottom + 1 },
