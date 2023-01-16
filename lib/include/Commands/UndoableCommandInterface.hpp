@@ -1,6 +1,7 @@
 #pragma once
 
 #include "include/Commands/CommandInterface.hpp"
+#include "include/Utilities/Box.hpp"
 
 #include <memory>
 
@@ -8,7 +9,7 @@ class UndoableCommandInterface : public CommandInterface
 {
 public:
 	[[nodiscard]]
-	virtual std::unique_ptr<CommandInterface> getInverse() const = 0;
+	virtual Box<CommandInterface> getInverse() const = 0;
 };
 
 template<class T>

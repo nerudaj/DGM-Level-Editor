@@ -7,9 +7,9 @@ void ResizeCommand::exec()
 	editor.resize(width, height);
 }
 
-std::unique_ptr<CommandInterface> ResizeCommand::getInverse() const
+Box<CommandInterface> ResizeCommand::getInverse() const
 {
-	return std::make_unique<RestoreFromSnapshotCommand>(
+	return Box<RestoreFromSnapshotCommand>(
 		editor,
 		levelSnapshot);
 }

@@ -18,7 +18,7 @@ public:
 	void exec() override;
 
 	[[nodiscard]]
-	std::unique_ptr<CommandInterface> getInverse() const override;
+	Box<CommandInterface> getInverse() const override;
 
 protected:
 	Editor& editor;

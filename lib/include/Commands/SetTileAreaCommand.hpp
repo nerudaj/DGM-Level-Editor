@@ -62,5 +62,5 @@ public:
 	virtual void exec() override;
 
 	[[nodiscard]]
-	virtual std::unique_ptr<CommandInterface> getInverse() const override;
+	virtual Box<CommandInterface> getInverse() const override;
 };
