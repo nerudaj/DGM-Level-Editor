@@ -23,10 +23,10 @@ public:
 		board.execCalled++;
 	}
 
-	std::unique_ptr<CommandInterface> getInverse() const override
+	Box<CommandInterface> getInverse() const override
 	{
 		board.getInverseCalled++;
-		return std::make_unique<TestCommand>(board);
+		return Box<TestCommand>(board);
 	}
 };
 

@@ -9,9 +9,9 @@ void SetTileCommand::exec()
 	targetMesh.setTileSolid(tilePos, blocking);
 }
 
-std::unique_ptr<CommandInterface> SetTileCommand::getInverse() const
+Box<CommandInterface> SetTileCommand::getInverse() const
 {
-	return std::make_unique<SetTileCommand>(
+	return Box<SetTileCommand>(
 		targetMesh,
 		tilePos,
 		*oldValue,

@@ -7,9 +7,9 @@ void ShrinkToFitCommand::exec()
 	editor.shrinkToFit();
 }
 
-std::unique_ptr<CommandInterface> ShrinkToFitCommand::getInverse() const
+Box<CommandInterface> ShrinkToFitCommand::getInverse() const
 {
-	return std::make_unique<RestoreFromSnapshotCommand>(
+	return Box<RestoreFromSnapshotCommand>(
 		editor,
 		levelSnapshot);
 }

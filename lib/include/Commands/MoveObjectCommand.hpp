@@ -47,9 +47,9 @@ public:
 			boundary);
 	}
 
-	virtual std::unique_ptr<CommandInterface> getInverse() const override
+	virtual Box<CommandInterface> getInverse() const override
 	{
-		return std::make_unique<MoveObjectCommand>(
+		return Box<MoveObjectCommand>(
 			target,
 			selectedItemIds,
 			dragContext,

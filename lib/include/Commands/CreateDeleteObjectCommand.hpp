@@ -36,9 +36,9 @@ public:
 	}
 
 	[[nodiscard]]
-	std::unique_ptr<CommandInterface> getInverse() const override
+	Box<CommandInterface> getInverse() const override
 	{
-		return std::make_unique<CreateObjectCommand<ObjectType>>(
+		return Box<CreateObjectCommand<ObjectType>>(
 			target,
 			*objectsToCreate);
 	}
@@ -82,9 +82,9 @@ public:
 	}
 
 	[[nodiscard]]
-	std::unique_ptr<CommandInterface> getInverse() const override
+	Box<CommandInterface> getInverse() const override
 	{
-		return std::make_unique<DeleteObjectCommand<ObjectType>>(
+		return Box<DeleteObjectCommand<ObjectType>>(
 			target,
 			*idsOfAddedObjects);
 	}

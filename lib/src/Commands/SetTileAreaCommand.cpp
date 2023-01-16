@@ -38,9 +38,9 @@ void SetTileAreaCommand::exec()
 	}
 }
 
-std::unique_ptr<CommandInterface> SetTileAreaCommand::getInverse() const
+Box<CommandInterface> SetTileAreaCommand::getInverse() const
 {
-	return std::make_unique<SetTileAreaInverseCommand>(
+	return Box<SetTileAreaInverseCommand>(
 		targetMesh,
 		reverseEdits);
 }
