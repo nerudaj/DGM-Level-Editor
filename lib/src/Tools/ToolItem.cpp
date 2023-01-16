@@ -73,13 +73,6 @@ void ToolItem::createDeleteCommand()
 }
 
 /* Rest of ToolItem */
-
-void ToolItem::changeEditMode(EditMode mode)
-{
-	Log::write("Changing ToolItem editMode to " + std::to_string(mode));
-	editMode = mode;
-}
-
 void ToolItem::configure(nlohmann::json& config)
 {
 	items.clear();
@@ -265,13 +258,7 @@ void ToolItem::setProperty(const ToolProperty& prop)
 }
 
 void ToolItem::buildCtxMenuInternal(tgui::MenuBar::Ptr& menu)
-{
-	const std::string OPTION_DRAW = "Draw Mode (Shift+D)";
-	const std::string OPTION_ERASE = "Erase Mode (Shift+E)";
-
-	addCtxMenuItem(menu, OPTION_DRAW, [this] { changeEditMode(EditMode::ModeDraw); }, sf::Keyboard::D);
-	addCtxMenuItem(menu, OPTION_ERASE, [this] { changeEditMode(EditMode::ModeErase); }, sf::Keyboard::E);
-}
+{}
 
 std::optional<GenericObject> ToolItem::getHighlightedObject(const sf::Vector2i& penPos) const
 {
@@ -325,11 +312,4 @@ void ItemToolProperty::buildModalSpecifics(tgui::Gui& gui, tgui::ScrollablePanel
 	addOption(gui, dst, "Tag:", "Value used to group related objects", data.tag, 3, true, true);
 	addOption(gui, dst, "Flags:", "16 bit value to alter behaviour of this object", data.flags, 4);
 	addOption(dst, "Metadata:", "Text field for custom data", data.metadata, 5);
-}
-
-std::string std::to_string(ToolItem::EditMode mode)
-{
-	if (mode == ToolItem::EditMode::ModeDraw) return "ModeDraw";
-	else if (mode == ToolItem::EditMode::ModeErase) return "ModeErase";
-	return "Error";
 }

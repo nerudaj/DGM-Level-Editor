@@ -57,7 +57,7 @@ public: // ToolInterface
 	std::optional<TileRect> getBoundingBox() const noexcept override;
 
 protected: // ToolInterface
-	void buildCtxMenuInternal(tgui::MenuBar::Ptr&) override {}
+	void buildCtxMenuInternal(tgui::MenuBar::Ptr&) override;
 
 protected: // ToolWithDragAndSelect
 	void penDragCancel(const sf::Vector2i& origin) override;

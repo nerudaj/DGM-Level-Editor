@@ -344,6 +344,9 @@ std::optional<TileRect> ToolTrigger::getBoundingBox() const noexcept
 		});
 }
 
+void ToolTrigger::buildCtxMenuInternal(tgui::MenuBar::Ptr& menu)
+{}
+
 void ToolTrigger::setProperty(const ToolProperty& prop)
 {
 	auto&& property = dynamic_cast<const ToolTriggerProperty&>(prop);

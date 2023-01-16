@@ -17,13 +17,6 @@ public:
 class ToolItem final : public ToolWithDragAndSelect
 {
 public:
-	enum class EditMode : std::size_t
-	{
-		ModeDraw, ModeErase
-	};
-	const sf::Vector2i NULL_VECTOR = sf::Vector2i(-1, -1);
-
-public:
 	[[nodiscard]]
 	ToolItem(
 		std::function<void(void)> onStateChanged,
@@ -83,8 +76,6 @@ protected: // ToolWithDragAndSelect
 	virtual void createDeleteCommand() final override;
 
 protected:
-	void changeEditMode(EditMode mode);
-
 	bool isValidPenPosForDrawing(const sf::Vector2i& pos) const
 	{
 		return !(pos.x < 0 || pos.y < 0 || pos.x >= levelSize.x || pos.y >= levelSize.y);
@@ -94,12 +85,6 @@ private:
 	std::vector<LevelD::Thing> items;
 	CoordConverter coordConverter;
 	sf::Vector2i levelSize;
-	EditMode editMode = EditMode::ModeDraw;
 	SidebarUserItem sidebarUser;
 	GC<CommandQueue> commandQueue;
-};
-
-namespace std
-{
-	std::string to_string(ToolItem::EditMode mode);
 };
