@@ -6,6 +6,11 @@ include ( "${CMAKE_SOURCE_DIR}/cmake/settings.cmake" )
 include ( "${CMAKE_SOURCE_DIR}/cmake/version.cmake" )
 include ( "${CMAKE_SOURCE_DIR}/cmake/utils.cmake" )
 
+configure_file(
+	"${CMAKE_SOURCE_DIR}/props/EnableUseAfterMoveAnalysis.props.in"
+	"${CMAKE_SOURCE_DIR}/props/EnableUseAfterMoveAnalysis.props"
+)
+
 project ( "${SETTINGS_PROJECT_NAME}" )
 
 option ( DISABLE_TESTING    "Disable unit test projects" OFF )

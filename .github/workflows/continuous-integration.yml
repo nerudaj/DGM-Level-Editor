@@ -2,18 +2,16 @@ name: ContinuousIntegration
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 env:
   BUILD_DIR: ${{github.workspace}}/vsbuild
-  WINDOWS_VER: windows-2022
-  CMAKE_VER: '3.23.2'
 
 jobs:
   build:
-    runs-on: ${{env.WINDOWS_VER}}
+    runs-on: windows-2022
 
     steps:
     - uses: actions/checkout@v3
@@ -21,7 +19,7 @@ jobs:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v1.13
       with:
-        cmake-version: ${{env.CMAKE_VER}}
+        cmake-version: '3.23.2'
 
     - name: Configure CMake
       run: |
