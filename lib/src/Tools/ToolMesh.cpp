@@ -2,7 +2,8 @@
 #include "include/JsonHelper.hpp"
 #include "include/Commands/SetTileCommand.hpp"
 #include "include/Commands/SetTileAreaCommand.hpp"
-#include <include/Commands/ResizeCommand.hpp>
+#include "include/Commands/SetTilePropertyCommand.hpp"
+#include "include/Commands/ResizeCommand.hpp"
 #include "include/Utilities/Utilities.hpp"
 
 #include <filesystem>
@@ -248,11 +249,11 @@ void ToolMesh::setProperty(const ToolProperty& prop)
 {
 	auto&& property = dynamic_cast<const MeshToolProperty&>(prop);
 
-	map.setTileValue({ property.tileX, property.tileY }, property.tileValue);
-	map.setTileValue({ property.tileX, property.tileY }, property.blocking);
-
-	signalStateChanged();
-	// TODO: command
+	commandQueue->push<SetTilePropertyCommand>(
+		map,
+		sf::Vector2u(property.tileX, property.tileY),
+		property.tileValue,
+		property.blocking);
 }
 
 void ToolMesh::buildCtxMenuInternal(tgui::MenuBar::Ptr& menu)
