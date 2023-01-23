@@ -4,7 +4,7 @@
 #include "include/Commands/CommandHelper.hpp"
 #include "include/Commands/CreateDeleteObjectCommand.hpp"
 #include "include/Commands/MoveObjectCommand.hpp"
-#include "include/Commands/SetItemPropertyCommand.hpp"
+#include "include/Commands/SetObjectPropertyCommand.hpp"
 
 #include <filesystem>
 
@@ -244,7 +244,7 @@ void ToolItem::setProperty(const ToolProperty& prop)
 
 	PropertyTag::get().updateTag(property.data.tag);
 
-	commandQueue->push<SetItemPropertyCommand>(
+	commandQueue->push<SetObjectPropertyCommand<LevelD::Thing>>(
 		items,
 		property.itemId,
 		property.data,
