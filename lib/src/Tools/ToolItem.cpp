@@ -4,6 +4,7 @@
 #include "include/Commands/CommandHelper.hpp"
 #include "include/Commands/CreateDeleteObjectCommand.hpp"
 #include "include/Commands/MoveObjectCommand.hpp"
+#include "include/Commands/SetObjectPropertyCommand.hpp"
 
 #include <filesystem>
 
@@ -241,20 +242,13 @@ void ToolItem::setProperty(const ToolProperty& prop)
 {
 	auto&& property = dynamic_cast<const ItemToolProperty&>(prop);
 
-	items[property.itemId] = property.data;
-	items[property.itemId].x = std::clamp<unsigned>(
-		items[property.itemId].x,
-		0u,
-		levelSize.x);
-	items[property.itemId].y = std::clamp<unsigned>(
-		items[property.itemId].y,
-		0u,
-		levelSize.y);
+	PropertyTag::get().updateTag(property.data.tag);
 
-	PropertyTag::get().updateTag(items[property.itemId].tag);
-
-	// FIXME: Command
-	signalStateChanged();
+	commandQueue->push<SetObjectPropertyCommand<LevelD::Thing>>(
+		items,
+		property.itemId,
+		property.data,
+		sf::Vector2u(levelSize));
 }
 
 void ToolItem::buildCtxMenuInternal(tgui::MenuBar::Ptr& menu)

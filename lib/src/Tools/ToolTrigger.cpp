@@ -4,6 +4,7 @@
 #include "include/Commands/CreateDeleteObjectCommand.hpp"
 #include "include/Commands/CommandHelper.hpp"
 #include "include/Commands/MoveObjectCommand.hpp"
+#include "include/Commands/SetObjectPropertyCommand.hpp"
 
 /* Implementing ToolWithDragAndSelect */
 std::optional<std::size_t> ToolTrigger::getObjectIndexFromMousePos(const sf::Vector2i& pos) const
@@ -350,7 +351,14 @@ void ToolTrigger::buildCtxMenuInternal(tgui::MenuBar::Ptr& menu)
 void ToolTrigger::setProperty(const ToolProperty& prop)
 {
 	auto&& property = dynamic_cast<const ToolTriggerProperty&>(prop);
-	triggers[property.id] = property.data;
+
+	PropertyTag::get().updateTag(property.data.tag);
+
+	commandQueue->push<SetObjectPropertyCommand<LevelD::Trigger>>(
+		triggers,
+		property.id,
+		property.data,
+		sf::Vector2u(levelSize));
 }
 
 std::optional<GenericObject> ToolTrigger::getHighlightedObject(const sf::Vector2i& penPos) const
