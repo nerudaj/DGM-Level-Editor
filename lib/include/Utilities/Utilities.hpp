@@ -3,6 +3,7 @@
 #include "include/Utilities/Rect.hpp"
 
 #include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/ConvexShape.hpp>
 #include <DGM/classes/Clip.hpp>
 #include <tuple>
 #include <optional>
@@ -18,4 +19,10 @@ namespace Utilities
 	std::optional<TileRect> unifyRects(
 		const std::optional<TileRect>& a,
 		const std::optional<TileRect>& b) noexcept;
+
+	sf::ConvexShape createArrow(
+		const sf::Vector2i& from,
+		const sf::Vector2i& to,
+		const sf::Color& outlineColor,
+		const float arrowThickness);
 }
