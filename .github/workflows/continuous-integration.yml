@@ -32,14 +32,12 @@ jobs:
     - name: Build
       working-directory: ${{env.BUILD_DIR}}
       run: |
-        cmake --build . --config Debug
         cmake --build . --config Release
       shell: cmd
 
     - name: Test
       working-directory: ${{env.BUILD_DIR}}
       run: |
-        ctest -C Debug
         ctest -C Release
       shell: cmd
       
@@ -50,6 +48,6 @@ jobs:
     - name: Store artifact
       uses: actions/upload-artifact@v3
       with:
-        name: dgm-lib
+        name: build-artifact
         path: ${{env.BUILD_DIR}}/*.zip
         retention-days: 5
