@@ -6,3 +6,4 @@ RELEASE/*
 lib/benchmarks/googlebench/*
 lib/tests/include/MeshAssets.hpp
 props/EnableUseAfterMoveAnalysis.props
+dont_commit/*

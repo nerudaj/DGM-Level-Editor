@@ -1,3 +1,5 @@
+[![ContinuousIntegration](https://github.com/nerudaj/DGM-Level-Editor/actions/workflows/continuous-integration.yml/badge.svg?branch=master)](https://github.com/nerudaj/DGM-Level-Editor/actions/workflows/continuous-integration.yml)
+
 # DGM Level Editor
 
 This is an editor meant for editing 2D tile based levels stored in [.lvd binary file format](https://github.com/nerudaj/dsh/tree/master/Libraries/LevelD). It complements development in [dgm-sdk](https://github.com/nerudaj/dgm-sdk) as .lvd is by default linked to that framework.
