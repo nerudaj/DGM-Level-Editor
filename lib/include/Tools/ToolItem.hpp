@@ -5,9 +5,10 @@
 #include "include/Tools/SidebarUserItem.hpp"
 #include "include/Utilities/CoordConverter.hpp"
 
-class ItemToolProperty : public ImageToolProperty
+class ItemToolProperty : public ToolPropertyInterface
 {
-	virtual void buildModalSpecifics(tgui::Gui& gui, tgui::ScrollablePanel::Ptr& panel) override;
+public:
+	void fillEditDialog(tgui::Panel::Ptr& panel) override;
 
 public:
 	std::size_t itemId;
@@ -51,7 +52,7 @@ public: // ToolInterface
 	ExpectedPropertyPtr getProperty(
 		sf::Vector2i const& penPos) const override;
 
-	void setProperty(ToolProperty const& prop) override;
+	void setProperty(ToolPropertyInterface const& prop) override;
 
 	std::optional<GenericObject> getHighlightedObject(
 		sf::Vector2i const& penPos) const override;

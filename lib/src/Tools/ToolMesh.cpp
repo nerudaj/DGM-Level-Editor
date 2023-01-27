@@ -5,6 +5,7 @@
 #include "include/Commands/SetTilePropertyCommand.hpp"
 #include "include/Commands/ResizeCommand.hpp"
 #include "include/Utilities/Utilities.hpp"
+#include "include/Dialogs/DialogBuilderHelper.h"
 
 #include <filesystem>
 
@@ -240,12 +241,12 @@ ExpectedPropertyPtr ToolMesh::getProperty(const sf::Vector2i& penPos) const
 	result->tileValue = map.getTileValue(tilePos);
 	result->blocking = map.isTileSolid(tilePos);
 	result->defaultBlocking = defaultBlocks[result->tileValue];
-	result->imageTexture = sidebarUser.getSpriteAsTexture(result->tileValue);
+	//result->imageTexture = sidebarUser.getSpriteAsTexture(result->tileValue);
 
 	return std::move(result);
 }
 
-void ToolMesh::setProperty(const ToolProperty& prop)
+void ToolMesh::setProperty(const ToolPropertyInterface& prop)
 {
 	auto&& property = dynamic_cast<const MeshToolProperty&>(prop);
 
@@ -263,10 +264,10 @@ void ToolMesh::buildCtxMenuInternal(tgui::MenuBar::Ptr& menu)
 	const std::string OPTION_EDGE = "Rect-edge Mode (Shift+E)";
 	const std::string OPTION_OVERLAY = "Toggle overlay (Shift+O)";
 
-	addCtxMenuItem(menu, OPTION_PENCIL, [this] () { changeDrawingMode(DrawMode::Pencil); }, sf::Keyboard::P);
-	addCtxMenuItem(menu, OPTION_FILL, [this] () { changeDrawingMode(DrawMode::RectFill); }, sf::Keyboard::F);
-	addCtxMenuItem(menu, OPTION_EDGE, [this] () { changeDrawingMode(DrawMode::RectEdge); }, sf::Keyboard::E);
-	addCtxMenuItem(menu, OPTION_OVERLAY, [this] () { enableOverlay = !enableOverlay; }, sf::Keyboard::O);
+	addCtxMenuItem(menu, OPTION_PENCIL, [this]() { changeDrawingMode(DrawMode::Pencil); }, sf::Keyboard::P);
+	addCtxMenuItem(menu, OPTION_FILL, [this]() { changeDrawingMode(DrawMode::RectFill); }, sf::Keyboard::F);
+	addCtxMenuItem(menu, OPTION_EDGE, [this]() { changeDrawingMode(DrawMode::RectEdge); }, sf::Keyboard::E);
+	addCtxMenuItem(menu, OPTION_OVERLAY, [this]() { enableOverlay = !enableOverlay; }, sf::Keyboard::O);
 }
 
 std::optional<TileRect> ToolMesh::getBoundingBox() const noexcept
@@ -349,12 +350,17 @@ std::string std::to_string(ToolMesh::DrawMode mode)
 	return "Error";
 }
 
-void MeshToolProperty::buildModalSpecifics(tgui::Gui& gui, tgui::ScrollablePanel::Ptr& dst)
+void MeshToolProperty::fillEditDialog(tgui::Panel::Ptr& panel)
 {
+	using namespace DialogBuilderHelper;
+
+	auto dst = tgui::ScrollablePanel::create();
+	panel->add(dst);
+
 	constexpr bool DISABLED = false; // the function accepts predicate enabled
 
-	addOption(gui, dst, "Tile X:", "X coordinate of the tile", tileX, 0, DISABLED);
-	addOption(gui, dst, "Tile Y:", "Y coordinate of the tile", tileY, 1, DISABLED);
+	addOption(dst, "Tile X:", "X coordinate of the tile", tileX, 0, DISABLED);
+	addOption(dst, "Tile Y:", "Y coordinate of the tile", tileY, 1, DISABLED);
 	addOption(dst, "Impassable:", "Whether this tile blocks the player", blocking, 2);
 	addOption(dst, "Impassable by default:", "Whether this type of tile is impassable by default", defaultBlocking, 3, DISABLED);
 }

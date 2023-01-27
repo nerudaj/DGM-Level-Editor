@@ -5,6 +5,7 @@
 #include "include/Commands/CreateDeleteObjectCommand.hpp"
 #include "include/Commands/MoveObjectCommand.hpp"
 #include "include/Commands/SetObjectPropertyCommand.hpp"
+#include "include/Dialogs/DialogBuilderHelper.h"
 
 #include <filesystem>
 
@@ -231,14 +232,14 @@ ExpectedPropertyPtr ToolItem::getProperty(const sf::Vector2i& penPos) const
 
 	auto&& result = Box<ItemToolProperty>();
 
-	result->imageTexture = sidebarUser.getSpriteAsTexture(items.at(*itemId).id);
+	//result->imageTexture = sidebarUser.getSpriteAsTexture(items.at(*itemId).id);
 	result->data = items.at(*itemId);
 	result->itemId = *itemId;
 
 	return std::move(result);
 }
 
-void ToolItem::setProperty(const ToolProperty& prop)
+void ToolItem::setProperty(const ToolPropertyInterface& prop)
 {
 	auto&& property = dynamic_cast<const ItemToolProperty&>(prop);
 
@@ -296,14 +297,19 @@ std::optional<TileRect> ToolItem::getBoundingBox() const noexcept
 		});
 }
 
-void ItemToolProperty::buildModalSpecifics(tgui::Gui& gui, tgui::ScrollablePanel::Ptr& dst)
+void ItemToolProperty::fillEditDialog(tgui::Panel::Ptr& panel)
 {
+	using namespace DialogBuilderHelper;
+
+	auto dst = tgui::ScrollablePanel::create();
+	panel->add(dst);
+
 	constexpr bool DISABLED = false;
 
-	addOption(gui, dst, "Item ID:", "Unique identifier of the object", data.id, 0, DISABLED);
-	addOption(gui, dst, "X coordinate:", "Measured in pixels from top-left corner", data.x, 1);
-	addOption(gui, dst, "Y coordinate:", "Measured in pixels from top-left corner", data.y, 2);
-	addOption(gui, dst, "Tag:", "Value used to group related objects", data.tag, 3, true, true);
-	addOption(gui, dst, "Flags:", "16 bit value to alter behaviour of this object", data.flags, 4);
+	addOption(dst, "Item ID:", "Unique identifier of the object", data.id, 0, DISABLED);
+	addOption(dst, "X coordinate:", "Measured in pixels from top-left corner", data.x, 1);
+	addOption(dst, "Y coordinate:", "Measured in pixels from top-left corner", data.y, 2);
+	addOption(dst, "Tag:", "Value used to group related objects", data.tag, 3, true, true);
+	addOption(dst, "Flags:", "16 bit value to alter behaviour of this object", data.flags, 4);
 	addOption(dst, "Metadata:", "Text field for custom data", data.metadata, 5);
 }

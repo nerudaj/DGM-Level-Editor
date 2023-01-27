@@ -7,9 +7,10 @@
 #include "include/Tools/SidebarUserTrigger.hpp"
 #include "include/Utilities/CoordConverter.hpp"
 
-class ToolTriggerProperty : public ToolProperty
+class ToolTriggerProperty : public ToolPropertyInterface
 {
-	virtual void buildModalSpecifics(tgui::Gui& gui, tgui::Panel::Ptr& panel) override;
+public:
+	void fillEditDialog(tgui::Panel::Ptr& panel) override;
 
 public:
 	LevelD::Trigger data;
@@ -48,7 +49,7 @@ public: // ToolInterface
 	void loadFrom(const LevelD& lvd) override;
 	void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
 	ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const override;
-	void setProperty(const ToolProperty& prop) override;
+	void setProperty(const ToolPropertyInterface& prop) override;
 
 	std::optional<GenericObject> getHighlightedObject(const sf::Vector2i& penPos) const override;
 	std::vector<sf::Vector2u> getPositionsOfObjectsWithTag(unsigned tag) const override;

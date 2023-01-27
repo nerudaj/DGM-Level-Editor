@@ -5,9 +5,10 @@
 #include "include/Tools/PenUserInterface.hpp"
 #include "include/Tools/SidebarUserMesh.hpp"
 
-class MeshToolProperty : public ImageToolProperty
+class MeshToolProperty : public ToolPropertyInterface
 {
-	virtual void buildModalSpecifics(tgui::Gui& gui, tgui::ScrollablePanel::Ptr& panel) override;
+public:
+	void fillEditDialog(tgui::Panel::Ptr& panel) override;
 
 public:
 	uint32_t tileX = 0;
@@ -63,7 +64,7 @@ public: // ToolInterface
 
 	ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const override;
 
-	void setProperty(const ToolProperty& prop) override;
+	void setProperty(const ToolPropertyInterface& prop) override;
 
 	void buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) override;
 

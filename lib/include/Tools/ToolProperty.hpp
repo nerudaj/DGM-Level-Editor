@@ -39,7 +39,7 @@ public:
 // with toolproperty just being a class that has buildModalSpecifics specialization
 // that will wipe contents of the dialog and fill them with something
 // new each time it is opened
-class ToolProperty
+/*class ToolProperty
 {
 protected:
 	using TargetPanel = tgui::ScrollablePanel::Ptr;
@@ -102,4 +102,19 @@ protected:
 
 public:
 	tgui::Texture imageTexture;
+};*/
+
+class ToolPropertyInterface
+{
+public:
+	~ToolPropertyInterface() = default;
+
+public:
+	virtual void fillEditDialog(tgui::Panel::Ptr& panel) = 0;
+};
+
+class NullToolProperty2 final : public ToolPropertyInterface
+{
+public:
+	void fillEditDialog(tgui::Panel::Ptr&) override {}
 };

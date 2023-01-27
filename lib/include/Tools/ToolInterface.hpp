@@ -17,7 +17,7 @@
 #include "include/Utilities/GC.hpp"
 #include "include/Utilities/Rect.hpp"
 
-using ExpectedPropertyPtr = std::expected<Box<ToolProperty>, BaseError>;
+using ExpectedPropertyPtr = std::expected<Box<ToolPropertyInterface>, BaseError>;
 
 struct GenericObject
 {
@@ -59,7 +59,7 @@ public: // Public virtual interface
 
 	[[nodiscard]]
 	virtual ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const = 0;
-	virtual void setProperty(const ToolProperty& prop) = 0;
+	virtual void setProperty(const ToolPropertyInterface& prop) = 0;
 
 	[[nodiscard]]
 	virtual std::optional<GenericObject> getHighlightedObject(const sf::Vector2i& penPos) const = 0;

@@ -1,6 +1,6 @@
 #include "include/Tools/ToolProperty.hpp"
 #include "include/Tools/ToolInterface.hpp"
-
+/*
 tgui::Panel::Ptr ToolProperty::getRowBackground(unsigned y, const std::string& tooltip)
 {
 	auto tt = tgui::Label::create(tooltip);
@@ -38,7 +38,7 @@ void ToolProperty::addOption(TargetPanel& target, const std::string& label, cons
 	checkbox->setPosition(VALUE_LEFT_MARGIN, "0%");
 	checkbox->setChecked(val);
 	checkbox->setEnabled(enabled);
-	checkbox->connect("Changed", [&val](bool newVal) { val = newVal; });
+	checkbox->connect("Changed", [&val] (bool newVal) { val = newVal; });
 
 	row->add(checkbox);
 }
@@ -63,7 +63,7 @@ inline void ToolProperty::addOptionUint(tgui::Gui& gui, TargetPanel& target, con
 
 	if (enabled)
 	{
-		edit->connect("TextChanged", [&, label](const std::string& newVal)
+		edit->connect("TextChanged", [&, label] (const std::string& newVal)
 			{
 				auto edit = gui.get<tgui::EditBox>("EditBox" + label);
 		try
@@ -129,7 +129,7 @@ void ToolProperty::addOption(TargetPanel& target, const std::string& label, cons
 
 	if (enabled)
 	{
-		edit->connect("TextChanged", [this, &val, label](const std::string& newVal) { val = newVal; });
+		edit->connect("TextChanged", [this, &val, label] (const std::string& newVal) { val = newVal; });
 	}
 
 	row->add(edit, "EditBox" + label);
@@ -156,7 +156,7 @@ void ToolProperty::buildModal(
 	buildModalSpecifics(gui, group);
 
 	// Bottom buttons
-	auto close = [](tgui::Gui& gui)
+	auto close = [] (tgui::Gui& gui)
 	{
 		auto modal = gui.get<tgui::ChildWindow>("ToolPropertyModal");
 		modal->close();
@@ -207,3 +207,4 @@ void ImageToolProperty::buildModalSpecifics(tgui::Gui& gui, tgui::Panel::Ptr& pa
 	// Do property specific stuff
 	buildModalSpecifics(gui, sp);
 }
+*/
