@@ -1,41 +1,11 @@
 #pragma once
 
+#include "include/Utilities/PropertyTag.hpp"
+
 #include <DGM/dgm.hpp>
 #include <TGUI/TGUI.hpp>
 
 #include "include/Dialogs/FormValidatorToken.hpp"
-
-class ToolInterface;
-
-class PropertyTag
-{
-private:
-	uint32_t value = 0;
-
-	PropertyTag() {}
-	PropertyTag(const PropertyTag& other) = delete;
-	PropertyTag(PropertyTag&& other) = delete;
-	PropertyTag& operator=(const PropertyTag& other) = delete;
-
-public:
-	static PropertyTag& get()
-	{
-		static PropertyTag instance;
-		return instance;
-	}
-
-	void updateTag(uint32_t val)
-	{
-		if (value < val) value = val;
-	}
-
-	uint32_t getNewTag()
-	{
-		return ++value;
-	}
-
-	~PropertyTag() {}
-};
 
 class ToolPropertyInterface
 {
