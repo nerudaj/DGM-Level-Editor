@@ -79,11 +79,8 @@ void Editor::handleRmbClicked()
 	if (!canOpenPropertyDialog() || !prop.has_value())
 		return;
 
-	currentlyOpenedProperty = std::move(prop.value());
-
-	currentlyOpenedProperty->buildModal(
-		gui,
-		theme,
+	editPropertyDialog.open(
+		std::move(prop.value()),
 		stateMgr.getActiveTool());
 }
 

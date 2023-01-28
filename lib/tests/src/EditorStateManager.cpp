@@ -50,7 +50,7 @@ public:
 	{
 		return std::unexpected(BaseError());
 	}
-	virtual void setProperty(const ToolProperty& prop) override
+	virtual void setProperty(const ToolPropertyInterface& prop) override
 	{}
 	virtual std::optional<GenericObject> getHighlightedObject(const sf::Vector2i& penPos) const override
 	{

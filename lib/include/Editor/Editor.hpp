@@ -10,6 +10,7 @@
 #include "include/Tools/ToolItem.hpp"
 #include "include/Tools/ToolTrigger.hpp"
 #include "include/Dialogs/ResizeLevelDialog.hpp"
+#include "include/Dialogs/EditPropertyDialog.hpp"
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Shortcuts/ShortcutEngine.hpp"
 #include "include/Tools/PhysicalPen.hpp"
@@ -33,12 +34,11 @@ private:
 	tgui::Theme& theme;
 	tgui::Canvas::Ptr& canvas;
 	ResizeDialog dialog = ResizeDialog(gui, theme);
+	EditPropertyDialog editPropertyDialog = EditPropertyDialog(gui, theme);
 	Camera camera = Camera(canvas);
 	EditorStateManager stateMgr;
 	sf::CircleShape mouseIndicator;
 	PhysicalPen physicalPen;
-
-	Box<ToolProperty> currentlyOpenedProperty = Box<NullToolProperty>();
 
 	bool initialized = false;
 
@@ -54,7 +54,7 @@ private:
 	bool canScroll() const
 	{
 		// If property window is opened, prevent scrolling
-		return gui.get<tgui::ChildWindow>("ToolPropertyModal") == nullptr;
+		return gui.get<tgui::ChildWindow>(EditPropertyDialog::DIALOG_ID) == nullptr;
 	}
 
 	[[nodiscard]]
