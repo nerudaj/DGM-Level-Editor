@@ -8,7 +8,9 @@
 class MeshToolProperty : public ToolPropertyInterface
 {
 public:
-	void fillEditDialog(tgui::Panel::Ptr& panel) override;
+	void fillEditDialog(
+		tgui::Panel::Ptr& panel,
+		FormValidatorToken& formValidatorToken) override;
 
 public:
 	uint32_t tileX = 0;

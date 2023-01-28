@@ -18,11 +18,13 @@ void EditPropertyDialog::open(
 	group->setSize("100%", "88%");
 	modal->add(group);
 
-	currentProperty->fillEditDialog(group);
+	currentProperty->fillEditDialog(
+		group,
+		formValidatorToken);
 
 	auto submit = [&]
 	{
-		// TODO: if form valid
+		if (!formValidatorToken.isValid()) return;
 		targetTool.setProperty(*currentProperty);
 		close();
 	};

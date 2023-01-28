@@ -5,7 +5,7 @@
 #include "include/Commands/CommandHelper.hpp"
 #include "include/Commands/MoveObjectCommand.hpp"
 #include "include/Commands/SetObjectPropertyCommand.hpp"
-#include "include/Dialogs/DialogBuilderHelper.h"
+#include "include/Dialogs/DialogBuilderHelper.hpp"
 
 /* Implementing ToolWithDragAndSelect */
 std::optional<std::size_t> ToolTrigger::getObjectIndexFromMousePos(const sf::Vector2i& pos) const
@@ -390,7 +390,9 @@ std::vector<sf::Vector2u> ToolTrigger::getPositionsOfObjectsWithTag(unsigned tag
 	return result;
 }
 
-void ToolTriggerProperty::fillEditDialog(tgui::Panel::Ptr& panel)
+void ToolTriggerProperty::fillEditDialog(
+		tgui::Panel::Ptr& panel,
+		FormValidatorToken& formValidatorToken)
 {
 	using namespace DialogBuilderHelper;
 
@@ -398,24 +400,24 @@ void ToolTriggerProperty::fillEditDialog(tgui::Panel::Ptr& panel)
 	panel->add(dst);
 
 	unsigned row = 0;
-	addOption(dst, "X coordinate:", "Measured in pixels from top-left corner", data.x, row++);
-	addOption(dst, "Y coordinate:", "Measured in pixels from top-left corner", data.y, row++);
+	addOption(dst, formValidatorToken, "X coordinate:", "Measured in pixels from top-left corner", data.x, row++);
+	addOption(dst, formValidatorToken, "Y coordinate:", "Measured in pixels from top-left corner", data.y, row++);
 	if (data.areaType == LevelD::Trigger::AreaType::Circle)
 	{
-		addOption(dst, "Radius:", "Measured in pixels", data.radius, row++);
+		addOption(dst, formValidatorToken, "Radius:", "Measured in pixels", data.radius, row++);
 	}
 	else
 	{
-		addOption(dst, "Width:", "Measured in pixels", data.width, row++);
-		addOption(dst, "Height:", "Measured in pixels", data.height, row++);
+		addOption(dst, formValidatorToken, "Width:", "Measured in pixels", data.width, row++);
+		addOption(dst, formValidatorToken, "Height:", "Measured in pixels", data.height, row++);
 	}
-	addOption(dst, "Trigger type:", "How the trigger should be executed", data.type, row++);
-	addOption(dst, "Tag:", "Value used to group related objects", data.tag, row++, true, true);
-	addOption(dst, "Action ID:", "ID of action to execute", data.id, row++);
-	addOption(dst, "Parameter 1:", "First param of action", data.a1, row++);
-	addOption(dst, "Parameter 2:", "Second param of action", data.a2, row++);
-	addOption(dst, "Parameter 3:", "Third param of action", data.a3, row++);
-	addOption(dst, "Parameter 4:", "Fourth param of action", data.a4, row++);
-	addOption(dst, "Parameter 5:", "Fifth param of action", data.a5, row++);
+	addOption(dst, formValidatorToken, "Trigger type:", "How the trigger should be executed", data.type, row++);
+	addOption(dst, formValidatorToken, "Tag:", "Value used to group related objects", data.tag, row++, true, true);
+	addOption(dst, formValidatorToken, "Action ID:", "ID of action to execute", data.id, row++);
+	addOption(dst, formValidatorToken, "Parameter 1:", "First param of action", data.a1, row++);
+	addOption(dst, formValidatorToken, "Parameter 2:", "Second param of action", data.a2, row++);
+	addOption(dst, formValidatorToken, "Parameter 3:", "Third param of action", data.a3, row++);
+	addOption(dst, formValidatorToken, "Parameter 4:", "Fourth param of action", data.a4, row++);
+	addOption(dst, formValidatorToken, "Parameter 5:", "Fifth param of action", data.a5, row++);
 	addOption(dst, "Metadata:", "Text field for custom data", data.metadata, row++);
 }

@@ -4,6 +4,8 @@
 #include <string>
 #include <TGUI/TGUI.hpp>
 
+#include "include/Dialogs/FormValidatorToken.hpp"
+
 namespace DialogBuilderHelper
 {
 	void addOption(
@@ -16,6 +18,7 @@ namespace DialogBuilderHelper
 
 	void addOption(
 		tgui::ScrollablePanel::Ptr& target,
+		FormValidatorToken& token,
 		const std::string& label,
 		const std::string& tooltip,
 		uint32_t& data,
@@ -25,6 +28,7 @@ namespace DialogBuilderHelper
 
 	void addOption(
 		tgui::ScrollablePanel::Ptr& target,
+		FormValidatorToken& token,
 		const std::string& label,
 		const std::string& tooltip,
 		uint16_t& data,

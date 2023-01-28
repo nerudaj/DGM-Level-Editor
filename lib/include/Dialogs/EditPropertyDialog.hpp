@@ -3,6 +3,8 @@
 #include "include/Utilities/Box.hpp"
 #include "include/Tools/ToolProperty.hpp"
 #include "include/Tools/ToolInterface.hpp"
+#include "include/Dialogs/DialogBuilderHelper.hpp"
+#include "include/Dialogs/FormValidatorToken.hpp"
 
 #include <functional>
 
@@ -40,5 +42,6 @@ private:
 private:
 	tgui::Gui& gui;
 	tgui::Theme& theme;
+	FormValidatorToken formValidatorToken;
 	Box<ToolPropertyInterface> currentProperty = Box<NullToolProperty2>();
 };

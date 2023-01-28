@@ -1,4 +1,4 @@
-#include "include/Dialogs/DialogBuilderHelper.h"
+#include "include/Dialogs/DialogBuilderHelper.hpp"
 #include "include/Configs/Sizers.hpp"
 #include "include/Tools/ToolProperty.hpp"
 
@@ -37,6 +37,7 @@ tgui::Label::Ptr _getLabel(const std::string& label)
 template<typename T>
 void _addOptionUint(
 	tgui::ScrollablePanel::Ptr& target,
+	FormValidatorToken& token,
 	const std::string& label,
 	const std::string& tooltip,
 	T& val,
@@ -58,7 +59,7 @@ void _addOptionUint(
 	edit->getRenderer()->setBorderColor(sf::Color::Black);
 	edit->setInputValidator(tgui::EditBox::Validator::UInt);
 
-	auto updateValue = [&val, edit, label] (const std::string& newVal)
+	auto updateValue = [&val, &token, edit] (const std::string& newVal)
 	{
 		try
 		{
@@ -67,12 +68,12 @@ void _addOptionUint(
 			if (value > T(-1)) throw 1;
 			val = T(value);
 			edit->getRenderer()->setBorderColor(sf::Color::Black);
-			//TODO:formValid = true;
+			token.setValid();
 		}
 		catch (...)
 		{
 			edit->getRenderer()->setBorderColor(sf::Color::Red);
-			//formValid = false;
+			token.invalidate();
 		}
 	};
 
@@ -87,7 +88,7 @@ void _addOptionUint(
 		btn->setSize(VALUE_WIDTH, "100%");
 		btn->setPosition(TAG_LEFT_MARGIN, "0%");
 		btn->setEnabled(enabled);
-		btn->connect("pressed", [edit, label]
+		btn->connect("pressed", [edit]
 			{
 				edit->setText(std::to_string(PropertyTag::get().getNewTag()));
 			});
@@ -123,6 +124,7 @@ void DialogBuilderHelper::addOption(
 
 void DialogBuilderHelper::addOption(
 	tgui::ScrollablePanel::Ptr& target,
+	FormValidatorToken& token,
 	const std::string& label,
 	const std::string& tooltip,
 	uint32_t& data,
@@ -130,18 +132,34 @@ void DialogBuilderHelper::addOption(
 	bool enabled,
 	bool tag)
 {
-	_addOptionUint(target, label, tooltip, data, ypos, enabled, tag);
+	_addOptionUint(
+		target,
+		token,
+		label,
+		tooltip,
+		data,
+		ypos,
+		enabled,
+		tag);
 }
 
 void DialogBuilderHelper::addOption(
 	tgui::ScrollablePanel::Ptr& target,
+	FormValidatorToken& token,
 	const std::string& label,
 	const std::string& tooltip,
 	uint16_t& data,
 	unsigned ypos,
 	bool enabled)
 {
-	_addOptionUint(target, label, tooltip, data, ypos, enabled);
+	_addOptionUint(
+		target,
+		token,
+		label,
+		tooltip,
+		data,
+		ypos,
+		enabled);
 }
 
 void DialogBuilderHelper::addOption(
