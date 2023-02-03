@@ -8,7 +8,7 @@
 #include <optional>
 #include <expected>
 
-#include "ToolProperty.hpp"
+#include "ToolPropertyInterface.hpp"
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Shortcuts/ShortcutEngineInterface.hpp"
 #include "include/Tools/PenUserInterface.hpp"

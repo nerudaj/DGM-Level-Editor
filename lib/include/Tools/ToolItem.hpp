@@ -4,11 +4,22 @@
 #include "include/Tools/ToolWithDragAndSelect.hpp"
 #include "include/Tools/SidebarUserItem.hpp"
 #include "include/Utilities/CoordConverter.hpp"
+#include "include/Tools/ToolPropertyWithImageInterface.hpp"
 
-class ItemToolProperty : public ToolPropertyInterface
+class ItemToolProperty : public ToolPropertyWithImageInterface
 {
 public:
-	void fillEditDialog(
+	ItemToolProperty(
+		tgui::Texture previewImage,
+		std::size_t itemId,
+		LevelD::Thing data)
+		: ToolPropertyWithImageInterface(previewImage)
+		, itemId(itemId)
+		, data(data)
+	{}
+
+public:
+	void fillEditDialogInternal(
 		tgui::Panel::Ptr& panel,
 		FormValidatorToken& formValidatorToken) override;
 

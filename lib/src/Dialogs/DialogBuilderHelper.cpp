@@ -1,6 +1,6 @@
 #include "include/Dialogs/DialogBuilderHelper.hpp"
 #include "include/Configs/Sizers.hpp"
-#include "include/Tools/ToolProperty.hpp"
+#include "include/Utilities/PropertyTag.hpp"
 
 const sf::Color ROW_BGR_DARK = sf::Color(222, 222, 222);
 const sf::Color ROW_BGR_LIGHT = sf::Color(255, 255, 255);

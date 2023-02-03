@@ -230,11 +230,10 @@ ExpectedPropertyPtr ToolItem::getProperty(const sf::Vector2i& penPos) const
 	if (!itemId)
 		return std::unexpected(BaseError());
 
-	auto&& result = Box<ItemToolProperty>();
-
-	//result->imageTexture = sidebarUser.getSpriteAsTexture(items.at(*itemId).id);
-	result->data = items.at(*itemId);
-	result->itemId = *itemId;
+	auto&& result = Box<ItemToolProperty>(
+		sidebarUser.getSpriteAsTexture(items.at(*itemId).id),
+		*itemId,
+		items.at(*itemId));
 
 	return std::move(result);
 }
@@ -297,7 +296,7 @@ std::optional<TileRect> ToolItem::getBoundingBox() const noexcept
 		});
 }
 
-void ItemToolProperty::fillEditDialog(
+void ItemToolProperty::fillEditDialogInternal(
 	tgui::Panel::Ptr& panel,
 	FormValidatorToken& formValidatorToken)
 {

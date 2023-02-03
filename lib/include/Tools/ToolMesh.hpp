@@ -4,11 +4,26 @@
 #include "include/Tools/ToolInterface.hpp"
 #include "include/Tools/PenUserInterface.hpp"
 #include "include/Tools/SidebarUserMesh.hpp"
+#include "include/Tools/ToolPropertyWithImageInterface.hpp"
 
-class MeshToolProperty : public ToolPropertyInterface
+class MeshToolProperty final : public ToolPropertyWithImageInterface
 {
 public:
-	void fillEditDialog(
+	MeshToolProperty(
+		tgui::Texture previewImage,
+		uint32_t tileX, uint32_t tileY,
+		uint16_t tileValue,
+		bool blocking, bool defaultBlocking)
+		: ToolPropertyWithImageInterface(previewImage)
+		, tileX(tileX)
+		, tileY(tileY)
+		, tileValue(tileValue)
+		, blocking(blocking)
+		, defaultBlocking(defaultBlocking)
+	{}
+
+public:
+	void fillEditDialogInternal(
 		tgui::Panel::Ptr& panel,
 		FormValidatorToken& formValidatorToken) override;
 

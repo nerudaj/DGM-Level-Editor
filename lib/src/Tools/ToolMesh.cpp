@@ -234,14 +234,15 @@ ExpectedPropertyPtr ToolMesh::getProperty(const sf::Vector2i& penPos) const
 	if (not isPositionValid(tilePos))
 		return std::unexpected(BaseError());
 
-	auto&& result = Box<MeshToolProperty>();
+	auto tileValue = map.getTileValue(tilePos);
 
-	result->tileX = tilePos.x;
-	result->tileY = tilePos.y;
-	result->tileValue = map.getTileValue(tilePos);
-	result->blocking = map.isTileSolid(tilePos);
-	result->defaultBlocking = defaultBlocks[result->tileValue];
-	//result->imageTexture = sidebarUser.getSpriteAsTexture(result->tileValue);
+	auto&& result = Box<MeshToolProperty>(
+		sidebarUser.getSpriteAsTexture(tileValue),
+		tilePos.x,
+		tilePos.y,
+		tileValue,
+		map.isTileSolid(tilePos),
+		defaultBlocks[tileValue]);
 
 	return std::move(result);
 }
@@ -350,7 +351,7 @@ std::string std::to_string(ToolMesh::DrawMode mode)
 	return "Error";
 }
 
-void MeshToolProperty::fillEditDialog(
+void MeshToolProperty::fillEditDialogInternal(
 		tgui::Panel::Ptr& panel,
 		FormValidatorToken& formValidatorToken)
 {
@@ -359,7 +360,7 @@ void MeshToolProperty::fillEditDialog(
 	auto dst = tgui::ScrollablePanel::create();
 	panel->add(dst);
 
-	constexpr bool DISABLED = false; // the function accepts predicate enabled
+	constexpr bool DISABLED = false;
 
 	addOption(dst, formValidatorToken, "Tile X:", "X coordinate of the tile", tileX, 0, DISABLED);
 	addOption(dst, formValidatorToken, "Tile Y:", "Y coordinate of the tile", tileY, 1, DISABLED);

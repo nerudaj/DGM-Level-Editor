@@ -1,7 +1,7 @@
 #pragma once
 
 #include "include/Utilities/Box.hpp"
-#include "include/Tools/ToolProperty.hpp"
+#include "include/Tools/ToolPropertyInterface.hpp"
 #include "include/Tools/ToolInterface.hpp"
 #include "include/Dialogs/DialogBuilderHelper.hpp"
 #include "include/Dialogs/FormValidatorToken.hpp"
