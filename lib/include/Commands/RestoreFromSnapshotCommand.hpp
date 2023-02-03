@@ -1,7 +1,7 @@
 #pragma once
 
 #include "include/Interfaces/CommandInterface.hpp"
-#include "include/Editor/Editor.hpp"
+#include "include/Interfaces/EditorInterface.hpp"
 
 #include <LevelD.hpp>
 
@@ -10,7 +10,7 @@ class RestoreFromSnapshotCommand final : public CommandInterface
 public:
 	[[nodiscard]]
 	RestoreFromSnapshotCommand(
-		Editor& editor,
+		EditorInterface& editor,
 		LevelD snapshot) noexcept
 		: editor(editor)
 		, snapshot(snapshot)
@@ -23,6 +23,6 @@ public:
 	}
 
 protected:
-	Editor& editor;
+	EditorInterface& editor;
 	LevelD snapshot;
 };

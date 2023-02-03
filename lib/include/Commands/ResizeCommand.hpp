@@ -1,7 +1,7 @@
 #pragma once
 
 #include "include/Interfaces/UndoableCommandInterface.hpp"
-#include "include/Editor/Editor.hpp"
+#include "include/Interfaces/EditorInterface.hpp"
 
 #include <LevelD.hpp>
 
@@ -10,12 +10,12 @@ class ResizeCommand final : public UndoableCommandInterface
 protected:
 	unsigned width;
 	unsigned height;
-	Editor& editor;
+	EditorInterface& editor;
 	LevelD levelSnapshot;
 
 public:
 	[[nodiscard]]
-	ResizeCommand(Editor& editor, unsigned width, unsigned height) noexcept
+	ResizeCommand(EditorInterface& editor, unsigned width, unsigned height) noexcept
 		: editor(editor), width(width), height(height)
 	{}
 

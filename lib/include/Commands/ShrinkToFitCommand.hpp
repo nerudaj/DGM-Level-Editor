@@ -1,7 +1,7 @@
 #pragma once
 
 #include "include/Interfaces/UndoableCommandInterface.hpp"
-#include "include/Editor/Editor.hpp"
+#include "include/Interfaces/EditorInterface.hpp"
 
 #include <LevelD.hpp>
 
@@ -10,7 +10,7 @@ class ShrinkToFitCommand final : public UndoableCommandInterface
 public:
 	[[nodiscard]]
 	ShrinkToFitCommand(
-		Editor& editor) noexcept
+		EditorInterface& editor) noexcept
 		: editor(editor)
 	{}
 
@@ -21,6 +21,6 @@ public:
 	Box<CommandInterface> getInverse() const override;
 
 protected:
-	Editor& editor;
+	EditorInterface& editor;
 	LevelD levelSnapshot;
 };
