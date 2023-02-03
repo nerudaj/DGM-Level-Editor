@@ -1,32 +1,10 @@
 #pragma once
 
-#include "include/Tools/ToolInterface.hpp"
+#include "include/Interfaces/ToolInterface.hpp"
 #include "include/Tools/ToolWithDragAndSelect.hpp"
 #include "include/Tools/SidebarUserItem.hpp"
 #include "include/Utilities/CoordConverter.hpp"
-#include "include/Tools/ToolPropertyWithImageInterface.hpp"
-
-class ItemToolProperty : public ToolPropertyWithImageInterface
-{
-public:
-	ItemToolProperty(
-		tgui::Texture previewImage,
-		std::size_t itemId,
-		LevelD::Thing data)
-		: ToolPropertyWithImageInterface(previewImage)
-		, itemId(itemId)
-		, data(data)
-	{}
-
-public:
-	void fillEditDialogInternal(
-		tgui::Panel::Ptr& panel,
-		FormValidatorToken& formValidatorToken) override;
-
-public:
-	std::size_t itemId;
-	LevelD::Thing data;
-};
+#include "include/ToolProperties/ItemToolProperty.hpp"
 
 class ToolItem final : public ToolWithDragAndSelect
 {

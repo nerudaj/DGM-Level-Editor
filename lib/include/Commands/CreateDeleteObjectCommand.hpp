@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Commands/UndoableCommandInterface.hpp"
+#include "include/Interfaces/UndoableCommandInterface.hpp"
 #include "include/Commands/CommandHelper.hpp"
 #include "include/Utilities/InitGuard.hpp"
 

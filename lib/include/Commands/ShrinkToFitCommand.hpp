@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Commands/UndoableCommandInterface.hpp"
+#include "include/Interfaces/UndoableCommandInterface.hpp"
 #include "include/Editor/Editor.hpp"
 
 #include <LevelD.hpp>

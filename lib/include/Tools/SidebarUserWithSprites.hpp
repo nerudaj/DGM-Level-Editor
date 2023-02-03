@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Tools/SidebarUserInterface.hpp"
+#include "include/Interfaces/SidebarUserInterface.hpp"
 #include "include/Tools/ToolPenHistory.hpp"
 
 class SidebarUserWithSprites : public SidebarUserInterface

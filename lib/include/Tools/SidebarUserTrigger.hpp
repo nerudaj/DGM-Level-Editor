@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Tools/SidebarUserInterface.hpp"
+#include "include/Interfaces/SidebarUserInterface.hpp"
 #include <LevelD.hpp>
 
 class SidebarUserTrigger final : public SidebarUserInterface

@@ -3,7 +3,7 @@
 #include <include/Editor/EditorStateManager.hpp>
 #include <include/Shortcuts/ShortcutEngine.hpp>
 #include "../include/fakeit.hpp"
-#include "include/Tools/ToolInterface.hpp"
+#include "include/Interfaces/ToolInterface.hpp"
 
 class ToolMock : public ToolInterface
 {

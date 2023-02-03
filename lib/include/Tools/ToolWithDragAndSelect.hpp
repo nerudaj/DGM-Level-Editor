@@ -1,8 +1,8 @@
 #pragma once
 
-#include "include/Tools/ToolInterface.hpp"
+#include "include/Interfaces/ToolInterface.hpp"
+#include "include/Interfaces/PenUserInterface.hpp"
 #include "include/Utilities/DragContext.hpp"
-#include "include/Tools/PenUserInterface.hpp"
 #include "include/Utilities/GC.hpp"
 
 class ToolWithDragAndSelect : public ToolInterface

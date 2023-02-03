@@ -1,7 +1,7 @@
 #pragma once
 
-#include "include/Tools/PenUserInterface.hpp"
-#include "include/Tools/PhysicalPenInterface.hpp"
+#include "include/Interfaces/PenUserInterface.hpp"
+#include "include/Interfaces/PhysicalPenInterface.hpp"
 
 #include <functional>
 

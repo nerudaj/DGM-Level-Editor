@@ -1,7 +1,7 @@
 #pragma once
 
-#include "include/Commands/CommandInterface.hpp"
-#include "include/Commands/UndoableCommandInterface.hpp"
+#include "include/Interfaces/CommandInterface.hpp"
+#include "include/Interfaces/UndoableCommandInterface.hpp"
 #include "include/LevelMesh/DrawableLeveldMesh.hpp"
 #include "include/Utilities/InitGuard.hpp"
 

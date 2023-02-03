@@ -5,7 +5,6 @@
 #include "include/Commands/CommandHelper.hpp"
 #include "include/Commands/MoveObjectCommand.hpp"
 #include "include/Commands/SetObjectPropertyCommand.hpp"
-#include "include/Dialogs/DialogBuilderHelper.hpp"
 
 /* Implementing ToolWithDragAndSelect */
 std::optional<std::size_t> ToolTrigger::getObjectIndexFromMousePos(const sf::Vector2i& pos) const
@@ -323,7 +322,7 @@ ExpectedPropertyPtr ToolTrigger::getProperty(const sf::Vector2i& penPos) const
 	if (!trigId.has_value())
 		return std::unexpected(BaseError());
 
-	auto&& result = Box<ToolTriggerProperty>();
+	auto&& result = Box<TriggerToolProperty>();
 	result->id = *trigId;
 	result->data = triggers[*trigId];
 
@@ -351,7 +350,7 @@ void ToolTrigger::buildCtxMenuInternal(tgui::MenuBar::Ptr& menu)
 
 void ToolTrigger::setProperty(const ToolPropertyInterface& prop)
 {
-	auto&& property = dynamic_cast<const ToolTriggerProperty&>(prop);
+	auto&& property = dynamic_cast<const TriggerToolProperty&>(prop);
 
 	PropertyTag::get().updateTag(property.data.tag);
 
@@ -368,7 +367,7 @@ std::optional<GenericObject> ToolTrigger::getHighlightedObject(const sf::Vector2
 	if (!prop)
 		return {};
 
-	auto&& trigProp = dynamic_cast<ToolTriggerProperty&>(
+	auto&& trigProp = dynamic_cast<TriggerToolProperty&>(
 		*(prop.value()));
 	return GenericObject{
 		.position = getNormalizedPosition(trigProp.data),
@@ -390,34 +389,3 @@ std::vector<sf::Vector2u> ToolTrigger::getPositionsOfObjectsWithTag(unsigned tag
 	return result;
 }
 
-void ToolTriggerProperty::fillEditDialog(
-		tgui::Panel::Ptr& panel,
-		FormValidatorToken& formValidatorToken)
-{
-	using namespace DialogBuilderHelper;
-
-	auto dst = tgui::ScrollablePanel::create();
-	panel->add(dst);
-
-	unsigned row = 0;
-	addOption(dst, formValidatorToken, "X coordinate:", "Measured in pixels from top-left corner", data.x, row++);
-	addOption(dst, formValidatorToken, "Y coordinate:", "Measured in pixels from top-left corner", data.y, row++);
-	if (data.areaType == LevelD::Trigger::AreaType::Circle)
-	{
-		addOption(dst, formValidatorToken, "Radius:", "Measured in pixels", data.radius, row++);
-	}
-	else
-	{
-		addOption(dst, formValidatorToken, "Width:", "Measured in pixels", data.width, row++);
-		addOption(dst, formValidatorToken, "Height:", "Measured in pixels", data.height, row++);
-	}
-	addOption(dst, formValidatorToken, "Trigger type:", "How the trigger should be executed", data.type, row++);
-	addOption(dst, formValidatorToken, "Tag:", "Value used to group related objects", data.tag, row++, true, true);
-	addOption(dst, formValidatorToken, "Action ID:", "ID of action to execute", data.id, row++);
-	addOption(dst, formValidatorToken, "Parameter 1:", "First param of action", data.a1, row++);
-	addOption(dst, formValidatorToken, "Parameter 2:", "Second param of action", data.a2, row++);
-	addOption(dst, formValidatorToken, "Parameter 3:", "Third param of action", data.a3, row++);
-	addOption(dst, formValidatorToken, "Parameter 4:", "Fourth param of action", data.a4, row++);
-	addOption(dst, formValidatorToken, "Parameter 5:", "Fifth param of action", data.a5, row++);
-	addOption(dst, "Metadata:", "Text field for custom data", data.metadata, row++);
-}

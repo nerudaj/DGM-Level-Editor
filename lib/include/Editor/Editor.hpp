@@ -2,7 +2,7 @@
 
 #include <DGM/dgm.hpp>
 #include <TGUI/TGUI.hpp>
-#include "include/Editor/EditorInterface.hpp"
+#include "include/Interfaces/EditorInterface.hpp"
 #include "include/Camera.hpp"
 #include "include/Editor/EditorState.hpp"
 #include "include/Editor/EditorStateManager.hpp"

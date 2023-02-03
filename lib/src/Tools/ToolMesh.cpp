@@ -5,7 +5,6 @@
 #include "include/Commands/SetTilePropertyCommand.hpp"
 #include "include/Commands/ResizeCommand.hpp"
 #include "include/Utilities/Utilities.hpp"
-#include "include/Dialogs/DialogBuilderHelper.hpp"
 
 #include <filesystem>
 
@@ -349,21 +348,4 @@ std::string std::to_string(ToolMesh::DrawMode mode)
 	else if (mode == ToolMesh::DrawMode::RectEdge) return "RectEdge";
 	else if (mode == ToolMesh::DrawMode::Line) return "Line";
 	return "Error";
-}
-
-void MeshToolProperty::fillEditDialogInternal(
-		tgui::Panel::Ptr& panel,
-		FormValidatorToken& formValidatorToken)
-{
-	using namespace DialogBuilderHelper;
-
-	auto dst = tgui::ScrollablePanel::create();
-	panel->add(dst);
-
-	constexpr bool DISABLED = false;
-
-	addOption(dst, formValidatorToken, "Tile X:", "X coordinate of the tile", tileX, 0, DISABLED);
-	addOption(dst, formValidatorToken, "Tile Y:", "Y coordinate of the tile", tileY, 1, DISABLED);
-	addOption(dst, "Impassable:", "Whether this tile blocks the player", blocking, 2);
-	addOption(dst, "Impassable by default:", "Whether this type of tile is impassable by default", defaultBlocking, 3, DISABLED);
 }

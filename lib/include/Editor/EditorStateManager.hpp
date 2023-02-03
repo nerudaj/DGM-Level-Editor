@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Tools/ToolInterface.hpp"
+#include "include/Interfaces/ToolInterface.hpp"
 #include "include/Editor/EditorState.hpp"
 
 #include <map>

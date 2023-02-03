@@ -1,23 +1,12 @@
 #pragma once
 
-#include "include/Tools/ToolInterface.hpp"
-#include "include/Tools/ToolWithDragAndSelect.hpp"
+#include "include/Interfaces/ToolInterface.hpp"
 #include "include/Commands/CommandQueue.hpp"
-#include "include/Utilities/DragContext.hpp"
 #include "include/Tools/SidebarUserTrigger.hpp"
+#include "include/Tools/ToolWithDragAndSelect.hpp"
+#include "include/ToolProperties/TriggerToolProperty.hpp"
 #include "include/Utilities/CoordConverter.hpp"
-
-class ToolTriggerProperty : public ToolPropertyInterface
-{
-public:
-	void fillEditDialog(
-		tgui::Panel::Ptr& panel,
-		FormValidatorToken& formValidatorToken) override;
-
-public:
-	LevelD::Trigger data;
-	std::size_t id;
-};
+#include "include/Utilities/DragContext.hpp"
 
 class ToolTrigger final : public ToolWithDragAndSelect
 {

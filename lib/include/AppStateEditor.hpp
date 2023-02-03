@@ -6,13 +6,13 @@
 #include "Dialogs/NewLevelDialog.hpp"
 #include "include/Dialogs/YesNoCancelDialog.hpp"
 #include "LogConsole.hpp"
-#include "include/Editor/EditorInterface.hpp"
+#include "include/Interfaces/EditorInterface.hpp"
 #include "include/Editor/NullEditor.hpp"
 #include "include/Utilities/FileApi.hpp"
 #include <optional>
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Commands/CommandHistory.hpp"
-#include "include/Shortcuts/ShortcutEngineInterface.hpp"
+#include "include/Interfaces/ShortcutEngineInterface.hpp"
 #include "include/Utilities/GC.hpp"
 #include "include/Utilities/Box.hpp"
 

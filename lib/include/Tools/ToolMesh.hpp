@@ -1,39 +1,11 @@
 #pragma once
 
+#include "include/Interfaces/ToolInterface.hpp"
+#include "include/Interfaces/PenUserInterface.hpp"
+
 #include "include/LevelMesh/DrawableLeveldMesh.hpp"
-#include "include/Tools/ToolInterface.hpp"
-#include "include/Tools/PenUserInterface.hpp"
 #include "include/Tools/SidebarUserMesh.hpp"
-#include "include/Tools/ToolPropertyWithImageInterface.hpp"
-
-class MeshToolProperty final : public ToolPropertyWithImageInterface
-{
-public:
-	MeshToolProperty(
-		tgui::Texture previewImage,
-		uint32_t tileX, uint32_t tileY,
-		uint16_t tileValue,
-		bool blocking, bool defaultBlocking)
-		: ToolPropertyWithImageInterface(previewImage)
-		, tileX(tileX)
-		, tileY(tileY)
-		, tileValue(tileValue)
-		, blocking(blocking)
-		, defaultBlocking(defaultBlocking)
-	{}
-
-public:
-	void fillEditDialogInternal(
-		tgui::Panel::Ptr& panel,
-		FormValidatorToken& formValidatorToken) override;
-
-public:
-	uint32_t tileX = 0;
-	uint32_t tileY = 0;
-	uint16_t tileValue = 0;
-	bool blocking = false;
-	bool defaultBlocking = false;
-};
+#include "include/ToolProperties/MeshToolProperty.hpp"
 
 class ToolMesh final : public ToolInterface
 {

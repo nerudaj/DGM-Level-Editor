@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Editor/EditorInterface.hpp"
+#include "include/Interfaces/EditorInterface.hpp"
 
 class NullEditor final : public EditorInterface
 {

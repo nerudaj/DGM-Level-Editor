@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Commands/CommandInterface.hpp"
+#include "include/Interfaces/CommandInterface.hpp"
 #include "include/Utilities/Box.hpp"
 
 #include <memory>

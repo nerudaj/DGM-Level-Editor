@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Commands/CommandInterface.hpp"
+#include "include/Interfaces/CommandInterface.hpp"
 #include "include/Editor/Editor.hpp"
 
 #include <LevelD.hpp>

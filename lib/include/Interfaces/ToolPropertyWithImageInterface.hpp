@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Tools/ToolPropertyInterface.hpp"
+#include "include/Interfaces/ToolPropertyInterface.hpp"
 #include <TGUI/TGUI.hpp>
 
 class ToolPropertyWithImageInterface : public ToolPropertyInterface

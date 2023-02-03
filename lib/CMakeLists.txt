@@ -21,18 +21,22 @@ glob_sources_and_headers ( COMMANDS "Commands" )
 glob_sources_and_headers ( CONFIGS "Configs" )
 glob_sources_and_headers ( DIALOGS "Dialogs" )
 glob_sources_and_headers ( EDITOR "Editor" )
+glob_sources_and_headers ( INTERFACES "Interfaces" )
 glob_sources_and_headers ( LEVELMESH "LevelMesh" )
 glob_sources_and_headers ( SHORTCUTS "Shortcuts" )
 glob_sources_and_headers ( TOOLS "Tools" )
+glob_sources_and_headers ( TOOLPROPS "ToolProperties" )
 glob_sources_and_headers ( UTILITIES "Utilities" )
 
 source_group ( "Commands" FILES ${COMMANDS_HEADERS} ${COMMANDS_SOURCES} )
 source_group ( "Configs" FILES ${CONFIGS_HEADERS} ${CONFIGS_SOURCES} )
 source_group ( "Dialogs" FILES ${DIALOGS_HEADERS} ${DIALOGS_SOURCES} )
 source_group ( "Editor" FILES ${EDITOR_HEADERS} ${EDITOR_SOURCES} )
+source_group ( "Interfaces" FILES ${INTERFACES_HEADERS} ${INTERFACES_SOURCES} )
 source_group ( "Level Mesh" FILES ${LEVELMESH_HEADERS} ${LEVELMESH_SOURCES} )
 source_group ( "Shortcuts" FILES ${SHORTCUTS_HEADERS} ${SHORTCUTS_SOURCES} )
 source_group ( "Tools" FILES ${TOOLS_HEADERS} ${TOOLS_SOURCES} )
+source_group ( "Tool Properties" FILES ${TOOLPROPS_HEADERS} ${TOOLPROPS_SOURCES} )
 source_group ( "Utilities" FILES ${UTILITIES_HEADERS} ${UTILITIES_SOURCES} )
 
 add_library ( ${PROJECT_NAME} STATIC
@@ -41,9 +45,11 @@ add_library ( ${PROJECT_NAME} STATIC
 	${CONFIGS_HEADERS} ${CONFIGS_SOURCES}
 	${DIALOGS_HEADERS} ${DIALOGS_SOURCES}
 	${EDITOR_HEADERS} ${EDITOR_SOURCES}
+	${INTERFACES_HEADERS} ${INTERFACES_SOURCES}
 	${LEVELMESH_HEADERS} ${LEVELMESH_SOURCES}
 	${SHORTCUTS_HEADERS} ${SHORTCUTS_SOURCES}
 	${TOOLS_HEADERS} ${TOOLS_SOURCES}
+	${TOOLPROPS_HEADERS} ${TOOLPROPS_SOURCES}
 	${UTILITIES_HEADERS} ${UTILITIES_SOURCES}
 	"${CMAKE_CURRENT_SOURCE_DIR}/.editorconfig"
 )

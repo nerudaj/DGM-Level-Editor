@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Shortcuts/ShortcutEngineInterface.hpp"
+#include "include/Interfaces/ShortcutEngineInterface.hpp"
 #include "include/Shortcuts/ShortcutCombo.hpp"
 #include <map>
 

@@ -8,10 +8,11 @@
 #include <optional>
 #include <expected>
 
-#include "ToolPropertyInterface.hpp"
+#include "include/Interfaces/ShortcutEngineInterface.hpp"
+#include "include/Interfaces/PenUserInterface.hpp"
+#include "include/Interfaces/ToolPropertyInterface.hpp"
+
 #include "include/Commands/CommandQueue.hpp"
-#include "include/Shortcuts/ShortcutEngineInterface.hpp"
-#include "include/Tools/PenUserInterface.hpp"
 #include "include/Utilities/Box.hpp"
 #include "include/Utilities/Error.hpp"
 #include "include/Utilities/GC.hpp"

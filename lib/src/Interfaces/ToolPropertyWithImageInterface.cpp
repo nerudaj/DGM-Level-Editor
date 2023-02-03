@@ -1,4 +1,4 @@
-#include "include/Tools/ToolPropertyWithImageInterface.hpp"
+#include "include/Interfaces/ToolPropertyWithImageInterface.hpp"
 
 void ToolPropertyWithImageInterface::fillEditDialog(
 	tgui::Panel::Ptr& panel,
