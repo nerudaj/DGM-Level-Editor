@@ -1,4 +1,4 @@
-#include "include/Tools/ToolInterface.hpp"
+#include "include/Interfaces/ToolInterface.hpp"
 
 static inline const std::string CTX_MENU_NAME = "Tool";
 
