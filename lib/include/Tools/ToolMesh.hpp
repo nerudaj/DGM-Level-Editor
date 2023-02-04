@@ -33,7 +33,7 @@ public: // PenUserInterface
 	void penDragStarted(const sf::Vector2i& start) override;
 	void penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) override;
 	void penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) override;
-	void penDragCancel(const sf::Vector2i& origin) override {}
+	void penDragCancel(const sf::Vector2i& origin) override { dragging = false; }
 	void penDelete() override {}
 
 public: // ToolInterface
@@ -92,9 +92,9 @@ public:
 		std::vector<int>& targetSolidValues,
 		unsigned targetWidth);
 
-private:
 	void changeDrawingMode(DrawMode newMode);
 
+private:
 	void toggleOverlay();
 
 	[[nodiscard]]

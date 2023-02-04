@@ -42,7 +42,8 @@ void ToolMesh::penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end)
 
 void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 {
-	dragging = true;
+	if (!dragging) return;
+	dragging = false;
 
 	const auto startTile = worldToTilePos(
 		Utilities::clipNegativeCoords(start));

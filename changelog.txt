@@ -1,4 +1,5 @@
 DGM Level Editor v2.0.x changelog:
+ * Fixed cancelling are fill not working in mesh tool
  * Fixed Tool context menu sometimes being triggered an incorrect number of times
 
 DGM Level Editor v2.0.0 changelog:

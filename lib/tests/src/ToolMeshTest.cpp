@@ -120,4 +120,19 @@ TEST_CASE("[ToolMesh]")
 			REQUIRE(layer.blocks.back() == false);
 		}
 	}
+
+	SECTION("penCancel cancels drag draw")
+	{
+		LevelD level = createMesh(
+				20, 20,
+				{ { 5, 5, 1, 1 },
+				{ 10, 10, 2, 0 } });
+
+		mesh.loadFrom(level);
+		mesh.changeDrawingMode(ToolMesh::DrawMode::RectEdge);
+		mesh.penDragStarted({ 0, 0 });
+		mesh.penDragCancel({ 0, 0 });
+		mesh.penDragEnded({ 0, 0 }, { 0, 0 });
+		REQUIRE(commandQueue->isEmpty());
+	}
 }
