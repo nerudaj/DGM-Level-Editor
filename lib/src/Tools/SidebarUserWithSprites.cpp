@@ -45,16 +45,26 @@ void SidebarUserWithSprites::buildSpriteIdSelectionModal()
 
 	if (gui.get<tgui::ChildWindow>("ToolSelection")) return;
 
+	auto close = [this]
+	{
+		gui.remove(gui.get<tgui::ChildWindow>("ToolSelection"));
+	};
+
+	auto selectId = [this, close] (unsigned id)
+	{
+		changePenValue(id);
+		close();
+		//auto modal = gui.get<tgui::ChildWindow>("ToolSelection");
+		//modal->close();
+	};
+
 	// Create wrapper window
 	auto modal = createNewChildWindow(theme, "Tile Selection");
 	modal->setSize("70%", "70%");
 	modal->setPosition("15%", "15%");
 	gui.add(modal, "ToolSelection");
 
-	modal->connect("Closed", [this]
-	{
-		gui.remove(gui.get<tgui::ChildWindow>("ToolSelection"));
-	});
+	modal->connect("Closed", close);
 
 	// Create scrollable group inside of this window
 	auto group = tgui::ScrollablePanel::create();
@@ -77,11 +87,9 @@ void SidebarUserWithSprites::buildSpriteIdSelectionModal()
 		btn->setPosition(x * BUTTON_SIZE_OUTER + BUTTON_MARGIN, y * BUTTON_SIZE_OUTER + BUTTON_MARGIN);
 
 		// User chosen a particular tile
-		btn->connect("pressed", [this, i] ()
- {
-	 changePenValue(i);
-		auto modal = gui.get<tgui::ChildWindow>("ToolSelection");
-		modal->close();
+		btn->connect("pressed", [this, i, selectId]
+		{
+			selectId(i);
 		});
 
 		group->add(btn);
@@ -100,5 +108,5 @@ void SidebarUserWithSprites::changePenValue(unsigned value)
 {
 	penValue = value;
 	penHistory.insert(penValue);
-	// FIXME: Tool::buildSidebar(theme);
+	buildSidebar();
 }

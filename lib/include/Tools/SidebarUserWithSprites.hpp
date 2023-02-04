@@ -21,6 +21,8 @@ protected:
 	void buildSpriteIdSelectionModal();
 	void changePenValue(unsigned value);
 
+	void selectSpriteId();
+
 	[[nodiscard]]
 	virtual tgui::Texture getSpriteAsTexture(unsigned spriteId) const = 0;
 
