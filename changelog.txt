@@ -1,4 +1,4 @@
-DGM Level Editor v2.0.x changelog:
+DGM Level Editor v2.0.1 changelog:
  * Fixed sidebar not updating when changing items/tiles to draw
  * Fixed cancelling are fill not working in mesh tool
  * Fixed Tool context menu sometimes being triggered an incorrect number of times
