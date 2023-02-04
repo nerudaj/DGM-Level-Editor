@@ -92,6 +92,7 @@ protected: // Protected virtual interface
 protected:
 	std::function<void(void)> onStateChangedCallback;
 	GC<ShortcutEngineInterface> shortcutEngine;
+	std::vector<unsigned> ctxMenuSignalHandlers;
 };
 
 template<class T>

@@ -5,6 +5,7 @@
 #include "include/Commands/SetTilePropertyCommand.hpp"
 #include "include/Commands/ResizeCommand.hpp"
 #include "include/Utilities/Utilities.hpp"
+#include "include/LogConsole.hpp"
 
 #include <filesystem>
 
@@ -264,10 +265,10 @@ void ToolMesh::buildCtxMenuInternal(tgui::MenuBar::Ptr& menu)
 	const std::string OPTION_EDGE = "Rect-edge Mode (Shift+E)";
 	const std::string OPTION_OVERLAY = "Toggle overlay (Shift+O)";
 
-	addCtxMenuItem(menu, OPTION_PENCIL, [this] () { changeDrawingMode(DrawMode::Pencil); }, sf::Keyboard::P);
-	addCtxMenuItem(menu, OPTION_FILL, [this] () { changeDrawingMode(DrawMode::RectFill); }, sf::Keyboard::F);
-	addCtxMenuItem(menu, OPTION_EDGE, [this] () { changeDrawingMode(DrawMode::RectEdge); }, sf::Keyboard::E);
-	addCtxMenuItem(menu, OPTION_OVERLAY, [this] () { enableOverlay = !enableOverlay; }, sf::Keyboard::O);
+	addCtxMenuItem(menu, OPTION_PENCIL, [this] { changeDrawingMode(DrawMode::Pencil); }, sf::Keyboard::P);
+	addCtxMenuItem(menu, OPTION_FILL, [this] { changeDrawingMode(DrawMode::RectFill); }, sf::Keyboard::F);
+	addCtxMenuItem(menu, OPTION_EDGE, [this] { changeDrawingMode(DrawMode::RectEdge); }, sf::Keyboard::E);
+	addCtxMenuItem(menu, OPTION_OVERLAY, [this] { toggleOverlay(); }, sf::Keyboard::O);
 }
 
 std::optional<TileRect> ToolMesh::getBoundingBox() const noexcept
@@ -339,6 +340,14 @@ void ToolMesh::changeDrawingMode(ToolMesh::DrawMode newMode)
 	{
 		rectShape.setFillColor(sf::Color(128, 0, 0, 128));
 	}
+}
+
+void ToolMesh::toggleOverlay()
+{
+	enableOverlay = !enableOverlay;
+	Log::write2(
+		"ToolMesh::toggleOverlay: Overlay is now {}",
+		enableOverlay ? "enabled" : "disabled");
 }
 
 std::string std::to_string(ToolMesh::DrawMode mode)

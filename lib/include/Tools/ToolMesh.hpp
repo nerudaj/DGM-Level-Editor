@@ -95,6 +95,8 @@ public:
 private:
 	void changeDrawingMode(DrawMode newMode);
 
+	void toggleOverlay();
+
 	[[nodiscard]]
 	sf::Vector2u worldToTilePos(const sf::Vector2i& position) const noexcept
 	{

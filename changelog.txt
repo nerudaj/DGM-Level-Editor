@@ -1,3 +1,6 @@
+DGM Level Editor v2.0.x changelog:
+ * Fixed Tool context menu sometimes being triggered an incorrect number of times
+
 DGM Level Editor v2.0.0 changelog:
  * Moved to dgm-sdk (new project structure, updated dgm-lib)
  * Window title shows asterisk (*) when file has unsaved changes

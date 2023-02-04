@@ -7,7 +7,6 @@ void ToolInterface::buildCtxMenu(tgui::MenuBar::Ptr& menu)
 	destroyCtxMenu(menu);
 	shortcutEngine->unregisterShortcutGroup(CTX_MENU_NAME);
 	menu->addMenu(CTX_MENU_NAME);
-
 	buildCtxMenuInternal(menu);
 }
 
@@ -18,7 +17,8 @@ void ToolInterface::addCtxMenuItem(
 	sf::Keyboard::Key key)
 {
 	menu->addMenuItem(label);
-	menu->connectMenuItem(CTX_MENU_NAME, label, callback);
+	ctxMenuSignalHandlers.push_back(
+		menu->connectMenuItem(CTX_MENU_NAME, label, callback));
 	shortcutEngine->registerShortcut(
 		CTX_MENU_NAME,
 		{ false, true, key },
@@ -27,6 +27,10 @@ void ToolInterface::addCtxMenuItem(
 
 void ToolInterface::destroyCtxMenu(tgui::MenuBar::Ptr& menu)
 {
+	for (auto&& id : ctxMenuSignalHandlers)
+		menu->disconnect(id);
+
+	ctxMenuSignalHandlers.clear();
 	menu->removeMenu(CTX_MENU_NAME);
 }
 
