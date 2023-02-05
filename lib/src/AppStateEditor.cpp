@@ -5,6 +5,8 @@
 #include "include/Configs/Sizers.hpp"
 #include "include/Globals.hpp"
 #include "include/Editor/Editor.hpp"
+#include "include/Utilities/FontLoader.hpp"
+
 #include <iostream>
 
 void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
@@ -26,6 +28,23 @@ void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
 	{
 		app.exit();
 	}
+}
+
+void AppStateEditor::setupFont()
+{
+	FontLoader fontLoader(resmgr);
+	bool fontLoaded = fontLoader.loadFonts({
+		"C:/WINDOWS/FONTS/SEGOEUI.TTF",
+		rootDir + "/resources/cruft.ttf"
+	});
+
+	if (!fontLoaded)
+	{
+		throw std::runtime_error("Could not load any font.");
+	}
+
+	gui.setFont(
+		resmgr.get<sf::Font>(fontLoader.getLoadedFontName()));
 }
 
 std::optional<std::string> AppStateEditor::getNewSavePath()
@@ -127,23 +146,8 @@ AppStateEditor::AppStateEditor(
 {
 	try
 	{
-
 		theme.load(rootDir + "/resources/TransparentGrey.txt");
-
-		// TODO: refactor into nicer font loader
-		try
-		{
-			resmgr.loadResource<sf::Font>("C:/WINDOWS/FONTS/SEGOEUI.TTF");
-			sf::Font& font = resmgr.get<sf::Font>("SEGOEUI.TTF");
-			gui.setFont(font);
-		}
-		catch (std::exception& e)
-		{
-			std::cerr << "error:AppStateMainMenu: " << e.what() << std::endl;
-			resmgr.loadResource<sf::Font>(rootDir + "/resources/cruft.ttf");
-			sf::Font& font = resmgr.get<sf::Font>("cruft.ttf");
-			gui.setFont(font);
-		}
+		setupFont();
 	}
 	catch (std::exception& e)
 	{

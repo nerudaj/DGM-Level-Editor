@@ -115,6 +115,9 @@ protected: // Callback handlers
 	void handleRedo();
 	void handleExit(YesNoCancelDialogInterface& dialoConfirmExit);
 
+protected:
+	void setupFont();
+
 public:
 	// Inherited via AppState
 	virtual void input() override;
