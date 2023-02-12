@@ -1,4 +1,5 @@
 DGM Level Editor v2.x.x changelog:
+ * Added documentation for configuration JSON file
  * Trigger actions can be configured in the JSON to have names and named parameters
 
 DGM Level Editor v2.0.1 changelog:

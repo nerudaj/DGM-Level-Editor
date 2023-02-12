@@ -25,7 +25,7 @@ This will configure your project and will create a solution project inside `vsbu
 
 ## Demo editing project
 
-Before you can start making any levels, you need to compile assets from your game and create a configuration file. However, this repo provides a simple sample project (only assets and config file) so you can simply test out it works. You can find it in the `sample_project` folder. Rest of this guide will use the sample project. You can read how to create your own config in [this guide]().
+Before you can start making any levels, you need to compile assets from your game and create a configuration file. However, this repo provides a simple sample project (only assets and config file) so you can simply test out it works. You can find it in the `sample_project` folder. Rest of this guide will use the sample project. You can read how to create your own config in [this guide](docs/writing_config.md).
 
 ### First launch
 
