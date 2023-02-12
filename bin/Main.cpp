@@ -5,6 +5,8 @@
 #include "include/Utilities/FileApi.hpp"
 #include "include/Shortcuts/ShortcutEngine.hpp"
 #include "include/Utilities/GC.hpp"
+#include "include/Dialogs/YesNoCancelDialog.hpp"
+#include "include/Dialogs/ErrorInfoDialog.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -38,11 +40,18 @@ int main(int argc, char* argv[])
 	dgm::Window window(windowSettings);
 	dgm::App app(window);
 
+	tgui::Gui gui;
+	tgui::Theme theme;
+
 	app.pushState<AppStateEditor>(
+		gui,
+		theme,
 		ini,
 		rootDir,
 		fileApi,
-		GC<ShortcutEngine>());
+		GC<ShortcutEngine>(),
+		GC<YesNoCancelDialog>(gui, theme),
+		GC<ErrorInfoDialog>(gui, theme));
 	app.run();
 
 	windowSettings = window.close();

@@ -17,7 +17,7 @@ namespace DialogBuilderHelper
 		bool enabled = true);
 
 	void addOption(
-		tgui::ScrollablePanel::Ptr& target,
+		tgui::Container::Ptr target,
 		FormValidatorToken& token,
 		const std::string& label,
 		const std::string& tooltip,
@@ -42,4 +42,15 @@ namespace DialogBuilderHelper
 		std::string& data,
 		unsigned ypos,
 		bool enabled = true);
+
+	void addComboOption(
+		tgui::Container::Ptr target,
+		const std::string& label,
+		const std::string& tooltip,
+		const std::vector<std::string>& values,
+		std::function<void(std::size_t)> onChangeCallback,
+		std::size_t initialIndex,
+		unsigned ypos);
+
+	unsigned int getRowHeight();
 };

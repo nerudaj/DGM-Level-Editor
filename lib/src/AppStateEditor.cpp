@@ -9,6 +9,14 @@
 
 #include <iostream>
 
+constexpr const char* FILE_CTX_NEW = "New (Ctrl+N)";
+constexpr const char* FILE_CTX_LOAD = "Load (Ctrl+O)";
+constexpr const char* FILE_CTX_SAVE = "Save (Ctrl+S)";
+constexpr const char* FILE_CTX_SAVE_AS = "Save as...";
+constexpr const char* FILE_CTX_UNDO = "Undo (Ctrl+Z)";
+constexpr const char* FILE_CTX_REDO = "Redo (Ctrl+Y)";
+constexpr const char* FILE_CTX_EXIT = "Exit";
+
 void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
 {
 	if (unsavedChanges)
@@ -51,8 +59,8 @@ std::optional<std::string> AppStateEditor::getNewSavePath()
 {
 	auto result = fileApi->getSaveFileName("LevelD Files\0*.lvd\0Any File\0*.*\0");
 	return result.transform([] (const std::string& s) -> std::string
- {
-	 return s.ends_with(".lvd") ? s : s + ".lvd";
+	{
+		return s.ends_with(".lvd") ? s : s + ".lvd";
 	});
 }
 
@@ -66,7 +74,7 @@ void AppStateEditor::input()
 	{
 		if (event.type == sf::Event::Closed)
 		{
-			handleExit(dialogConfirmExit);
+			handleExit(*dialogConfirmExit);
 		}
 		else if (event.type == sf::Event::Resized)
 		{
@@ -133,16 +141,23 @@ void AppStateEditor::draw()
 
 AppStateEditor::AppStateEditor(
 	dgm::App& app,
+	tgui::Gui& gui,
+	tgui::Theme& theme,
 	cfg::Ini& ini,
 	const std::string& rootDir,
 	GC<FileApiInterface> fileApi,
-	GC<ShortcutEngineInterface> shortcutEngine)
-	:
-	dgm::AppState(app),
-	ini(ini),
-	rootDir(rootDir),
-	fileApi(fileApi),
-	shortcutEngine(shortcutEngine)
+	GC<ShortcutEngineInterface> shortcutEngine,
+	GC<YesNoCancelDialogInterface> dialogConfirmExit,
+	GC<ErrorInfoDialogInterface> dialogErrorInfo)
+	: dgm::AppState(app)
+	, gui(gui)
+	, theme(theme)
+	, ini(ini)
+	, rootDir(rootDir)
+	, fileApi(fileApi)
+	, shortcutEngine(shortcutEngine)
+	, dialogConfirmExit(dialogConfirmExit)
+	, dialogErrorInfo(dialogErrorInfo)
 {
 	try
 	{
@@ -176,14 +191,6 @@ AppStateEditor::AppStateEditor(
 
 	updateWindowTitle();
 }
-
-constexpr const char* FILE_CTX_NEW = "New (Ctrl+N)";
-constexpr const char* FILE_CTX_LOAD = "Load (Ctrl+O)";
-constexpr const char* FILE_CTX_SAVE = "Save (Ctrl+S)";
-constexpr const char* FILE_CTX_SAVE_AS = "Save as...";
-constexpr const char* FILE_CTX_UNDO = "Undo (Ctrl+Z)";
-constexpr const char* FILE_CTX_REDO = "Redo (Ctrl+Y)";
-constexpr const char* FILE_CTX_EXIT = "Exit";
 
 void AppStateEditor::buildLayout()
 {
@@ -261,7 +268,7 @@ void AppStateEditor::buildMenuBarLayout(
 	addFileMenuItem(FILE_CTX_SAVE_AS, [this] { handleSaveLevel(true); });
 	addFileMenuItem(FILE_CTX_UNDO, [this] { handleUndo(); }, sf::Keyboard::Z);
 	addFileMenuItem(FILE_CTX_REDO, [this] { handleRedo(); }, sf::Keyboard::Y);
-	addFileMenuItem(FILE_CTX_EXIT, [this] { handleExit(dialogConfirmExit); });
+	addFileMenuItem(FILE_CTX_EXIT, [this] { handleExit(*dialogConfirmExit); });
 
 	gui.add(menu, "TopMenuBar");
 }
@@ -340,7 +347,7 @@ void AppStateEditor::handleLoadLevel()
 	}
 	catch (std::exception& e)
 	{
-		Log::write(e.what());
+		dialogErrorInfo->open(e.what());
 	}
 }
 
@@ -366,7 +373,7 @@ void AppStateEditor::handleSaveLevel(bool forceNewPath) noexcept
 	}
 	catch (std::exception& e)
 	{
-		Log::write(e.what());
+		dialogErrorInfo->open(e.what());
 	}
 }
 

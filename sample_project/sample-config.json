@@ -30,5 +30,19 @@
 				}
 			}
 		]
+	},
+	"toolTrigger": {
+		"actionDefinitions": [
+			{
+				"id": 0,
+				"name": "No action",
+				"params": []
+			},
+			{
+				"id": 1,
+				"name": "Open door",
+				"params": [ "Speed", "Close delay" ]
+			}
+		]
 	}
 }

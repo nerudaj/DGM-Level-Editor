@@ -1,5 +1,6 @@
 #include "include/Utilities/FontLoader.hpp"
 
+
 bool FontLoader::loadFonts(
 	std::vector<std::filesystem::path> const& paths)
 {

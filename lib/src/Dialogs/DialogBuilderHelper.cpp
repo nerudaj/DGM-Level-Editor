@@ -18,8 +18,8 @@ tgui::Panel::Ptr _getRowBackground(unsigned y, const std::string& tooltip)
 	tt->getRenderer()->setBorderColor(sf::Color::Black);
 
 	auto row = tgui::Panel::create();
-	row->setSize("100%", Sizers::GetMenuBarHeight());
-	row->setPosition({ "0%", y * Sizers::GetMenuBarHeight() });
+	row->setSize("100%", DialogBuilderHelper::getRowHeight());
+	row->setPosition({ "0%", y * DialogBuilderHelper::getRowHeight() });
 	row->setToolTip(tt);
 	row->getRenderer()->setBackgroundColor(y % 2 == 0 ? ROW_BGR_DARK : ROW_BGR_LIGHT);
 	return row;
@@ -36,7 +36,7 @@ tgui::Label::Ptr _getLabel(const std::string& label)
 
 template<typename T>
 void _addOptionUint(
-	tgui::ScrollablePanel::Ptr& target,
+	tgui::Container::Ptr target,
 	FormValidatorToken& token,
 	const std::string& label,
 	const std::string& tooltip,
@@ -123,7 +123,7 @@ void DialogBuilderHelper::addOption(
 }
 
 void DialogBuilderHelper::addOption(
-	tgui::ScrollablePanel::Ptr& target,
+	tgui::Container::Ptr target,
 	FormValidatorToken& token,
 	const std::string& label,
 	const std::string& tooltip,
@@ -153,7 +153,7 @@ void DialogBuilderHelper::addOption(
 	bool enabled)
 {
 	_addOptionUint(
-		target,
+		target->cast<tgui::Container>(),
 		token,
 		label,
 		tooltip,
@@ -190,4 +190,38 @@ void DialogBuilderHelper::addOption(
 	}
 
 	row->add(edit);
+}
+
+void DialogBuilderHelper::addComboOption(
+	tgui::Container::Ptr target,
+	const std::string& label,
+	const std::string& tooltip,
+	const std::vector<std::string>& values,
+	std::function<void(std::size_t)> onChangeCallback,
+	std::size_t initialIndex,
+	unsigned ypos)
+{
+	auto row = _getRowBackground(ypos, tooltip);
+	target->add(row);
+
+	auto lbl = _getLabel(label);
+	row->add(lbl);
+
+	auto combo = tgui::ComboBox::create();
+	combo->setSize(VALUE_WIDTH, "100%");
+	combo->setPosition(VALUE_LEFT_MARGIN, "0%");
+
+	for (auto&& value : values)
+		combo->addItem(value);
+	combo->connect("ItemSelected", [combo, onChangeCallback]
+	{
+		onChangeCallback(combo->getSelectedItemIndex());
+	});
+	combo->setSelectedItemByIndex(initialIndex);
+	row->add(combo);
+}
+
+unsigned int DialogBuilderHelper::getRowHeight()
+{
+	return Sizers::GetMenuBarHeight();
 }

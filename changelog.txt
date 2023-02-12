@@ -1,3 +1,6 @@
+DGM Level Editor v2.x.x changelog:
+ * Trigger actions can be configured in the JSON to have names and named parameters
+
 DGM Level Editor v2.0.1 changelog:
  * Fixed sidebar not updating when changing items/tiles to draw
  * Fixed cancelling are fill not working in mesh tool

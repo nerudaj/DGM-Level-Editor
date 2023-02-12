@@ -22,5 +22,13 @@ static inline tgui::ChildWindow::Ptr createNewChildWindow(tgui::Theme& theme, co
 	return modal;
 }
 
+static inline void closeModal(
+	tgui::Gui& gui,
+	const std::string& id)
+{
+	auto modal = gui.get<tgui::ChildWindow>(id);
+	gui.remove(modal);
+}
+
 constexpr const char* DIALOG_TITLE_WARNING = "Warning";
 constexpr const char* DIALOG_TEXT_UNSAVED_EXIT = "You have some unsaved changes. Do you want to save them before exiting?";

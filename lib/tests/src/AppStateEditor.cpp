@@ -6,6 +6,7 @@
 #include "../include/YesNoCancelDialogMock.hpp"
 #include <include/AppStateEditor.hpp>
 #include <include/Shortcuts/ShortcutEngine.hpp>
+#include "include/Dialogs/ErrorInfoDialog.hpp"
 
 class AppStateEditorTestable : public AppStateEditor
 {
@@ -32,11 +33,24 @@ public:
 
 	AppStateEditorTestable(
 		dgm::App& app,
+		tgui::Gui& gui,
+		tgui::Theme& theme,
 		cfg::Ini& ini,
 		const std::string& rootDir,
 		GC<FileApiInterface> fileApi,
-		GC<ShortcutEngineInterface> shortcutEngine)
-		: AppStateEditor(app, ini, rootDir, fileApi, shortcutEngine)
+		GC<ShortcutEngineInterface> shortcutEngine,
+		GC<YesNoCancelDialogInterface> yesNoDialog,
+		GC<ErrorInfoDialogInterface> errorDialog)
+		: AppStateEditor(
+			app,
+			gui,
+			theme,
+			ini,
+			rootDir,
+			fileApi,
+			shortcutEngine,
+			yesNoDialog,
+			errorDialog)
 	{}
 };
 
@@ -72,16 +86,25 @@ TEST_CASE("[AppStateEditor]")
 	auto shortcutEngine = GC<ShortcutEngine>();
 	EditorMockState editorMockState;
 	auto editorMock = Box<EditorMock>(&editorMockState);
+	tgui::Gui gui;
+	tgui::Theme theme;
+	GC<YesNoCancelDialogInterface> yesNoDialog = GC<YesNoCancelDialogMock>();
+	GC<ErrorInfoDialogInterface> errorInfoDialog = GC<ErrorInfoDialog>(gui, theme);
 
 	SECTION("handleExit")
 	{
-		SECTION("Asks for confirmation with unsaved changes")
-		{
-			app.pushState<AppStateEditorTestable>(
+		app.pushState<AppStateEditorTestable>(
+				gui,
+				theme,
 				ini,
 				rootDir,
 				std::move(fileApiMock),
-				std::move(shortcutEngine));
+				std::move(shortcutEngine),
+				yesNoDialog,
+				errorInfoDialog);
+
+		SECTION("Asks for confirmation with unsaved changes")
+		{
 			app.getState().injectEditorMock(std::move(editorMock));
 			app.getState().mockUnsavedChanges();
 
@@ -96,11 +119,6 @@ TEST_CASE("[AppStateEditor]")
 
 		SECTION("Does not save if user rejects")
 		{
-			app.pushState<AppStateEditorTestable>(
-				ini,
-				rootDir,
-				std::move(fileApiMock),
-				std::move(shortcutEngine));
 			app.getState().injectEditorMock(std::move(editorMock));
 			app.getState().mockUnsavedChanges();
 
@@ -115,11 +133,6 @@ TEST_CASE("[AppStateEditor]")
 
 		SECTION("Does not exit if user cancels")
 		{
-			app.pushState<AppStateEditorTestable>(
-					ini,
-					rootDir,
-					std::move(fileApiMock),
-					std::move(shortcutEngine));
 			app.getState().injectEditorMock(std::move(editorMock));
 			app.getState().mockUnsavedChanges();
 
@@ -135,40 +148,45 @@ TEST_CASE("[AppStateEditor]")
 
 	SECTION("getNewSavePath")
 	{
+		auto appStateEditor = AppStateEditorTestable(
+			app,
+			gui,
+			theme,
+			ini,
+			rootDir,
+			std::move(fileApiMock),
+			std::move(shortcutEngine),
+			yesNoDialog,
+			errorInfoDialog);
+
 		SECTION("Returns nullopt on user cancel")
 		{
 			fileApiMock->userCancelled = true;
-			auto appStateEditor = AppStateEditorTestable(
-				app,
-				ini,
-				rootDir,
-				std::move(fileApiMock),
-				std::move(shortcutEngine));
-			REQUIRE(not appStateEditor.getNewSavePathTest().has_value());
+
+			REQUIRE_FALSE(
+				appStateEditor
+					.getNewSavePathTest()
+					.has_value());
 		}
 
 		SECTION("Appends .lvd if not specified")
 		{
 			fileApiMock->mockFileName = "name";
-			auto appStateEditor = AppStateEditorTestable(
-				app,
-				ini,
-				rootDir,
-				std::move(fileApiMock),
-				std::move(shortcutEngine));
-			REQUIRE(appStateEditor.getNewSavePathTest().value() == "name.lvd");
+
+			REQUIRE(
+				appStateEditor
+					.getNewSavePathTest()
+					.value() == "name.lvd");
 		}
 
 		SECTION("Does nothing if .lvd is specified")
 		{
 			fileApiMock->mockFileName = "name.lvd";
-			auto appStateEditor = AppStateEditorTestable(
-				app,
-				ini,
-				rootDir,
-				std::move(fileApiMock),
-				std::move(shortcutEngine));
-			REQUIRE(appStateEditor.getNewSavePathTest().value() == "name.lvd");
+
+			REQUIRE(
+				appStateEditor
+					.getNewSavePathTest()
+					.value() == "name.lvd");
 		}
 	}
 }

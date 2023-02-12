@@ -7,6 +7,13 @@ void TriggerToolProperty::fillEditDialog(
 {
 	using namespace DialogBuilderHelper;
 
+	if (!actionDefinitions->contains(data.id))
+	{
+		throw std::runtime_error(
+			"Trigger already has action with ID higher "
+			"than provided action annotations");
+	}
+
 	auto dst = tgui::ScrollablePanel::create();
 	panel->add(dst);
 
@@ -24,11 +31,73 @@ void TriggerToolProperty::fillEditDialog(
 	}
 	addOption(dst, formValidatorToken, "Trigger type:", "How the trigger should be executed", data.type, row++);
 	addOption(dst, formValidatorToken, "Tag:", "Value used to group related objects", data.tag, row++, true, true);
-	addOption(dst, formValidatorToken, "Action ID:", "ID of action to execute", data.id, row++);
-	addOption(dst, formValidatorToken, "Parameter 1:", "First param of action", data.a1, row++);
-	addOption(dst, formValidatorToken, "Parameter 2:", "Second param of action", data.a2, row++);
-	addOption(dst, formValidatorToken, "Parameter 3:", "Third param of action", data.a3, row++);
-	addOption(dst, formValidatorToken, "Parameter 4:", "Fourth param of action", data.a4, row++);
-	addOption(dst, formValidatorToken, "Parameter 5:", "Fifth param of action", data.a5, row++);
 	addOption(dst, "Metadata:", "Text field for custom data", data.metadata, row++);
+
+	auto paramsContainer = tgui::Panel::create();
+
+	auto buildParams = [](
+		tgui::Panel::Ptr paramsContainer,
+		FormValidatorToken& formValidatorToken,
+		uint32_t* firstParamAddress,
+		const std::vector<std::string>& paramNames)
+	{
+		paramsContainer->removeAllWidgets();
+		paramsContainer->setSize(
+			"100%",
+			getRowHeight() * paramNames.size());
+
+		unsigned row2 = 0;
+		for (auto&& param : paramNames)
+		{
+			addOption(
+				paramsContainer->cast<tgui::Container>(),
+				formValidatorToken,
+				param,
+				"Action parameter",
+				firstParamAddress[row2],
+				row2++);
+		}
+	};
+
+	auto itemChanged = [&, paramsContainer] (std::size_t index)
+	{
+		if (index == data.id)
+			return;
+
+		data.id = index;
+		buildParams(
+			paramsContainer,
+			formValidatorToken,
+			&(data.a1),
+			actionDefinitions->at(data.id).params);
+	};
+
+	addComboOption(
+		dst->cast<tgui::Container>(),
+		"Action",
+		"Select action to execute when trigger is activated",
+		getActionNames(),
+		itemChanged,
+		data.id,
+		row++);
+
+
+	paramsContainer->setPosition("0%", getRowHeight() * row);
+	buildParams(
+		paramsContainer,
+		formValidatorToken,
+		&(data.a1),
+		actionDefinitions->at(data.id).params);
+	dst->add(paramsContainer);
+}
+
+std::vector<std::string> TriggerToolProperty::getActionNames() const
+{
+	std::vector<std::string> result;
+	result.reserve(actionDefinitions->size());
+
+	for (auto&& [id, def] : *actionDefinitions)
+		result.push_back(def.name);
+
+	return result;
 }

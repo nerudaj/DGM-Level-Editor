@@ -1,18 +1,19 @@
 #pragma once
 
+#include "include/Interfaces/DialogInterfaces.hpp"
+#include "include/Interfaces/EditorInterface.hpp"
+#include "include/Interfaces/ShortcutEngineInterface.hpp"
+
 #include <DGM/dgm.hpp>
 #include <TGUI/TGUI.hpp>
 #include "Camera.hpp"
 #include "Dialogs/NewLevelDialog.hpp"
-#include "include/Dialogs/YesNoCancelDialog.hpp"
 #include "LogConsole.hpp"
-#include "include/Interfaces/EditorInterface.hpp"
 #include "include/Editor/NullEditor.hpp"
 #include "include/Utilities/FileApi.hpp"
 #include <optional>
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Commands/CommandHistory.hpp"
-#include "include/Interfaces/ShortcutEngineInterface.hpp"
 #include "include/Utilities/GC.hpp"
 #include "include/Utilities/Box.hpp"
 
@@ -23,44 +24,28 @@
 class AppStateEditor : public dgm::AppState
 {
 protected:
-	// Resources
+	// Dependencies
 	cfg::Ini& ini;
+	tgui::Gui& gui;
+	tgui::Theme& theme;
+	GC<ShortcutEngineInterface> shortcutEngine;
+	GC<FileApiInterface> fileApi;
+	GC<YesNoCancelDialogInterface> dialogConfirmExit;
+	GC<ErrorInfoDialogInterface> dialogErrorInfo;
+
+	// Attributes
 	dgm::JsonLoader loader;
 	dgm::ResourceManager resmgr = dgm::ResourceManager(loader);
-	tgui::Theme theme;
 	std::string rootDir;
 	std::string filePath;
 	std::string savePath;
 	std::string configPath;
 	bool unsavedChanges = false;
-
-	// Gui
-	tgui::Gui gui;
 	tgui::Canvas::Ptr canvas;
-
 	GC<CommandHistory> commandHistory;
 	GC<CommandQueue> commandQueue = GC<CommandQueue>(commandHistory);
 	Box<EditorInterface> editor = Box<NullEditor>();
-
-	/*
-	*  HOW TO MAKE THIS NICER:
-	*  Factor out dialog builder functions to some common base.
-	*  Then implement each dialog as a constructible class without any other method. This will work as "fire and forget" approach. Everything that
-	* concerns a modal can be solved via lambda with tgui::Gui in capture.
-	* each class has its own "submit" callback requirement and every result of
-	* a modal (Yes|No|Cancel, level width/height, ...) will be passed as a parameter
-	* to this callback.
-	*
-	* Each dialog can be then implemented via factory class (types of std::function should be swallowed and not type checked, fingers crossed)
-	* and then the factory class can be injected as a dependency to this class.
-	*/
 	NewLevelDialog dialogNewLevel = NewLevelDialog(gui, theme, ini);
-	YesNoCancelDialog dialogConfirmExit = YesNoCancelDialog(gui, theme);
-
-
-	// Dependencies
-	GC<ShortcutEngineInterface> shortcutEngine;
-	GC<FileApiInterface> fileApi;
 
 protected:
 	void updateWindowTitle()
@@ -130,8 +115,12 @@ public:
 
 	AppStateEditor(
 		dgm::App& app,
+		tgui::Gui& gui,
+		tgui::Theme& theme,
 		cfg::Ini& ini,
 		const std::string& rootDir,
 		GC<FileApiInterface> fileApi,
-		GC<ShortcutEngineInterface> shortcutEngine);
+		GC<ShortcutEngineInterface> shortcutEngine,
+		GC<YesNoCancelDialogInterface> dialogConfirmExit,
+		GC<ErrorInfoDialogInterface> dialogErrorInfo);
 };

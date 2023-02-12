@@ -3,28 +3,20 @@
 #include <array>
 #include <utility>
 
-static void closeModal(tgui::Gui& gui, const std::string& id)
-{
-	auto modal = gui.get<tgui::ChildWindow>(id);
-	gui.remove(modal);
-}
-
 void YesNoCancelDialog::open(const std::string title, const std::string& text, std::function<void(UserChoice)> completedCallback)
 {
+	auto cancelDialog = [this, completedCallback]
+	{
+		closeModal(gui, DIALOG_ID);
+		completedCallback(UserChoice::Cancelled);
+	};
+
 	auto modal = createNewChildWindow(theme, title);
 	modal->setSize("20%", "10%");
 	modal->setPosition("40%", "40%");
 	modal->setPositionLocked(true);
-	modal->connect("EscapeKeyPressed", [this, completedCallback] ()
-	{
-		closeModal(gui, DIALOG_ID);
-	completedCallback(UserChoice::Cancelled);
-	});
-	modal->connect("Closed", [this, completedCallback] ()
-	{
-		closeModal(gui, DIALOG_ID);
-	completedCallback(UserChoice::Cancelled);
-	});
+	modal->connect("EscapeKeyPressed", cancelDialog);
+	modal->connect("Closed", cancelDialog);
 	gui.add(modal, DIALOG_ID);
 
 	auto label = tgui::Label::create(text);
@@ -48,7 +40,7 @@ void YesNoCancelDialog::open(const std::string title, const std::string& text, s
 		auto btn = tgui::Button::create(label);
 		btn->setSize(BUTTON_SIZE);
 		btn->setPosition(std::to_string(xOffset) + "%", BUTTON_Y_OFFSET);
-		btn->connect("clicked", [this, choice, completedCallback] ()
+		btn->connect("clicked", [this, choice, completedCallback]
 		{
 			closeModal(gui, DIALOG_ID);
 		completedCallback(choice);

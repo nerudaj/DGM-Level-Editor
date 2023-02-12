@@ -102,15 +102,74 @@ void ToolTrigger::updateVisForTrigger(sf::RectangleShape& vis, const LevelD::Tri
 	vis.setSize({ float(trig.width), float(trig.height) });
 }
 
+void ToolTrigger::configureActionsDict(nlohmann::json const& config)
+{
+	if (!config.is_array())
+		return;
+
+	unsigned actionDefIndex = 0;
+	try
+	{
+		for (auto&& actionDef : config)
+		{
+			TriggerActionDefinition def = actionDef;
+
+			if (actionDefinitions->contains(def.id))
+			{
+				throw std::runtime_error(
+					std::format(
+						"Redefinition of action with id {}",
+						def.id));
+			}
+			else if (def.params.size() > 5)
+			{
+				throw std::runtime_error(
+					std::format(
+						"Params array can have maximum of 5 items"));
+			}
+
+			(*actionDefinitions)[def.id] = def;
+			++actionDefIndex;
+		}
+	}
+	catch (std::exception& e)
+	{
+		throw std::runtime_error(
+			std::format(
+				"Error parsing configuration for toolTrigger:\n"
+				"When parsing {}th action definition:\n"
+				"{}",
+				actionDefIndex,
+				e.what()));
+	}
+}
+
 /* Build & Draw */
 void ToolTrigger::configure(nlohmann::json& config)
 {
 	triggers.clear();
+	actionDefinitions->clear();
 
 	coordConverter =
 		CoordConverter(
 			JsonHelper::arrayToVector2u(
 				config["toolMesh"]["texture"]["tileDimensions"]));
+
+	if (config.contains("toolTrigger") &&
+		config["toolTrigger"].contains("actionDefinitions"))
+	{
+		configureActionsDict(
+			config["toolTrigger"]["actionDefinitions"]);
+	}
+	else
+	{
+		actionDefinitions->clear();
+		(*actionDefinitions)[0] = {
+			.id = 0,
+			.name = "Not configured",
+			.params = {}
+		};
+	}
 
 	// This is static, outline and fill colors of shapes are dependent on draw opacity
 	circShape.setOutlineThickness(2.f);
@@ -322,9 +381,10 @@ ExpectedPropertyPtr ToolTrigger::getProperty(const sf::Vector2i& penPos) const
 	if (!trigId.has_value())
 		return std::unexpected(BaseError());
 
-	auto&& result = Box<TriggerToolProperty>();
-	result->id = *trigId;
-	result->data = triggers[*trigId];
+	auto&& result = Box<TriggerToolProperty>(
+		actionDefinitions,
+		triggers[*trigId],
+		*trigId);
 
 	return std::move(result);
 }

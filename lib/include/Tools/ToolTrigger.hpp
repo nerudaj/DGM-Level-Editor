@@ -13,6 +13,13 @@ class ToolTrigger final : public ToolWithDragAndSelect
 private:
 	using super = ToolWithDragAndSelect;
 
+	struct ActionDefinition
+	{
+		unsigned id = 0;
+		std::string name = "";
+		std::vector<std::string> params = {};
+	};
+
 public:
 	[[nodiscard]]
 	ToolTrigger(
@@ -22,7 +29,7 @@ public:
 		tgui::Theme& theme,
 		GC<CommandQueue> commandQueue,
 		std::function<sf::Vector2i()> getPenPosition) noexcept
-		: ToolWithDragAndSelect(onStateChanged, shortcutEngine)
+		: super(onStateChanged, shortcutEngine)
 		, sidebarUser(gui, theme)
 		, commandQueue(commandQueue)
 		, getPenPosition(getPenPosition)
@@ -66,6 +73,7 @@ private:
 	static sf::Vector2u getNormalizedPosition(const LevelD::Trigger& trigger);
 	void updateVisForTrigger(sf::CircleShape& vis, const LevelD::Trigger& trigger);
 	void updateVisForTrigger(sf::RectangleShape& vis, const LevelD::Trigger& trigger);
+	void configureActionsDict(nlohmann::json const& config);
 
 	[[nodiscard]]
 	constexpr bool isValidPenPosForDrawing(const sf::Vector2i& pos) const noexcept
@@ -88,6 +96,7 @@ private:
 	std::vector<LevelD::Trigger> triggers;
 	CoordConverter coordConverter;
 	sf::Vector2i levelSize;
+	GC<std::map<unsigned, TriggerActionDefinition>> actionDefinitions;
 
 	// Dependencies
 	GC<CommandQueue> commandQueue;
