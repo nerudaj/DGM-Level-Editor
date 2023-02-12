@@ -76,6 +76,27 @@ target_compile_options ( ${PROJECT_NAME}
 	PRIVATE /MP
 )
 
+target_precompile_headers ( ${PROJECT_NAME}
+	PRIVATE
+		<vector>
+		<format>
+		<map>
+		<unordered_map>
+		<array>
+		<optional>
+		<expected>
+		<fstream>
+		<filesystem>
+		<functional>
+		<concepts>
+		<memory>
+		<string>
+		<cstdint>
+		<DGM/dgm.hpp>
+		<TGUI/tgui.hpp>
+		<json.hpp>
+)
+
 set_property(
 	TARGET ${PROJECT_NAME}
 	PROPERTY VS_USER_PROPS "${CMAKE_CURRENT_SOURCE_DIR}/../props/EnableUseAfterMoveAnalysis.props"
