@@ -24,7 +24,7 @@ Each of these modes of operation needs its own configuration, so let's look at e
 
 Uses the `toolMesh` key. Tool meash needs to know a path to tileset texture. This texture needs to hold all of the tiles, you are going to use, but it doesn't have to be the production one (if you are employing some autotexturing, then you can use the editor just to do some blockmesh and you can design quite small tileset for such purpose).
 
-Path to texture can be relative or absolute. For the texture to load properly, editor needs to know pixel dimensions of each tile (`tileDimensions`), spacing between tiles (`tileOffsets`) and the area of the texture from where the tiles will be loaded (maybe your texture has some margins). The area is specified by the `boundaries` array and it contains coordinates of top-left corner where the first tile starts and then width/height of that area.
+Path to texture can be relative or absolute. For the texture to load properly, editor needs to know pixel dimensions of each tile (`tileDimensions`), spacing between tiles (`tileSpacing`) and the area of the texture from where the tiles will be loaded (maybe your texture has some margins). The area is specified by the `boundaries` array and it contains coordinates of top-left corner where the first tile starts and then width/height of that area.
 
 You also need to specify how many tiles are there within the texture (`defaultProperties/count`) and which tiles are impassable by default. Impassability is specified by `solids` array where `1` means impassable. Nth flag in the solids array corresponds with the nth tile in the texture, indexed from 0.
 
@@ -35,7 +35,7 @@ Final config section can look like this:
 	"texture": {
 		"path": "./textures/tileset.png",
 		"tileDimensions": [32, 32],
-		"tileOffsets": [0, 0],
+		"tileSpacing": [0, 0],
 		"boundaries": [0, 0, 96, 64]
 	},
 	"defaultProperties": {

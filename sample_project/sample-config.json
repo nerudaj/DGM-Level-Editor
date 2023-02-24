@@ -3,7 +3,7 @@
         "texture": {
             "path": "./textures/tileset.png",
             "tileDimensions": [32, 32],
-            "tileOffsets": [0, 0],
+            "tileSpacing": [0, 0],
             "boundaries": [0, 0, 96, 64]
         },
         "defaultProperties": {

@@ -1,3 +1,6 @@
+DGM Level Editor v2.x.x changelog:
+ * Changed wording of editor config - `tileOffsets` was changed to `tileSpacing` because offset means something completely different
+
 DGM Level Editor v2.0.2 changelog:
  * Added documentation for configuration JSON file
  * Trigger actions can be configured in the JSON to have names and named parameters

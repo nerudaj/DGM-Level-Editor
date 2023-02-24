@@ -86,8 +86,8 @@ void ToolMesh::configure(nlohmann::json& config)
 
 	sf::Vector2u tileDims = JsonHelper::arrayToVector2u(
 		config[TOOL_STR]["texture"]["tileDimensions"]);
-	sf::Vector2u tileOffs = JsonHelper::arrayToVector2u(
-		config[TOOL_STR]["texture"]["tileOffsets"]);
+	sf::Vector2u tileSpacing = JsonHelper::arrayToVector2u(
+		config[TOOL_STR]["texture"]["tileSpacing"]);
 	sf::IntRect  bounds = JsonHelper::arrayToIntRect(
 		config[TOOL_STR]["texture"]["boundaries"]);
 
@@ -98,13 +98,13 @@ void ToolMesh::configure(nlohmann::json& config)
 	unsigned i = 0;
 	for (auto& item : config[TOOL_STR]["defaultProperties"]["solids"])
 	{
-		blocks[i++] = bool(int(item));
+		blocks[i++] = item.get<int>() > 0;
 	}
 
 	configure(
 		texturePath,
 		tileDims,
-		tileOffs,
+		tileSpacing,
 		bounds,
 		blocks);
 }
