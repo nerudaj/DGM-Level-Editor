@@ -43,7 +43,7 @@ void AppStateEditor::setupFont()
 	FontLoader fontLoader(resmgr);
 	bool fontLoaded = fontLoader.loadFonts({
 		"C:/WINDOWS/FONTS/SEGOEUI.TTF",
-		rootDir + "/resources/cruft.ttf"
+		(programOptions.rootDir / "resources/cruft.ttf").string()
 	});
 
 	if (!fontLoaded)
@@ -144,7 +144,7 @@ AppStateEditor::AppStateEditor(
 	tgui::Gui& gui,
 	tgui::Theme& theme,
 	cfg::Ini& ini,
-	const std::string& rootDir,
+	ProgramOptions options,
 	GC<FileApiInterface> fileApi,
 	GC<ShortcutEngineInterface> shortcutEngine,
 	GC<YesNoCancelDialogInterface> dialogConfirmExit,
@@ -153,7 +153,7 @@ AppStateEditor::AppStateEditor(
 	, gui(gui)
 	, theme(theme)
 	, ini(ini)
-	, rootDir(rootDir)
+	, programOptions(options)
 	, fileApi(fileApi)
 	, shortcutEngine(shortcutEngine)
 	, dialogConfirmExit(dialogConfirmExit)
@@ -161,7 +161,15 @@ AppStateEditor::AppStateEditor(
 {
 	try
 	{
-		theme.load(rootDir + "/resources/TransparentGrey.txt");
+		configPath = ini[programOptions.binaryDirHash]
+			.at("configPath").asString();
+	}
+	catch (...) {}
+
+	try
+	{
+		theme.load(
+			(programOptions.rootDir / "resources/TransparentGrey.txt").string());
 		setupFont();
 	}
 	catch (std::exception& e)
@@ -190,6 +198,15 @@ AppStateEditor::AppStateEditor(
 		this->shortcutEngine);
 
 	updateWindowTitle();
+}
+
+AppStateEditor::~AppStateEditor()
+{
+	if (configPath.has_value())
+	{
+		ini[programOptions.binaryDirHash]["configPath"]
+			= configPath.value();
+	}
 }
 
 void AppStateEditor::buildLayout()
@@ -311,11 +328,9 @@ void AppStateEditor::newLevelDialogCallback()
 	// Get settings from modal
 	unsigned levelWidth = dialogNewLevel.getLevelWidth();
 	unsigned levelHeight = dialogNewLevel.getLevelHeight();
-	std::string configPath = dialogNewLevel.getConfigPath();
+	configPath = dialogNewLevel.getConfigPath();
 
-	Log::write("editor.init(" + std::to_string(levelWidth) + ", " + std::to_string(levelHeight) + ", " + configPath + ");");
-	editor->init(levelWidth, levelHeight, configPath);
-	ini["Editor"]["configPath"] = configPath;
+	editor->init(levelWidth, levelHeight, configPath.value());
 }
 
 void AppStateEditor::handleNewLevel()
@@ -325,10 +340,11 @@ void AppStateEditor::handleNewLevel()
 
 void AppStateEditor::handleLoadLevel()
 {
-	auto r = fileApi->getOpenFileName("LevelD Files\0*.lvd\0Any File\0*.*\0");
+	auto r = fileApi->getOpenFileName(
+		"LevelD Files\0*.lvd\0Any File\0*.*\0");
 	if (!r.has_value()) return;
 
-	savePath = *r;
+	savePath = r.value();
 	filePath = savePath; // The load path becomes save path for subsequent saves
 
 	try
@@ -337,7 +353,8 @@ void AppStateEditor::handleLoadLevel()
 		lvd.loadFromFile(savePath);
 		configPath = lvd.metadata.description;
 
-		if (configPath.empty())
+		// TODO: open a modal for re-linking config
+		if (!configPath.has_value())
 			throw std::runtime_error("Path to config file is unknown!");
 
 		editor->loadFrom(lvd);
@@ -353,6 +370,8 @@ void AppStateEditor::handleLoadLevel()
 
 void AppStateEditor::handleSaveLevel(bool forceNewPath) noexcept
 {
+	assert(configPath.has_value());
+
 	if (savePath.empty() || forceNewPath)
 	{
 		if (auto str = getNewSavePath())
@@ -366,7 +385,7 @@ void AppStateEditor::handleSaveLevel(bool forceNewPath) noexcept
 		filePath = savePath;
 		unsavedChanges = false;
 		auto&& lvd = editor->save();
-		lvd.metadata.description = configPath;
+		lvd.metadata.description = configPath.value();
 		lvd.saveToFile(savePath);
 		updateWindowTitle();
 		Log::write2("Level saved to '{}'", savePath);

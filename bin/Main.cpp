@@ -7,6 +7,23 @@
 #include "include/Utilities/GC.hpp"
 #include "include/Dialogs/YesNoCancelDialog.hpp"
 #include "include/Dialogs/ErrorInfoDialog.hpp"
+#include "include/ProgramOptions.hpp"
+
+#include <string>
+#include <functional>
+#include <format>
+
+std::filesystem::path GetBinaryDirectory()
+{
+	char buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	return std::filesystem::path(buffer).parent_path();
+}
+
+std::string ComputeShortHash(const std::string& str)
+{
+	return std::format("{:x}", std::hash<std::string>{}(str));
+}
 
 int main(int argc, char* argv[])
 {
@@ -15,6 +32,13 @@ int main(int argc, char* argv[])
 	{
 		rootDir = argv[1];
 	}
+
+	auto binaryDirectory = GetBinaryDirectory();
+	ProgramOptions programOptions{
+		.binaryDir = binaryDirectory,
+		.rootDir = binaryDirectory / rootDir,
+		.binaryDirHash = ComputeShortHash(binaryDirectory.string())
+	};
 
 	auto fileApi = GC<FileApi>();
 	const auto APPDATA = fileApi->resolveAppdata();
@@ -47,7 +71,7 @@ int main(int argc, char* argv[])
 		gui,
 		theme,
 		ini,
-		rootDir,
+		programOptions,
 		fileApi,
 		GC<ShortcutEngine>(),
 		GC<YesNoCancelDialog>(gui, theme),

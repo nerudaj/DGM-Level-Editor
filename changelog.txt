@@ -1,4 +1,6 @@
 DGM Level Editor v2.x.x changelog:
+ * Each installation of level editor has its own local settings
+	* Cached path to config json will now be unique for each installation of level editor
  * Changed wording of editor config - `tileOffsets` was changed to `tileSpacing` because offset means something completely different
  * Updated dshlibs to v1.7.2
 	* It supports layer index in things and triggers

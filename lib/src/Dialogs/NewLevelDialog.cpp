@@ -9,11 +9,10 @@ constexpr const char* INPUT_LEVEL_CONFIG_ID = "InputLevelConfig";
 
 void NewLevelDialog::customOpenCode()
 {
-	if (ini.hasSection("Editor") && ini["Editor"].hasKey("configPath"))
-	{
-		auto box = gui.get<tgui::EditBox>(INPUT_LEVEL_CONFIG_ID);
-		box->setText(ini["Editor"]["configPath"].asString());
-	}
+	if (!configPath.has_value()) return;
+
+	auto box = gui.get<tgui::EditBox>(INPUT_LEVEL_CONFIG_ID);
+	box->setText(configPath.value());
 }
 
 unsigned NewLevelDialog::getLevelWidth() const
@@ -32,9 +31,9 @@ std::string NewLevelDialog::getConfigPath() const
 }
 
 NewLevelDialog::NewLevelDialog(
-	tgui::Gui& gui,
-	tgui::Theme& theme,
-	cfg::Ini& ini)
+		tgui::Gui& gui,
+		tgui::Theme& theme,
+		std::optional<std::string> const& configPath)
 	:
 	DialogInterface(
 		gui,
@@ -52,5 +51,5 @@ NewLevelDialog::NewLevelDialog(
 						"JSON Files\0*.json\0Any File\0*.*\0");
 					box->setText(fileName.value_or(""));
  } } })),
-	ini(ini)
+	configPath(configPath)
 {}

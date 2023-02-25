@@ -5,6 +5,7 @@
 #include "include/Interfaces/ShortcutEngineInterface.hpp"
 
 #include <DGM/dgm.hpp>
+#include <Config.hpp>
 #include <TGUI/TGUI.hpp>
 #include "Camera.hpp"
 #include "Dialogs/NewLevelDialog.hpp"
@@ -16,6 +17,7 @@
 #include "include/Commands/CommandHistory.hpp"
 #include "include/Utilities/GC.hpp"
 #include "include/Utilities/Box.hpp"
+#include "include/ProgramOptions.hpp"
 
 /**
  *  This class is responsible for drawing top level gui - topbar, canvas, console, bootstrapping
@@ -36,16 +38,16 @@ protected:
 	// Attributes
 	dgm::JsonLoader loader;
 	dgm::ResourceManager resmgr = dgm::ResourceManager(loader);
-	std::string rootDir;
+	ProgramOptions programOptions;
 	std::string filePath;
 	std::string savePath;
-	std::string configPath;
+	std::optional<std::string> configPath = {};
 	bool unsavedChanges = false;
 	tgui::Canvas::Ptr canvas;
 	GC<CommandHistory> commandHistory;
 	GC<CommandQueue> commandQueue = GC<CommandQueue>(commandHistory);
 	Box<EditorInterface> editor = Box<NullEditor>();
-	NewLevelDialog dialogNewLevel = NewLevelDialog(gui, theme, ini);
+	NewLevelDialog dialogNewLevel = NewLevelDialog(gui, theme, configPath);
 
 protected:
 	void updateWindowTitle()
@@ -118,9 +120,10 @@ public:
 		tgui::Gui& gui,
 		tgui::Theme& theme,
 		cfg::Ini& ini,
-		const std::string& rootDir,
+		ProgramOptions options,
 		GC<FileApiInterface> fileApi,
 		GC<ShortcutEngineInterface> shortcutEngine,
 		GC<YesNoCancelDialogInterface> dialogConfirmExit,
 		GC<ErrorInfoDialogInterface> dialogErrorInfo);
+	~AppStateEditor();
 };

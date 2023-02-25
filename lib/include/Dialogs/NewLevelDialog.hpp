@@ -1,8 +1,9 @@
 #pragma once
 
 #include <DGM/dgm.hpp>
-#include <Config.hpp>
 #include "DialogBase.hpp"
+
+#include <optional>
 
 /**
  *  \brief Modal window for creating new level
@@ -16,11 +17,13 @@
  */
 class NewLevelDialog final : public DialogInterface
 {
-private:
-	cfg::Ini& ini;
-
-private:
-	virtual void customOpenCode() override;
+public:
+	NewLevelDialog(
+		tgui::Gui& gui,
+		tgui::Theme& theme,
+		std::optional<std::string> const& configPath);
+	NewLevelDialog(const NewLevelDialog&) = delete;
+	NewLevelDialog(NewLevelDialog&&) = delete;
 
 public:
 	[[nodiscard]]
@@ -32,8 +35,10 @@ public:
 	[[nodiscard]]
 	std::string getConfigPath() const;
 
-	NewLevelDialog(tgui::Gui& gui, tgui::Theme& theme, cfg::Ini& ini);
-	NewLevelDialog(const NewLevelDialog&) = delete;
-	NewLevelDialog(NewLevelDialog&&) = delete;
+private:
+	std::optional<std::string> const& configPath;
+
+private:
+	virtual void customOpenCode() override;
 };
 
