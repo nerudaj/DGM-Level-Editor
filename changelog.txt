@@ -1,4 +1,4 @@
-DGM Level Editor v2.x.x changelog:
+DGM Level Editor v2.1.0 changelog:
  * Each installation of level editor has its own local settings
 	* Cached path to config json will now be unique for each installation of level editor
  * Changed wording of editor config - `tileOffsets` was changed to `tileSpacing` because offset means something completely different
