@@ -1,5 +1,7 @@
 DGM Level Editor v2.x.x changelog:
  * Changed wording of editor config - `tileOffsets` was changed to `tileSpacing` because offset means something completely different
+ * Updated dshlibs to v1.7.2
+	* It supports layer index in things and triggers
 
 DGM Level Editor v2.0.2 changelog:
  * Added documentation for configuration JSON file
