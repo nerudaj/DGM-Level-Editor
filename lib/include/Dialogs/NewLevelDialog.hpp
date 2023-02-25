@@ -2,6 +2,8 @@
 
 #include <DGM/dgm.hpp>
 #include "DialogBase.hpp"
+#include "include/Utilities/GC.hpp"
+#include "include/Interfaces/FileApiInterface.hpp"
 
 #include <optional>
 
@@ -21,9 +23,8 @@ public:
 	NewLevelDialog(
 		tgui::Gui& gui,
 		tgui::Theme& theme,
+		GC<FileApiInterface> fileApi,
 		std::optional<std::string> const& configPath);
-	NewLevelDialog(const NewLevelDialog&) = delete;
-	NewLevelDialog(NewLevelDialog&&) = delete;
 
 public:
 	[[nodiscard]]

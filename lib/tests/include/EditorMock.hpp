@@ -24,7 +24,10 @@ public:
 		state->drawCallCounter++;
 	}
 
-	virtual void init(unsigned, unsigned, const std::string&) override
+	virtual void init(
+		unsigned,
+		unsigned,
+		const std::filesystem::path&) override
 	{
 		state->initCallCounter++;
 	}
@@ -40,7 +43,9 @@ public:
 		return {};
 	}
 
-	virtual void loadFrom(const LevelD&,
+	virtual void loadFrom(
+		const LevelD&,
+		const std::filesystem::path&,
 		bool skipInit = false) override
 	{
 		state->saveToFileCallCounter++;

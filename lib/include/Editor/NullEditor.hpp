@@ -7,7 +7,7 @@ class NullEditor final : public EditorInterface
 public:
 	void draw() override {}
 
-	void init(unsigned, unsigned, const std::string&)  override {}
+	void init(unsigned, unsigned, const std::filesystem::path&)  override {}
 
 	void handleEvent(const sf::Event&, const sf::Vector2i&)  override {}
 
@@ -16,6 +16,7 @@ public:
 
 	void loadFrom(
 		const LevelD&,
+		const std::filesystem::path&,
 		bool skipInit)  override
 	{}
 

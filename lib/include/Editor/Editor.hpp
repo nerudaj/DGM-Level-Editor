@@ -92,7 +92,7 @@ public:
 	virtual void init(
 		unsigned levelWidth,
 		unsigned levelHeight,
-		const std::string& configPath) override;
+		const std::filesystem::path& configPath) override;
 
 	virtual void switchTool(EditorState state) override;
 
@@ -101,6 +101,7 @@ public:
 
 	virtual void loadFrom(
 		const LevelD& lvd,
+		const std::filesystem::path& pathToJsonConfig,
 		bool skipInit = false) override;
 
 	virtual void resizeDialog() override;

@@ -19,7 +19,10 @@ public:
 public:
 	void exec() override
 	{
-		editor.loadFrom(snapshot, true);
+		editor.loadFrom(
+			snapshot,
+			snapshot.metadata.description,
+			true);
 	}
 
 protected:

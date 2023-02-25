@@ -6,19 +6,19 @@ public:
 	std::string mockFileName = "";
 	bool userCancelled = false;
 
-	virtual std::string resolveAppdata() override
+	std::string resolveAppdata() const override
 	{
 		return "C:\\appdata";
 	}
 
-	virtual std::optional<std::string> getSaveFileName(const char* filter) override
+	std::optional<std::string> getSaveFileName(const char* filter) const override
 	{
 		if (userCancelled)
 			return {};
 		return mockFileName;
 	}
 
-	virtual std::optional<std::string> getOpenFileName(const char* filter) override
+	std::optional<std::string> getOpenFileName(const char* filter) const override
 	{
 		if (userCancelled)
 			return {};

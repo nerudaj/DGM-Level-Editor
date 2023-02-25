@@ -39,7 +39,7 @@ void DialogInterface::open(std::function<void()> confirmCallback)
 		{
 			auto btn = tgui::Button::create("...");
 			btn->setSize("8%", "6%");
-			btn->setPosition("90%", "22%");
+			btn->setPosition("90%", box->getPosition().y);
 			btn->connect("clicked", OPTIONS[i].helperButtonCallback);
 			modal->add(btn);
 		}

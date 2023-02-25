@@ -2,16 +2,18 @@
 
 #include "include/Interfaces/DialogInterfaces.hpp"
 #include "include/Interfaces/EditorInterface.hpp"
+#include "include/Interfaces/FileApiInterface.hpp"
 #include "include/Interfaces/ShortcutEngineInterface.hpp"
 
 #include <DGM/dgm.hpp>
 #include <Config.hpp>
 #include <TGUI/TGUI.hpp>
+
 #include "Camera.hpp"
 #include "Dialogs/NewLevelDialog.hpp"
+#include "Dialogs/UpdateConfigPathDialog.hpp"
 #include "LogConsole.hpp"
 #include "include/Editor/NullEditor.hpp"
-#include "include/Utilities/FileApi.hpp"
 #include <optional>
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Commands/CommandHistory.hpp"
@@ -19,10 +21,6 @@
 #include "include/Utilities/Box.hpp"
 #include "include/ProgramOptions.hpp"
 
-/**
- *  This class is responsible for drawing top level gui - topbar, canvas, console, bootstrapping
- *  space for sidebar. It is responsibility for underlying components that can fill it with content to do so.
- */
 class AppStateEditor : public dgm::AppState
 {
 protected:
@@ -47,7 +45,8 @@ protected:
 	GC<CommandHistory> commandHistory;
 	GC<CommandQueue> commandQueue = GC<CommandQueue>(commandHistory);
 	Box<EditorInterface> editor = Box<NullEditor>();
-	NewLevelDialog dialogNewLevel = NewLevelDialog(gui, theme, configPath);
+	NewLevelDialog dialogNewLevel;
+	UpdateConfigPathDialog dialogUpdateConfigPath;
 
 protected:
 	void updateWindowTitle()
@@ -97,6 +96,9 @@ protected: // Build functions
 protected: // Callback handlers
 	void handleNewLevel();
 	void handleLoadLevel();
+	void loadLevel(
+		const std::string& pathToLevel,
+		std::optional<std::string> pathToConfigOverride = {});
 	void handleSaveLevel(bool forceNewPath = false) noexcept;
 	void handleUndo();
 	void handleRedo();

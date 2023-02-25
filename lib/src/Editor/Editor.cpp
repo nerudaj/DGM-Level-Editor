@@ -148,10 +148,10 @@ void Editor::draw()
 void Editor::init(
 	unsigned levelWidth,
 	unsigned levelHeight,
-	const std::string& configPath)
+	const std::filesystem::path& configPath)
 {
-	auto config = JsonHelper::loadFromFile(configPath);
-	config["configFolder"] = std::filesystem::path(configPath).parent_path().string();
+	auto config = JsonHelper::loadFromFile(configPath.string());
+	config["configFolder"] = configPath.parent_path().string();
 
 	stateMgr.forallStates([&config] (ToolInterface& tool)
 	{
@@ -213,11 +213,12 @@ LevelD Editor::save() const
 
 void Editor::loadFrom(
 	const LevelD& lvd,
+	const std::filesystem::path& pathToJsonConfig,
 	bool skipInit)
 {
 	if (not skipInit)
 		// Currently using this to be able to load the config
-		init(1, 1, lvd.metadata.description);
+		init(1, 1, pathToJsonConfig);
 
 	stateMgr.forallStates([&lvd] (ToolInterface& tool)
 	{

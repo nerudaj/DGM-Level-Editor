@@ -3,24 +3,14 @@
 #include <string>
 #include <optional>
 
-class FileApiInterface {
+#include "include/Interfaces/FileApiInterface.hpp"
+
+class FileApi final : public FileApiInterface
+{
 public:
-	virtual std::string resolveAppdata() = 0;
+	std::string resolveAppdata() const override;
 
-	virtual std::optional<std::string> getSaveFileName(const char* filter) = 0;
+	std::optional<std::string> getSaveFileName(const char* filter) const override;
 
-	virtual std::optional<std::string> getOpenFileName(const char* filter) = 0;
-
-	FileApiInterface() = default;
-	FileApiInterface(const FileApiInterface&) = delete;
-	virtual ~FileApiInterface() = default;
-};
-
-class FileApi final : public FileApiInterface {
-public:
-	virtual std::string resolveAppdata() override;
-
-	virtual std::optional<std::string> getSaveFileName(const char* filter) override;
-
-	virtual std::optional<std::string> getOpenFileName(const char* filter) override;
+	std::optional<std::string> getOpenFileName(const char* filter) const override;
 };

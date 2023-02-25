@@ -5,10 +5,12 @@
 #include <locale>
 #include <codecvt>
 
-std::string FileApi::resolveAppdata() {
+std::string FileApi::resolveAppdata() const
+{
 	PWSTR raw;
 	std::wstring result;
-	if (SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &raw) == S_OK) {
+	if (SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &raw) == S_OK)
+	{
 		result = std::wstring(raw);
 	}
 	CoTaskMemFree(raw);
@@ -20,7 +22,8 @@ std::string FileApi::resolveAppdata() {
 	return converter.to_bytes(result);
 }
 
-std::optional<std::string> FileApi::getSaveFileName(const char *filter) {
+std::optional<std::string> FileApi::getSaveFileName(const char* filter) const
+{
 	char filename[MAX_PATH];
 
 	OPENFILENAME ofn;
@@ -34,7 +37,8 @@ std::optional<std::string> FileApi::getSaveFileName(const char *filter) {
 	ofn.lpstrTitle = "Select a File";
 	ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
 
-	if (!GetSaveFileNameA(&ofn)) {
+	if (!GetSaveFileNameA(&ofn))
+	{
 		return {};
 	}
 
@@ -42,7 +46,8 @@ std::optional<std::string> FileApi::getSaveFileName(const char *filter) {
 	return std::string(filename);
 }
 
-std::optional<std::string> FileApi::getOpenFileName(const char* filter) {
+std::optional<std::string> FileApi::getOpenFileName(const char* filter) const
+{
 	char filename[MAX_PATH];
 
 	OPENFILENAME ofn;
@@ -56,7 +61,8 @@ std::optional<std::string> FileApi::getOpenFileName(const char* filter) {
 	ofn.lpstrTitle = "Select a File";
 	ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
 
-	if (!GetOpenFileNameA(&ofn)) {
+	if (!GetOpenFileNameA(&ofn))
+	{
 		return {};
 	}
 

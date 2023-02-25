@@ -10,7 +10,10 @@ class EditorInterface
 public:
 	virtual void draw() = 0;
 
-	virtual void init(unsigned levelWidth, unsigned levelHeight, const std::string& configPath) = 0;
+	virtual void init(
+		unsigned levelWidth,
+		unsigned levelHeight,
+		const std::filesystem::path& configPath) = 0;
 
 	virtual void handleEvent(const sf::Event& event, const sf::Vector2i& mousePos) = 0;
 
@@ -19,6 +22,7 @@ public:
 
 	virtual void loadFrom(
 		const LevelD& lvd,
+		const std::filesystem::path& pathToJsonConfig,
 		bool skipInit = false) = 0;
 
 	virtual void switchTool(EditorState state) = 0;

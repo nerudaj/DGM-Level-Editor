@@ -57,7 +57,7 @@ void AppStateEditor::setupFont()
 
 std::optional<std::string> AppStateEditor::getNewSavePath()
 {
-	auto result = fileApi->getSaveFileName("LevelD Files\0*.lvd\0Any File\0*.*\0");
+	auto result = fileApi->getSaveFileName(LVLD_FILTER);
 	return result.transform([] (const std::string& s) -> std::string
 	{
 		return s.ends_with(".lvd") ? s : s + ".lvd";
@@ -158,6 +158,8 @@ AppStateEditor::AppStateEditor(
 	, shortcutEngine(shortcutEngine)
 	, dialogConfirmExit(dialogConfirmExit)
 	, dialogErrorInfo(dialogErrorInfo)
+	, dialogNewLevel(gui, theme, fileApi, configPath)
+	, dialogUpdateConfigPath(gui, theme, fileApi)
 {
 	try
 	{
@@ -168,6 +170,8 @@ AppStateEditor::AppStateEditor(
 
 	try
 	{
+		// NOTE: if editor crashes under debugger, set binary parameter to ../../..
+		// because behaviour of root dir had changed
 		theme.load(
 			(programOptions.rootDir / "resources/TransparentGrey.txt").string());
 		setupFont();
@@ -340,24 +344,40 @@ void AppStateEditor::handleNewLevel()
 
 void AppStateEditor::handleLoadLevel()
 {
-	auto r = fileApi->getOpenFileName(
-		"LevelD Files\0*.lvd\0Any File\0*.*\0");
-	if (!r.has_value()) return;
+	auto r = fileApi->getOpenFileName(LVLD_FILTER);
+	if (r.has_value())
+		loadLevel(r.value());
+}
 
-	savePath = r.value();
-	filePath = savePath; // The load path becomes save path for subsequent saves
-
+void AppStateEditor::loadLevel(
+	const std::string& pathToLevel,
+	std::optional<std::string> pathToConfigOverride)
+{
 	try
 	{
 		LevelD lvd;
-		lvd.loadFromFile(savePath);
-		configPath = lvd.metadata.description;
+		lvd.loadFromFile(pathToLevel);
 
-		// TODO: open a modal for re-linking config
-		if (!configPath.has_value())
-			throw std::runtime_error("Path to config file is unknown!");
+		auto configPathFS = std::filesystem::path(
+			pathToConfigOverride.value_or(lvd.metadata.description));
+		if (!std::filesystem::exists(configPathFS))
+		{
+			dialogUpdateConfigPath.open([&, pathToLevel]
+			{
+				loadLevel(
+					pathToLevel,
+					dialogUpdateConfigPath.getConfigPath());
+			});
+			dialogErrorInfo->open(
+				"Path to config is invalid, provide a valid one");
+			return; // abort this load, another one will trigger
+		}
 
-		editor->loadFrom(lvd);
+		savePath = pathToLevel;
+		filePath = savePath; // The load path becomes save path for subsequent saves
+		configPath = configPathFS.string();
+
+		editor->loadFrom(lvd, configPathFS);
 		unsavedChanges = false;
 		updateWindowTitle();
 		Log::write2("Level loaded from '{}'", savePath);

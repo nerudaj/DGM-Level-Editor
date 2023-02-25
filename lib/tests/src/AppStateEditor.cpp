@@ -18,6 +18,7 @@ public:
 
 	void mockUnsavedChanges()
 	{
+		configPath = "dummy";
 		unsavedChanges = true;
 	}
 
@@ -36,7 +37,7 @@ public:
 		tgui::Gui& gui,
 		tgui::Theme& theme,
 		cfg::Ini& ini,
-		const std::string& rootDir,
+		ProgramOptions options,
 		GC<FileApiInterface> fileApi,
 		GC<ShortcutEngineInterface> shortcutEngine,
 		GC<YesNoCancelDialogInterface> yesNoDialog,
@@ -46,7 +47,7 @@ public:
 			gui,
 			theme,
 			ini,
-			rootDir,
+			options,
 			fileApi,
 			shortcutEngine,
 			yesNoDialog,
@@ -79,9 +80,13 @@ static std::string getRootPath()
 TEST_CASE("[AppStateEditor]")
 {
 	dgm::Window window;
+	cfg::Ini ini; // Ini must be declared before app to outlive it during destruction
 	DgmAppTestable app(window);
-	cfg::Ini ini;
-	std::string rootDir = getRootPath();
+	ProgramOptions options{
+		.binaryDir = "C:\\dummy",
+		.rootDir = getRootPath(),
+		.binaryDirHash = "Testing",
+	};
 	auto fileApiMock = GC<FileApiMock>();
 	auto shortcutEngine = GC<ShortcutEngine>();
 	EditorMockState editorMockState;
@@ -97,7 +102,7 @@ TEST_CASE("[AppStateEditor]")
 				gui,
 				theme,
 				ini,
-				rootDir,
+				options,
 				std::move(fileApiMock),
 				std::move(shortcutEngine),
 				yesNoDialog,
@@ -153,7 +158,7 @@ TEST_CASE("[AppStateEditor]")
 			gui,
 			theme,
 			ini,
-			rootDir,
+			options,
 			std::move(fileApiMock),
 			std::move(shortcutEngine),
 			yesNoDialog,
