@@ -4,6 +4,7 @@
 #include <include/Shortcuts/ShortcutEngine.hpp>
 #include "../include/fakeit.hpp"
 #include "include/Interfaces/ToolInterface.hpp"
+#include "include/Tools/LayerController.hpp"
 
 class ToolMock : public ToolInterface
 {
@@ -11,9 +12,10 @@ public:
 	ToolMock(
 		std::function<void(void)> onStateChanged,
 		GC<ShortcutEngineInterface> shortcutEngine,
+		GC<CurrentLayerObserverInterface> layerObserver,
 		const std::string& name,
 		std::vector<std::string>& invocations)
-		: ToolInterface(onStateChanged, shortcutEngine)
+		: ToolInterface(onStateChanged, shortcutEngine, layerObserver)
 		, name(name)
 		, invocations(invocations)
 	{}
@@ -76,6 +78,7 @@ private:
 TEST_CASE("[EditorStateManager]")
 {
 	GC<ShortcutEngine> engine;
+	GC<LayerController> layerController;
 	std::vector<std::string> invocations;
 	EditorStateManager manager;
 
@@ -83,12 +86,14 @@ TEST_CASE("[EditorStateManager]")
 		EditorState::Mesh,
 		Null::Callback,
 		engine,
+		layerController,
 		"tool1",
 		invocations);
 	manager.addState<ToolMock>(
 		EditorState::Item,
 		Null::Callback,
 		engine,
+		layerController,
 		"tool2",
 		invocations);
 

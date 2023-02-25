@@ -10,8 +10,9 @@ class ToolWithDragAndSelect : public ToolInterface
 public:
 	ToolWithDragAndSelect(
 		std::function<void(void)> onStateChanged,
-		GC<ShortcutEngineInterface> shortcutEngine)
-		: ToolInterface(onStateChanged, shortcutEngine)
+		GC<ShortcutEngineInterface> shortcutEngine,
+		GC<CurrentLayerObserverInterface> layerObserver)
+		: ToolInterface(onStateChanged, shortcutEngine, layerObserver)
 	{}
 
 public:

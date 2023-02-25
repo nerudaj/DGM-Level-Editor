@@ -1,6 +1,7 @@
 #include <catch.hpp>
 #include "include/Tools/ToolMesh.hpp"
 #include "include/Shortcuts/ShortcutEngine.hpp"
+#include "include/Tools/LayerController.hpp"
 
 #include "../include/NullCallback.hpp"
 #include "../include/MeshAssets.hpp"
@@ -43,12 +44,14 @@ TEST_CASE("[ToolMesh]")
 	GC<ShortcutEngine> shortcutEngine;
 	GC<CommandHistory> commandHistory;
 	GC<CommandQueue> commandQueue(commandHistory);
+	GC<LayerController> layerController;
 	tgui::Gui gui;
 	tgui::Theme theme;
 
 	ToolMesh mesh(
 		Null::Callback,
 		shortcutEngine,
+		layerController,
 		gui,
 		theme,
 		commandQueue);

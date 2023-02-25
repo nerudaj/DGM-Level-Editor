@@ -212,6 +212,7 @@ void ToolItem::penClicked(const sf::Vector2i& position)
 		.tag = 0,
 		.x = static_cast<uint32_t>(position.x),
 		.y = static_cast<uint32_t>(position.y),
+		.layerId = static_cast<uint32_t>(getCurrentLayerId()),
 		.flags = 0,
 		.metadata = ""
 	};

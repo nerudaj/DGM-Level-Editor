@@ -14,6 +14,7 @@
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Shortcuts/ShortcutEngine.hpp"
 #include "include/Tools/PhysicalPen.hpp"
+#include "include/Tools/LayerController.hpp"
 
 class Editor final : public EditorInterface
 {
@@ -39,6 +40,7 @@ private:
 	EditorStateManager stateMgr;
 	sf::CircleShape mouseIndicator;
 	PhysicalPen physicalPen;
+	GC<LayerController> layerController;
 
 	bool initialized = false;
 

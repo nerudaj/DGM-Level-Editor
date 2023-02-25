@@ -281,15 +281,15 @@ Editor::Editor(
 	// Instantiate all EditorTools here
 	stateMgr.addState<ToolMesh>(
 		EditorState::Mesh,
-		onStateChanged, shortcutEngine, gui, theme, commandQueue);
+		onStateChanged, shortcutEngine, layerController, gui, theme, commandQueue);
 
 	stateMgr.addState<ToolItem>(
 		EditorState::Item,
-		onStateChanged, shortcutEngine, gui, theme, commandQueue);
+		onStateChanged, shortcutEngine, layerController, gui, theme, commandQueue);
 
 	stateMgr.addState<ToolTrigger>(
 		EditorState::Trigger,
-		onStateChanged, shortcutEngine, gui, theme, commandQueue, [this] () -> sf::Vector2i { return physicalPen.getCurrentPenPos(); });
+		onStateChanged, shortcutEngine, layerController, gui, theme, commandQueue, [this] () -> sf::Vector2i { return physicalPen.getCurrentPenPos(); });
 
 	// Bootstrapping mouse indicator
 	mouseIndicator.setRadius(8.f);

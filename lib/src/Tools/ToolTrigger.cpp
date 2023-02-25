@@ -356,6 +356,8 @@ void ToolTrigger::penClicked(const sf::Vector2i& position)
 			trigger.height = std::abs(position.y - drawStart.y);
 		}
 
+		trigger.layerId = static_cast<uint32_t>(getCurrentLayerId());
+
 		commandQueue->push<CreateTriggerCommand>(
 			triggers,
 			trigger);

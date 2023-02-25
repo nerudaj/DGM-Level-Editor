@@ -13,10 +13,11 @@ public:
 	ToolItem(
 		std::function<void(void)> onStateChanged,
 		GC<ShortcutEngineInterface> shortcutEngine,
+		GC<CurrentLayerObserverInterface> layerObserver,
 		tgui::Gui& gui,
 		tgui::Theme& theme,
 		GC<CommandQueue> commandQueue) noexcept
-		: ToolWithDragAndSelect(onStateChanged, shortcutEngine)
+		: ToolWithDragAndSelect(onStateChanged, shortcutEngine, layerObserver)
 		, sidebarUser(gui, theme)
 		, commandQueue(commandQueue)
 	{}

@@ -25,11 +25,12 @@ public:
 	ToolTrigger(
 		std::function<void(void)> onStateChanged,
 		GC<ShortcutEngineInterface> shortcutEngine,
+		GC<CurrentLayerObserverInterface> layerObserver,
 		tgui::Gui& gui,
 		tgui::Theme& theme,
 		GC<CommandQueue> commandQueue,
 		std::function<sf::Vector2i()> getPenPosition) noexcept
-		: super(onStateChanged, shortcutEngine)
+		: super(onStateChanged, shortcutEngine, layerObserver)
 		, sidebarUser(gui, theme)
 		, commandQueue(commandQueue)
 		, getPenPosition(getPenPosition)

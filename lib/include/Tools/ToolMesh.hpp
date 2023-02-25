@@ -20,10 +20,11 @@ public:
 	ToolMesh(
 		std::function<void(void)> onStateChanged,
 		GC<ShortcutEngineInterface> shortcutEngine,
+		GC<CurrentLayerObserverInterface> layerObserver,
 		tgui::Gui& gui,
 		tgui::Theme& theme,
 		GC<CommandQueue> commandQueue) noexcept
-		: ToolInterface(onStateChanged, shortcutEngine)
+		: ToolInterface(onStateChanged, shortcutEngine, layerObserver)
 		, sidebarUser(gui, theme)
 		, commandQueue(commandQueue)
 	{}

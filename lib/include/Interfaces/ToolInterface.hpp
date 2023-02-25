@@ -11,6 +11,7 @@
 #include "include/Interfaces/ShortcutEngineInterface.hpp"
 #include "include/Interfaces/PenUserInterface.hpp"
 #include "include/Interfaces/ToolPropertyInterface.hpp"
+#include "include/Interfaces/CurrentLayerObserverInterface.hpp"
 
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Utilities/Box.hpp"
@@ -32,9 +33,11 @@ public:
 	[[nodiscard]]
 	ToolInterface(
 		std::function<void(void)> onStateChanged,
-		GC<ShortcutEngineInterface> shortcutEngine) noexcept
+		GC<ShortcutEngineInterface> shortcutEngine,
+		GC<CurrentLayerObserverInterface> layerObserver) noexcept
 		: onStateChangedCallback(onStateChanged)
 		, shortcutEngine(shortcutEngine)
+		, layerObserver(layerObserver)
 	{}
 	virtual ~ToolInterface() = default;
 
@@ -86,12 +89,19 @@ protected: // Protected non-virtual interface
 		onStateChangedCallback();
 	}
 
+	[[nodiscard]]
+	inline std::size_t getCurrentLayerId() const noexcept
+	{
+		return layerObserver->getCurrentLayerId();
+	}
+
 protected: // Protected virtual interface
 	virtual void buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) = 0;
 
-protected:
+private:
 	std::function<void(void)> onStateChangedCallback;
 	GC<ShortcutEngineInterface> shortcutEngine;
+	GC<CurrentLayerObserverInterface> layerObserver;
 	std::vector<unsigned> ctxMenuSignalHandlers;
 };
 
