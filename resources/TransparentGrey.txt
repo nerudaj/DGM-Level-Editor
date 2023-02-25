@@ -9,6 +9,17 @@ Button {
     Borders = (1, 1, 1, 1);
 }
 
+CloseButton {
+	BackgroundColor = rgb(180, 0, 0);
+	BackgroundColorHover = rgb(220, 0, 0);
+	BackgroundColorDown = rgb(140, 0, 0);
+	TextColor = rgb(0, 0, 0);
+	TextColorHover = rgb(0, 0, 0);
+	TextColorDown = rgb(0, 0, 0);
+	BorderColor = rgb(240, 240, 240);
+    Borders = (1, 1, 1, 1);
+}
+
 ChatBox {
     BackgroundColor = rgb(180, 180, 180);
     BorderColor = rgb(240, 240, 240);
@@ -36,7 +47,7 @@ ChildWindow {
     DistanceToSide = 3;
     PaddingBetweenButtons = 1;
     ShowTextOnTitleButtons = true;
-    CloseButton = &Button;
+    CloseButton = &CloseButton;
     MaximizeButton = &Button;
     MinimizeButton = &Button;
 }
@@ -99,7 +110,7 @@ MessageBox {
     BorderColor = rgb(240, 240, 240);
     Borders = (1, 1, 1, 1);
 
-    CloseButton = &Button;
+    CloseButton = &CloseButton;
 }
 
 Panel {
