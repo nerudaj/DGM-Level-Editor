@@ -12,7 +12,7 @@ public:
 	ToolMock(
 		std::function<void(void)> onStateChanged,
 		GC<ShortcutEngineInterface> shortcutEngine,
-		GC<CurrentLayerObserverInterface> layerObserver,
+		GC<LayerObserverInterface> layerObserver,
 		const std::string& name,
 		std::vector<std::string>& invocations)
 		: ToolInterface(onStateChanged, shortcutEngine, layerObserver)

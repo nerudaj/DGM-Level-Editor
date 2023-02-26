@@ -25,7 +25,7 @@ public:
 	ToolTrigger(
 		std::function<void(void)> onStateChanged,
 		GC<ShortcutEngineInterface> shortcutEngine,
-		GC<CurrentLayerObserverInterface> layerObserver,
+		GC<LayerObserverInterface> layerObserver,
 		tgui::Gui& gui,
 		tgui::Theme& theme,
 		GC<CommandQueue> commandQueue,

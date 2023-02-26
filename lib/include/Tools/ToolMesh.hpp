@@ -20,7 +20,7 @@ public:
 	ToolMesh(
 		std::function<void(void)> onStateChanged,
 		GC<ShortcutEngineInterface> shortcutEngine,
-		GC<CurrentLayerObserverInterface> layerObserver,
+		GC<LayerObserverInterface> layerObserver,
 		tgui::Gui& gui,
 		tgui::Theme& theme,
 		GC<CommandQueue> commandQueue) noexcept
@@ -86,6 +86,7 @@ public:
 	 *  end bound is exclusive
 	 */
 	void copySourceRectToTarget(
+		DrawableLeveldMesh& sourceMap,
 		sf::Vector2u const& start,
 		sf::Vector2u const& end,
 		sf::Vector2i const& translation,
@@ -99,10 +100,22 @@ private:
 	void toggleOverlay();
 
 	[[nodiscard]]
+	DrawableLeveldMesh& getMap() noexcept
+	{
+		return maps[getCurrentLayerId()];
+	}
+
+	[[nodiscard]]
+	const DrawableLeveldMesh& getMap() const noexcept
+	{
+		return maps[getCurrentLayerId()];
+	}
+
+	[[nodiscard]]
 	sf::Vector2u worldToTilePos(const sf::Vector2i& position) const noexcept
 	{
-		unsigned tileX = position.x / map.getTileSize().x;
-		unsigned tileY = position.y / map.getTileSize().y;
+		unsigned tileX = position.x / getMap().getTileSize().x;
+		unsigned tileY = position.y / getMap().getTileSize().y;
 		return { tileX, tileY };
 	}
 
@@ -110,14 +123,15 @@ private:
 	bool isPositionValid(const sf::Vector2u& tilePos) const
 	{
 		return !(tilePos.x < 0 || tilePos.y < 0
-			|| tilePos.x >= map.getMapDimensions().x
-			|| tilePos.y >= map.getMapDimensions().y);
+			|| tilePos.x >= getMap().getMapDimensions().x
+			|| tilePos.y >= getMap().getMapDimensions().y);
 	}
 
 private:
 	DrawMode mode = DrawMode::Pencil;
 	sf::RectangleShape rectShape;
 	DrawableLeveldMesh map;
+	std::vector<DrawableLeveldMesh> maps;
 	SidebarUserMesh sidebarUser;
 	GC<CommandQueue> commandQueue;
 

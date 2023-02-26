@@ -278,7 +278,6 @@ Editor::Editor(
 	, shortcutEngine(shortcutEngineRef)
 	, physicalPen([this] () -> PenUserInterface& { return stateMgr.getActiveTool(); })
 {
-	// Instantiate all EditorTools here
 	stateMgr.addState<ToolMesh>(
 		EditorState::Mesh,
 		onStateChanged, shortcutEngine, layerController, gui, theme, commandQueue);
@@ -291,7 +290,6 @@ Editor::Editor(
 		EditorState::Trigger,
 		onStateChanged, shortcutEngine, layerController, gui, theme, commandQueue, [this] () -> sf::Vector2i { return physicalPen.getCurrentPenPos(); });
 
-	// Bootstrapping mouse indicator
 	mouseIndicator.setRadius(8.f);
 	mouseIndicator.setFillColor(sf::Color::Green);
 }

@@ -12,10 +12,10 @@
 void ToolMesh::penClicked(const sf::Vector2i& position)
 {
 	const auto tilePos = worldToTilePos(position);
-	if (isPositionValid(tilePos) && sidebarUser.getPenValue() != map.getTileValue(tilePos))
+	if (isPositionValid(tilePos) && sidebarUser.getPenValue() != getMap().getTileValue(tilePos))
 	{
 		commandQueue->push<SetTileCommand>(
-			map,
+			getMap(),
 			tilePos,
 			sidebarUser.getPenValue(),
 			defaultBlocks.at(sidebarUser.getPenValue()));
@@ -53,7 +53,7 @@ void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 	{
 		constexpr bool DONT_FILL = false;
 		commandQueue->push<SetTileAreaCommand>(
-			map,
+			getMap(),
 			startTile,
 			endTile,
 			sidebarUser.getPenValue(),
@@ -64,7 +64,7 @@ void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
 	{
 		constexpr bool FILL = true;
 		commandQueue->push<SetTileAreaCommand>(
-			map,
+			getMap(),
 			startTile,
 			endTile,
 			sidebarUser.getPenValue(),
@@ -110,6 +110,7 @@ void ToolMesh::configure(nlohmann::json& config)
 }
 
 void ToolMesh::copySourceRectToTarget(
+	DrawableLeveldMesh& sourceMap,
 	sf::Vector2u const& start,
 	sf::Vector2u const& end,
 	sf::Vector2i const& translation,
@@ -125,48 +126,50 @@ void ToolMesh::copySourceRectToTarget(
 			const unsigned targetY = y + translation.y;
 			const unsigned targetI = targetY * targetWidth + targetX;
 
-			targetTileValues[targetI] = map.getTileValue({ x, y });
-			targetSolidValues[targetI] = map.isTileSolid({ x, y });
+			targetTileValues[targetI] = sourceMap.getTileValue({ x, y });
+			targetSolidValues[targetI] = sourceMap.isTileSolid({ x, y });
 		}
 	}
 }
 
 void ToolMesh::resize(unsigned width, unsigned height)
 {
-	auto tileValues = std::vector<int>(width * height, 0);
-	auto solidValues = std::vector<int>(width * height, 0);
-
-	const bool upscalingX = width > map.getMapDimensions().x;
-	const bool upscalingY = height > map.getMapDimensions().y;
+	const bool upscalingX = width > getMap().getMapDimensions().x;
+	const bool upscalingY = height > getMap().getMapDimensions().y;
 	const unsigned offsetX = upscalingX
-		? (width - map.getMapDimensions().x) / 2u
+		? (width - getMap().getMapDimensions().x) / 2u
 		: 0;
 	const unsigned offsetY = upscalingY
-		? (height - map.getMapDimensions().y) / 2u
+		? (height - getMap().getMapDimensions().y) / 2u
 		: 0;
 
 	const sf::Vector2u end(
-		std::min(width, map.getMapDimensions().x),
-		std::min(height, map.getMapDimensions().y));
+		std::min(width, getMap().getMapDimensions().x),
+		std::min(height, getMap().getMapDimensions().y));
 
-	copySourceRectToTarget(
-		{ 0u, 0u },
-		end,
-		sf::Vector2i(offsetX, offsetY),
-		tileValues,
-		solidValues,
-		width);
+	for (auto&& map : maps)
+	{
+		auto tileValues = std::vector<int>(width * height, 0);
+		auto solidValues = std::vector<int>(width * height, 0);
 
-	map.build(tileValues, solidValues, { width, height });
+		copySourceRectToTarget(
+			map,
+			{ 0u, 0u },
+			end,
+			sf::Vector2i(offsetX, offsetY),
+			tileValues,
+			solidValues,
+			width);
+
+		map.build(tileValues, solidValues, { width, height });
+	}
+
 }
 
 void ToolMesh::shrinkTo(TileRect const& boundingBox)
 {
 	const auto width = boundingBox.right - boundingBox.left + 1;
 	const auto height = boundingBox.bottom - boundingBox.top + 1;
-
-	auto tileValues = std::vector<int>(width * height, 0);
-	auto solidValues = std::vector<int>(width * height, 0);
 
 	const int offsetX = -boundingBox.left;
 	const int offsetY = -boundingBox.top;
@@ -175,55 +178,98 @@ void ToolMesh::shrinkTo(TileRect const& boundingBox)
 		boundingBox.left,
 		boundingBox.top);
 
-	copySourceRectToTarget(
-		{ boundingBox.left, boundingBox.top },
-		{ boundingBox.right + 1, boundingBox.bottom + 1 },
-		-translation,
-		tileValues,
-		solidValues,
-		width);
+	for (auto&& map : maps)
+	{
+		auto tileValues = std::vector<int>(width * height, 0);
+		auto solidValues = std::vector<int>(width * height, 0);
 
-	map.build(tileValues, solidValues, { width, height });
+		copySourceRectToTarget(
+			map,
+			{ boundingBox.left, boundingBox.top },
+			{ boundingBox.right + 1, boundingBox.bottom + 1 },
+			-translation,
+			tileValues,
+			solidValues,
+			width);
+
+		map.build(tileValues, solidValues, { width, height });
+	}
 }
 
 void ToolMesh::saveTo(LevelD& lvd) const
 {
 	lvd.mesh.tileWidth = sidebarUser.getClip().getFrameSize().x;
 	lvd.mesh.tileHeight = sidebarUser.getClip().getFrameSize().y;
-	lvd.mesh.layerWidth = map.getMapDimensions().x;
-	lvd.mesh.layerHeight = map.getMapDimensions().y;
+	lvd.mesh.layerWidth = getMap().getMapDimensions().x;
+	lvd.mesh.layerHeight = getMap().getMapDimensions().y;
 
-	lvd.mesh.layers.resize(1);
-	lvd.mesh.layers[0].tiles.resize(lvd.mesh.layerWidth * lvd.mesh.layerHeight);
-	lvd.mesh.layers[0].blocks.resize(lvd.mesh.layerWidth * lvd.mesh.layerHeight);
-	for (unsigned tileY = 0, i = 0; tileY < lvd.mesh.layerHeight; tileY++)
+	const std::size_t numItemsPerLayer =
+		lvd.mesh.layerWidth * lvd.mesh.layerHeight;
+
+	lvd.mesh.layers.resize(maps.size());
+	for (unsigned l = 0; l < maps.size(); l++)
 	{
-		for (unsigned tileX = 0; tileX < lvd.mesh.layerWidth; tileX++, i++)
+		auto& layer = lvd.mesh.layers[l];
+		layer.tiles.resize(numItemsPerLayer);
+		layer.blocks.resize(numItemsPerLayer);
+
+		for (unsigned tileY = 0, i = 0; tileY < lvd.mesh.layerHeight; tileY++)
 		{
-			lvd.mesh.layers[0].tiles[i] = map.getTileValue({ tileX, tileY });
-			lvd.mesh.layers[0].blocks[i] = map.isTileSolid({ tileX, tileY });
+			for (unsigned tileX = 0; tileX < lvd.mesh.layerWidth; tileX++, i++)
+			{
+				const auto coord = sf::Vector2u(tileX, tileY);
+				layer.tiles[i] = maps[l].getTileValue(coord);
+				layer.blocks[i] = maps[l].isTileSolid(coord);
+			}
 		}
 	}
+
 }
 
 void ToolMesh::loadFrom(const LevelD& lvd)
 {
-	const auto tilemapData = std::vector<int>(
-		lvd.mesh.layers[0].tiles.begin(),
-		lvd.mesh.layers[0].tiles.end());
-	const auto collisionData = std::vector<int>(
-		lvd.mesh.layers[0].blocks.begin(),
-		lvd.mesh.layers[0].blocks.end());
-	const auto dataSize = sf::Vector2u(lvd.mesh.layerWidth, lvd.mesh.layerHeight);
+	assert(maps.size() == getLayerCount());
+	if (lvd.mesh.layers.size() > getLayerCount())
+		throw std::runtime_error(
+			std::format(
+				"Level has too many layers ({}), editor only supports up to {}",
+				lvd.mesh.layers.size(),
+				getLayerCount()));
 
-	map.build(tilemapData, collisionData, dataSize);
+	const auto dataSize = sf::Vector2u(
+		lvd.mesh.layerWidth,
+		lvd.mesh.layerHeight);
+
+	for (unsigned i = 0; i < lvd.mesh.layers.size(); i++)
+	{
+		const auto tilemapData = std::vector<int>(
+			lvd.mesh.layers[i].tiles.begin(),
+			lvd.mesh.layers[i].tiles.end());
+		const auto collisionData = std::vector<int>(
+			lvd.mesh.layers[i].blocks.begin(),
+			lvd.mesh.layers[i].blocks.end());
+
+		maps[i].build(tilemapData, collisionData, dataSize);
+	}
+
+	for (unsigned i = lvd.mesh.layers.size(); i < maps.size(); i++)
+	{
+		const auto dataSizeMul = dataSize.x * dataSize.y;
+		const auto emptyData = std::vector<int>(dataSizeMul, 0);
+		maps[i].build(emptyData, emptyData, dataSize);
+	}
 }
 
 void ToolMesh::drawTo(tgui::Canvas::Ptr& canvas, uint8_t)
 {
-	map.drawTo(canvas, enableOverlay);
+	// TODO: display other maps?
+	getMap().drawTo(canvas, enableOverlay);
 
-	if (dragging && (mode == DrawMode::RectEdge || mode == DrawMode::RectFill))
+	const bool areaDrawMode =
+		mode == DrawMode::RectEdge ||
+		mode == DrawMode::RectFill;
+
+	if (dragging && areaDrawMode)
 	{
 		canvas->draw(rectShape);
 	}
@@ -235,14 +281,14 @@ ExpectedPropertyPtr ToolMesh::getProperty(const sf::Vector2i& penPos) const
 	if (not isPositionValid(tilePos))
 		return std::unexpected(BaseError());
 
-	auto tileValue = map.getTileValue(tilePos);
+	auto tileValue = getMap().getTileValue(tilePos);
 
 	auto&& result = Box<MeshToolProperty>(
 		sidebarUser.getSpriteAsTexture(tileValue),
 		tilePos.x,
 		tilePos.y,
 		tileValue,
-		map.isTileSolid(tilePos),
+		getMap().isTileSolid(tilePos),
 		defaultBlocks[tileValue]);
 
 	return std::move(result);
@@ -253,7 +299,7 @@ void ToolMesh::setProperty(const ToolPropertyInterface& prop)
 	auto&& property = dynamic_cast<const MeshToolProperty&>(prop);
 
 	commandQueue->push<SetTilePropertyCommand>(
-		map,
+		getMap(),
 		sf::Vector2u(property.tileX, property.tileY),
 		property.tileValue,
 		property.blocking);
@@ -277,30 +323,41 @@ std::optional<TileRect> ToolMesh::getBoundingBox() const noexcept
 	bool nonZeroTileDetected = false;
 	TileRect result;
 
-	for (unsigned y = 0; y < map.getMapDimensions().y; y++)
+	auto updateBox = [&](
+		unsigned x,
+		unsigned y,
+		const DrawableLeveldMesh& map)
 	{
-		for (unsigned x = 0; x < map.getMapDimensions().x; x++)
-		{
-			if (map.getTileValue({ x, y }) == 0)
-				continue;
+		if (map.getTileValue({ x, y }) == 0)
+			return;
 
-			[[likely]]
-			if (nonZeroTileDetected)
+		[[likely]]
+		if (nonZeroTileDetected)
+		{
+			result.left = std::min(result.left, x);
+			result.top = std::min(result.top, y);
+			result.right = std::max(result.right, x);
+			result.bottom = std::max(result.bottom, y);
+		}
+		else
+		{
+			nonZeroTileDetected = true;
+			result = {
+				.left = x,
+				.top = y,
+				.right = x,
+				.bottom = y
+			};
+		}
+	};
+
+	for (auto&& map : maps)
+	{
+		for (unsigned y = 0; y < map.getMapDimensions().y; y++)
+		{
+			for (unsigned x = 0; x < map.getMapDimensions().x; x++)
 			{
-				result.left = std::min(result.left, x);
-				result.top = std::min(result.top, y);
-				result.right = std::max(result.right, x);
-				result.bottom = std::max(result.bottom, y);
-			}
-			else
-			{
-				nonZeroTileDetected = true;
-				result = {
-					.left = x,
-					.top = y,
-					.right = x,
-					.bottom = y
-				};
+				updateBox(x, y, map);
 			}
 		}
 	}
@@ -322,9 +379,12 @@ void ToolMesh::configure(
 	sidebarUser.configure(
 		texturePath,
 		dgm::Clip(frameSize, textureBounds, 0, frameSpacing));
-	map = DrawableLeveldMesh(
-		sidebarUser.getTexture(),
-		sidebarUser.getClip());
+
+	maps.resize(getLayerCount());
+	for (auto&& map : maps)
+		map = DrawableLeveldMesh(
+			sidebarUser.getTexture(),
+			sidebarUser.getClip());
 
 	rectShape.setOutlineColor(sf::Color(255, 0, 0, 128));
 	rectShape.setOutlineThickness(2.f);

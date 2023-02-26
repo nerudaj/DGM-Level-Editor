@@ -1,6 +1,7 @@
 #include "include/LevelMesh/PollableTileMap.hpp"
 #include "include/LogConsole.hpp"
 #include "include/Utilities/Utilities.hpp"
+#include <cassert>
 
 unsigned PollableTileMap::getTileValue(unsigned tileX, unsigned tileY) const
 {
@@ -13,5 +14,6 @@ unsigned PollableTileMap::getTileValue(unsigned tileX, unsigned tileY) const
 	}
 
 	Log::write("Value of tile on coords[" + std::to_string(tileX) + ", " + std::to_string(tileY) + "] not found");
+	assert(false);
 	return 0;
 }

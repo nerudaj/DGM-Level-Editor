@@ -18,7 +18,8 @@ void ShortcutEngine::evaluateShortcut(sf::Keyboard::Key key)
 
 void ShortcutEngine::handleEvent(sf::Event& event)
 {
-	if (event.type == sf::Event::KeyPressed) {
+	if (event.type == sf::Event::KeyPressed)
+	{
 		if (event.key.code == sf::Keyboard::LControl)
 			ctrlIsPressed = true;
 		else if (event.key.code == sf::Keyboard::LShift)
@@ -26,7 +27,8 @@ void ShortcutEngine::handleEvent(sf::Event& event)
 		else
 			evaluateShortcut(event.key.code);
 	}
-	else if (event.type == sf::Event::KeyReleased) {
+	else if (event.type == sf::Event::KeyReleased)
+	{
 		if (event.key.code == sf::Keyboard::LControl)
 			ctrlIsPressed = false;
 		else if (event.key.code == sf::Keyboard::LShift)
@@ -39,9 +41,7 @@ void ShortcutEngine::registerShortcut(
 	const ShortcutCombo& combo,
 	std::function<void(void)> callback)
 {
-	if (shortcuts.contains(combo))
-
-	assert(!shortcuts.contains(combo), "Shortcut is already registered");
+	assert(!shortcuts.contains(combo));
 	shortcuts[combo] = callback;
 	groupToShortcuts[groupName].push_back(combo);
 }

@@ -34,7 +34,7 @@ public:
 	ToolInterface(
 		std::function<void(void)> onStateChanged,
 		GC<ShortcutEngineInterface> shortcutEngine,
-		GC<CurrentLayerObserverInterface> layerObserver) noexcept
+		GC<LayerObserverInterface> layerObserver) noexcept
 		: onStateChangedCallback(onStateChanged)
 		, shortcutEngine(shortcutEngine)
 		, layerObserver(layerObserver)
@@ -95,13 +95,19 @@ protected: // Protected non-virtual interface
 		return layerObserver->getCurrentLayerId();
 	}
 
+	[[nodiscard]]
+	inline std::size_t getLayerCount() const noexcept
+	{
+		return layerObserver->getLayerCount();
+	}
+
 protected: // Protected virtual interface
 	virtual void buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) = 0;
 
 private:
 	std::function<void(void)> onStateChangedCallback;
 	GC<ShortcutEngineInterface> shortcutEngine;
-	GC<CurrentLayerObserverInterface> layerObserver;
+	GC<LayerObserverInterface> layerObserver;
 	std::vector<unsigned> ctxMenuSignalHandlers;
 };
 
