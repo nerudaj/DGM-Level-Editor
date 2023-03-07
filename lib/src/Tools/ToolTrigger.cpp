@@ -262,6 +262,9 @@ void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity)
 	for (std::size_t i = 0; i < triggers.size(); i++)
 	{
 		auto& trig = triggers[i];
+		if (trig.layerId != getCurrentLayerId())
+			continue;
+
 		if (trig.areaType == LevelD::Trigger::AreaType::Circle)
 		{
 			updateVisForTrigger(circShape, trig);

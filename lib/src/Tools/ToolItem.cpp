@@ -173,6 +173,9 @@ void ToolItem::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity)
 
 	for (auto& item : items)
 	{
+		if (item.layerId != getCurrentLayerId())
+			continue;
+
 		sidebarUser.drawSprite(
 			canvas,
 			item.id,

@@ -26,6 +26,8 @@ void Editor::populateMenuBar()
 	const std::string MENU_TRIG_MODE = "Trigger mode (T)";
 	const std::string MENU_RESIZE = "Resize level (R)";
 	const std::string MENU_SHRINK = "Shrink level to fit (S)";
+	const std::string MENU_LAYER_UP = "Move to upper layer (Ctrl + Up)";
+	const std::string MENU_LAYER_DOWN = "Move to lower layer (Ctrl + Down)";
 
 	auto menu = gui.get<tgui::MenuBar>("TopMenuBar");
 
@@ -36,14 +38,15 @@ void Editor::populateMenuBar()
 	auto addEditorMenuItem = [&](
 		const std::string& label,
 		std::function<void(void)> callback,
-		sf::Keyboard::Key shortcut)
+		sf::Keyboard::Key shortcut,
+		bool ctrlRequired = false)
 	{
 		menu->addMenuItem(label);
 		menu->connectMenuItem(MENU_NAME, label, callback);
 
 		shortcutEngine->registerShortcut(
 			MENU_NAME,
-			{ false, false, shortcut },
+			{ ctrlRequired, false, shortcut },
 			callback);
 	};
 
@@ -69,6 +72,32 @@ void Editor::populateMenuBar()
 		MENU_SHRINK,
 		[this] { commandQueue->push<ShrinkToFitCommand>(*this); },
 		sf::Keyboard::S);
+	addEditorMenuItem(
+		MENU_LAYER_UP,
+		[this] { layerController->moveUp(); },
+		sf::Keyboard::Up, true);
+	addEditorMenuItem(
+		MENU_LAYER_DOWN,
+		[this] { layerController->moveDown(); },
+		sf::Keyboard::Down, true);
+
+	// Scrolling
+	shortcutEngine->registerShortcut(
+		MENU_NAME,
+		{ false, false, sf::Keyboard::Up },
+		[&] { if (canScroll()) camera.move(UP_VEC); });
+	shortcutEngine->registerShortcut(
+		MENU_NAME,
+		{ false, false, sf::Keyboard::Left },
+		[&] { if (canScroll()) camera.move(LEFT_VEC); });
+	shortcutEngine->registerShortcut(
+		MENU_NAME,
+		{ false, false, sf::Keyboard::Down },
+		[&] { if (canScroll()) camera.move(DOWN_VEC); });
+	shortcutEngine->registerShortcut(
+		MENU_NAME,
+		{ false, false, sf::Keyboard::Right },
+		[&] { if (canScroll()) camera.move(RIGHT_VEC); });
 }
 
 void Editor::handleRmbClicked()
@@ -117,11 +146,7 @@ void Editor::handleEvent(const sf::Event& event, const sf::Vector2i& mousePos)
 
 	if (event.type == sf::Event::KeyPressed)
 	{
-		if (event.key.code == sf::Keyboard::Left && canScroll()) camera.move(LEFT_VEC);
-		else if (event.key.code == sf::Keyboard::Up && canScroll()) camera.move(UP_VEC);
-		else if (event.key.code == sf::Keyboard::Down && canScroll()) camera.move(DOWN_VEC);
-		else if (event.key.code == sf::Keyboard::Right && canScroll()) camera.move(RIGHT_VEC);
-		else if (event.key.code == sf::Keyboard::Escape) physicalPen.penCancel();
+		if (event.key.code == sf::Keyboard::Escape) physicalPen.penCancel();
 		else if (event.key.code == sf::Keyboard::Delete) physicalPen.penDelete();
 	}
 	else if (event.type == sf::Event::MouseWheelScrolled && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
