@@ -17,9 +17,12 @@ void TriggerToolProperty::fillEditDialog(
 	auto dst = tgui::ScrollablePanel::create();
 	panel->add(dst);
 
+	const bool DISABLED = false;
+
 	unsigned row = 0;
 	addOption(dst, formValidatorToken, "X coordinate:", "Measured in pixels from top-left corner", data.x, row++);
 	addOption(dst, formValidatorToken, "Y coordinate:", "Measured in pixels from top-left corner", data.y, row++);
+	addOption(dst, formValidatorToken, "Layer ID:", "ID of layer where trigger is located", data.layerId, row++, DISABLED);
 	if (data.areaType == LevelD::Trigger::AreaType::Circle)
 	{
 		addOption(dst, formValidatorToken, "Radius:", "Measured in pixels", data.radius, row++);

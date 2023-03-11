@@ -14,6 +14,7 @@ void MeshToolProperty::fillEditDialogInternal(
 
 	addOption(dst, formValidatorToken, "Tile X:", "X coordinate of the tile", tileX, 0, DISABLED);
 	addOption(dst, formValidatorToken, "Tile Y:", "Y coordinate of the tile", tileY, 1, DISABLED);
-	addOption(dst, "Impassable:", "Whether this tile blocks the player", blocking, 2);
-	addOption(dst, "Impassable by default:", "Whether this type of tile is impassable by default", defaultBlocking, 3, DISABLED);
+	addOption(dst, formValidatorToken, "Layer ID:", "In which layer is tile located", layerId, 2, DISABLED);
+	addOption(dst, "Impassable:", "Whether this tile blocks the player", blocking, 3);
+	addOption(dst, "Impassable by default:", "Whether this type of tile is impassable by default", defaultBlocking, 4, DISABLED);
 }

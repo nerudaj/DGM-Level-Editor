@@ -287,6 +287,7 @@ ExpectedPropertyPtr ToolMesh::getProperty(const sf::Vector2i& penPos) const
 		sidebarUser.getSpriteAsTexture(tileValue),
 		tilePos.x,
 		tilePos.y,
+		getCurrentLayerId(),
 		tileValue,
 		getMap().isTileSolid(tilePos),
 		defaultBlocks[tileValue]);
