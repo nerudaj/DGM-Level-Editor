@@ -218,8 +218,7 @@ void AppStateEditor::buildLayout()
 	const std::string TOPBAR_HEIGHT = std::to_string(Sizers::GetMenuBarHeight());
 	const unsigned TOPBAR_FONT_HEIGHT = Sizers::GetMenuBarTextHeight();
 	const std::string SIDEBAR_WIDTH = "8%";
-	// 2* because of the logger
-	const std::string SIDEBAR_HEIGHT = "&.height - 2*" + TOPBAR_HEIGHT;
+	const std::string SIDEBAR_HEIGHT = "&.height - 2*" + TOPBAR_HEIGHT; // 2* because of the logger
 	const std::string SIDEBAR_XPOS = "&.width - " + SIDEBAR_WIDTH;
 
 	// Canvas
@@ -241,6 +240,10 @@ void AppStateEditor::buildLayout()
 		TOPBAR_HEIGHT,
 		TOPBAR_FONT_HEIGHT);
 	Log::get().init(loggerChatBox);
+
+	auto layerLabel = tgui::Label::create();
+	layerLabel->setPosition("1%", "100% - 2 * " + TOPBAR_HEIGHT);
+	gui.add(layerLabel, "LayerLabel");
 }
 
 AppStateEditor::AllowExecutionToken AppStateEditor::buildCanvasLayout(

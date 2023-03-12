@@ -25,3 +25,14 @@ void LayerController::moveDown()
 		--layerId;
 	}
 }
+
+std::string LayerController::toString() const
+{
+	switch (getCurrentLayerId())
+	{
+	case 0: return "Bottom layer";
+	case 1: return "Middle layer";
+	case 2: return "Upper layer";
+	default: return "ERROR: Too many layers";
+	}
+}

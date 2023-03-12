@@ -160,10 +160,13 @@ void Editor::draw()
 {
 	if (!isInitialized()) return;
 
+	// Primary render
 	stateMgr.forallStates([this] (ToolInterface& tool, bool active)
 	{
 		tool.drawTo(canvas, active ? 255 : 128);
 	});
+
+	gui.get<tgui::Label>("LayerLabel")->setText(layerController->toString());
 
 	drawTagHighlight();
 

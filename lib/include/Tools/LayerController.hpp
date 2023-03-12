@@ -14,6 +14,8 @@ public:
 
 	void moveDown();
 
+	std::string toString() const;
+
 private:
 	std::size_t layerId = 0;
 };
