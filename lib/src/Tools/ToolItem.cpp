@@ -233,6 +233,9 @@ ExpectedPropertyPtr ToolItem::getProperty(const sf::Vector2i& penPos) const
 	if (!itemId)
 		return std::unexpected(BaseError());
 
+	if (items[*itemId].layerId != getCurrentLayerId())
+		return std::unexpected(BaseError());
+
 	auto&& result = Box<ItemToolProperty>(
 		sidebarUser.getSpriteAsTexture(items.at(*itemId).id),
 		*itemId,

@@ -386,6 +386,9 @@ ExpectedPropertyPtr ToolTrigger::getProperty(const sf::Vector2i& penPos) const
 	if (!trigId.has_value())
 		return std::unexpected(BaseError());
 
+	if (triggers[*trigId].layerId != getCurrentLayerId())
+		return std::unexpected(BaseError());
+
 	auto&& result = Box<TriggerToolProperty>(
 		actionDefinitions,
 		triggers[*trigId],
