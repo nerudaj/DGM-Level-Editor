@@ -1,3 +1,7 @@
+DGM Level Editor v2.x.x changelog:
+ * Bumped `nlohmann::json` to v3.11.2
+ * Each level now has 3 layers between which user can now cycle through (Ctrl + Arrow Up/Down)
+
 DGM Level Editor v2.1.0 changelog:
  * Each installation of level editor has its own local settings
 	* Cached path to config json will now be unique for each installation of level editor
