@@ -19,6 +19,7 @@
 #include "include/Commands/CommandHistory.hpp"
 #include "include/Utilities/GC.hpp"
 #include "include/Utilities/Box.hpp"
+#include "include/Utilities/ClickPreventer.hpp"
 #include "include/ProgramOptions.hpp"
 
 class AppStateEditor : public dgm::AppState
@@ -47,6 +48,7 @@ protected:
 	Box<EditorInterface> editor = Box<NullEditor>();
 	NewLevelDialog dialogNewLevel;
 	UpdateConfigPathDialog dialogUpdateConfigPath;
+	ClickPreventer clickPreventer;
 
 protected:
 	void updateWindowTitle()

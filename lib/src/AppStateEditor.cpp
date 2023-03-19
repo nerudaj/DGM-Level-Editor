@@ -24,12 +24,12 @@ void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
 		confirmExitDialog.open(DIALOG_TITLE_WARNING, DIALOG_TEXT_UNSAVED_EXIT, [&] (UserChoice choice)
 			{
 				if (choice == UserChoice::Cancelled)
-				return;
+					return;
 				else if (choice == UserChoice::Confirmed)
 					handleSaveLevel();
 				else
 					unsavedChanges = false;
-		handleExit(confirmExitDialog);
+				handleExit(confirmExitDialog);
 			});
 	}
 	else
@@ -72,6 +72,9 @@ void AppStateEditor::input()
 	sf::Event event;
 	while (app.window.pollEvent(event))
 	{
+		if (clickPreventer.shouldPreventEvents())
+			continue;
+
 		if (event.type == sf::Event::Closed)
 		{
 			handleExit(*dialogConfirmExit);
@@ -107,6 +110,8 @@ void AppStateEditor::input()
 			shortcutEngine->handleEvent(releaseKeys);
 			releaseKeys.key.code = sf::Keyboard::LControl;
 			shortcutEngine->handleEvent(releaseKeys);
+
+			clickPreventer.preventClickFor(sf::seconds(0.1f));
 		}
 
 		gui.handleEvent(event);
@@ -117,6 +122,8 @@ void AppStateEditor::input()
 
 void AppStateEditor::update()
 {
+	clickPreventer.update(app.time);
+
 	if (commandQueue->isEmpty())
 		return;
 
