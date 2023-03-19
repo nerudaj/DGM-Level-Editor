@@ -73,7 +73,7 @@ target_compile_features( ${PROJECT_NAME}
 )
 
 target_compile_options ( ${PROJECT_NAME}
-	PRIVATE /MP
+	PRIVATE /MP /analyze:external- /external:I "${JSON_FOLDER}/single_include/nlohmann"
 )
 
 target_precompile_headers ( ${PROJECT_NAME}
