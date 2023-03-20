@@ -1,6 +1,7 @@
 DGM Level Editor v2.x.x changelog:
  * Bumped `nlohmann::json` to v3.11.2
  * Each level now has 3 layers between which user can now cycle through (Ctrl + Arrow Up/Down)
+ * Editor window can be resized
  * Fixed shadow click erasing tile after loading a level
 
 DGM Level Editor v2.1.0 changelog:

@@ -62,6 +62,14 @@ int main(int argc, char* argv[])
 	};
 
 	dgm::Window window(windowSettings);
+
+	// Workaround to get resizable window until dgm-lib allows to do so directly
+	window.getWindowContext().close();
+	window.getWindowContext().create(
+		{ windowSettings.resolution.x, windowSettings.resolution.y },
+		windowSettings.title,
+		sf::Style::Default);
+
 	dgm::App app(window);
 
 	tgui::Gui gui;

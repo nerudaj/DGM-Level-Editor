@@ -87,9 +87,7 @@ void AppStateEditor::input()
 						0.f, 0.f,
 						static_cast<float>(event.size.width),
 						static_cast<float>(event.size.height))));
-			gui.removeAllWidgets();
 			gui.setView(app.window.getWindowContext().getView());
-			buildLayout();
 		}
 		else if (event.type == sf::Event::KeyPressed)
 		{
