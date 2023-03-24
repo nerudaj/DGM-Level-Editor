@@ -4,6 +4,7 @@
 #include "include/Commands/ResizeCommand.hpp"
 #include "include/Utilities/Utilities.hpp"
 #include "include/Commands/ShrinkToFitCommand.hpp"
+#include "include/Configs/Strings.hpp"
 
 #include <fstream>
 #include <filesystem>
@@ -20,14 +21,7 @@ constexpr bool Editor::isMouseWithinBoundaries(const sf::Vector2f& mousePos) con
 
 void Editor::populateMenuBar()
 {
-	const std::string MENU_NAME = "Editor";
-	const std::string MENU_MESH_MODE = "Mesh mode (M)";
-	const std::string MENU_ITEM_MODE = "Items mode (I)";
-	const std::string MENU_TRIG_MODE = "Trigger mode (T)";
-	const std::string MENU_RESIZE = "Resize level (R)";
-	const std::string MENU_SHRINK = "Shrink level to fit (S)";
-	const std::string MENU_LAYER_UP = "Move to upper layer (Ctrl + Up)";
-	const std::string MENU_LAYER_DOWN = "Move to lower layer (Ctrl + Down)";
+	constexpr const char* MENU_NAME = "Editor";
 
 	auto menu = gui.get<tgui::MenuBar>("TopMenuBar");
 
@@ -50,34 +44,36 @@ void Editor::populateMenuBar()
 			callback);
 	};
 
+	using namespace Strings::Editor::ContextMenu;
+
 	// Build menu
 	menu->addMenu(MENU_NAME);
 	addEditorMenuItem(
-		MENU_MESH_MODE,
+		MESH_MODE,
 		[this] { switchTool(EditorState::Mesh); },
 		sf::Keyboard::M);
 	addEditorMenuItem(
-		MENU_ITEM_MODE,
+		ITEM_MODE,
 		[this] { switchTool(EditorState::Item); },
 		sf::Keyboard::I);
 	addEditorMenuItem(
-		MENU_TRIG_MODE,
+		TRIG_MODE,
 		[this] { switchTool(EditorState::Trigger); },
 		sf::Keyboard::T);
 	addEditorMenuItem(
-		MENU_RESIZE,
+		RESIZE,
 		[this] { resizeDialog(); },
 		sf::Keyboard::R);
 	addEditorMenuItem(
-		MENU_SHRINK,
+		SHRINK,
 		[this] { commandQueue->push<ShrinkToFitCommand>(*this); },
 		sf::Keyboard::S);
 	addEditorMenuItem(
-		MENU_LAYER_UP,
+		LAYER_UP,
 		[this] { layerController->moveUp(); },
 		sf::Keyboard::Up, true);
 	addEditorMenuItem(
-		MENU_LAYER_DOWN,
+		LAYER_DOWN,
 		[this] { layerController->moveDown(); },
 		sf::Keyboard::Down, true);
 

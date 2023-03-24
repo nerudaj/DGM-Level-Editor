@@ -3,25 +3,19 @@
 #include "include/AppStateEditor.hpp"
 #include "include/Dialogs/NewLevelDialog.hpp"
 #include "include/Configs/Sizers.hpp"
+#include "include/Configs/Strings.hpp"
 #include "include/Globals.hpp"
 #include "include/Editor/Editor.hpp"
 #include "include/Utilities/FontLoader.hpp"
 
-#include <iostream>
-
-constexpr const char* FILE_CTX_NEW = "New (Ctrl+N)";
-constexpr const char* FILE_CTX_LOAD = "Load (Ctrl+O)";
-constexpr const char* FILE_CTX_SAVE = "Save (Ctrl+S)";
-constexpr const char* FILE_CTX_SAVE_AS = "Save as...";
-constexpr const char* FILE_CTX_UNDO = "Undo (Ctrl+Z)";
-constexpr const char* FILE_CTX_REDO = "Redo (Ctrl+Y)";
-constexpr const char* FILE_CTX_EXIT = "Exit";
 
 void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
 {
 	if (unsavedChanges)
 	{
-		confirmExitDialog.open(DIALOG_TITLE_WARNING, DIALOG_TEXT_UNSAVED_EXIT, [&] (UserChoice choice)
+		using namespace Strings::Dialog;
+
+		confirmExitDialog.open(Title::WARNING, Message::UNSAVED_CHANGES, [&] (UserChoice choice)
 			{
 				if (choice == UserChoice::Cancelled)
 					return;
@@ -272,7 +266,7 @@ void AppStateEditor::buildMenuBarLayout(
 	menu->setTextSize(TOPBAR_FONT_HEIGHT);
 	menu->setRenderer(theme.getRenderer("MenuBar"));
 	menu->setSize("100%", TOPBAR_HEIGHT);
-	menu->addMenu("File");
+	menu->addMenu(Strings::AppState::CTX_MENU_NAME);
 
 	auto addFileMenuItem = [this, &menu](
 		const std::string& label,
@@ -280,24 +274,26 @@ void AppStateEditor::buildMenuBarLayout(
 		std::optional<sf::Keyboard::Key> shortcut = {})
 	{
 		menu->addMenuItem(label);
-		menu->connectMenuItem("File", label, callback);
+		menu->connectMenuItem(Strings::AppState::CTX_MENU_NAME, label, callback);
 
 		if (shortcut.has_value())
 		{
 			shortcutEngine->registerShortcut(
 				"FileShortcuts",
-				{ true, false, *shortcut },
+				{ true, false, shortcut.value() },
 				callback);
 		}
 	};
 
-	addFileMenuItem(FILE_CTX_NEW, [this] { handleNewLevel(); }, sf::Keyboard::N);
-	addFileMenuItem(FILE_CTX_LOAD, [this] { handleLoadLevel(); }, sf::Keyboard::O);
-	addFileMenuItem(FILE_CTX_SAVE, [this] { handleSaveLevel(); }, sf::Keyboard::S);
-	addFileMenuItem(FILE_CTX_SAVE_AS, [this] { handleSaveLevel(true); });
-	addFileMenuItem(FILE_CTX_UNDO, [this] { handleUndo(); }, sf::Keyboard::Z);
-	addFileMenuItem(FILE_CTX_REDO, [this] { handleRedo(); }, sf::Keyboard::Y);
-	addFileMenuItem(FILE_CTX_EXIT, [this] { handleExit(*dialogConfirmExit); });
+	using namespace Strings::AppState::ContextMenu;
+
+	addFileMenuItem(NEW, [this] { handleNewLevel(); }, sf::Keyboard::N);
+	addFileMenuItem(LOAD, [this] { handleLoadLevel(); }, sf::Keyboard::O);
+	addFileMenuItem(SAVE, [this] { handleSaveLevel(); }, sf::Keyboard::S);
+	addFileMenuItem(SAVE_AS, [this] { handleSaveLevel(true); });
+	addFileMenuItem(UNDO, [this] { handleUndo(); }, sf::Keyboard::Z);
+	addFileMenuItem(REDO, [this] { handleRedo(); }, sf::Keyboard::Y);
+	addFileMenuItem(EXIT, [this] { handleExit(*dialogConfirmExit); });
 
 	gui.add(menu, "TopMenuBar");
 }

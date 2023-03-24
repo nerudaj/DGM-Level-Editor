@@ -1,11 +1,5 @@
 #pragma once
 
-struct Settings
-{
-	float soundVolume;
-	float musicVolume;
-};
-
 const float SCROLLBAR_WIDTH = 40.f;
 const float TITLEBAR_HEIGHT = 50.f;
 
@@ -29,6 +23,3 @@ static inline void closeModal(
 	auto modal = gui.get<tgui::ChildWindow>(id);
 	gui.remove(modal);
 }
-
-constexpr const char* DIALOG_TITLE_WARNING = "Warning";
-constexpr const char* DIALOG_TEXT_UNSAVED_EXIT = "You have some unsaved changes. Do you want to save them before exiting?";
