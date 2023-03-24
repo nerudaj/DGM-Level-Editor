@@ -6,8 +6,12 @@
 #include "include/Configs/Strings.hpp"
 #include "include/Globals.hpp"
 #include "include/Editor/Editor.hpp"
+#include "include/Launcher/PlaytestLauncher.hpp"
 #include "include/Utilities/FontLoader.hpp"
 
+// Null objects
+#include "include/Editor/NullEditor.hpp"
+#include "include/Launcher/NullPlaytestLauncher.hpp"
 
 void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
 {
@@ -157,15 +161,48 @@ AppStateEditor::AppStateEditor(
 	, shortcutEngine(shortcutEngine)
 	, dialogConfirmExit(dialogConfirmExit)
 	, dialogErrorInfo(dialogErrorInfo)
+	, editor(Box<NullEditor>())
 	, dialogNewLevel(gui, theme, fileApi, configPath)
 	, dialogUpdateConfigPath(gui, theme, fileApi)
+	, playtestLauncher(Box<NullPlaytestLauncher>())
 {
+	std::string playtestBinaryPathRaw = "";
+	std::string playtestLaunchOptions = "";
+	std::filesystem::path playtestBinaryPath;
+
+	if (ini.hasSection(programOptions.binaryDirHash))
+	{
+		auto&& instanceIni = ini[programOptions.binaryDirHash];
+
+		if (instanceIni.hasKey("configPath"))
+			configPath = instanceIni["configPath"].asString();
+
+		if (instanceIni.hasKey("playtestBinaryPath"))
+		{
+			playtestBinaryPathRaw = instanceIni["playtestBinaryPath"].asString();
+		}
+
+		if (instanceIni.hasKey("playtestLaunchOptions"))
+		{
+			playtestLaunchOptions = instanceIni["playtestLaunchOptions"].asString();
+		}
+	}
+
 	try
 	{
-		configPath = ini[programOptions.binaryDirHash]
-			.at("configPath").asString();
+		playtestBinaryPath = std::filesystem::path(playtestBinaryPathRaw);
 	}
-	catch (...) {}
+	catch (std::exception& e)
+	{
+		std::cerr << "error:AppStateMainMenu: " << e.what() << std::endl;
+	}
+
+	playtestLauncher = Box<PlaytestLauncher>(
+		gui,
+		shortcutEngine,
+		playtestBinaryPath,
+		playtestLaunchOptions);
+
 
 	try
 	{
@@ -210,6 +247,11 @@ AppStateEditor::~AppStateEditor()
 		ini[programOptions.binaryDirHash]["configPath"]
 			= configPath.value();
 	}
+
+	ini[programOptions.binaryDirHash]["playtestBinaryPath"]
+		= playtestLauncher->getBinaryPath().string();
+	ini[programOptions.binaryDirHash]["playtestLaunchOptions"]
+		= playtestLauncher->getLaunchOptions();
 }
 
 void AppStateEditor::buildLayout()
@@ -225,10 +267,11 @@ void AppStateEditor::buildLayout()
 		SIDEBAR_WIDTH,
 		SIDEBAR_HEIGHT,
 		TOPBAR_HEIGHT);
-	buildMenuBarLayout(
-		runToken,
-		TOPBAR_HEIGHT,
-		TOPBAR_FONT_HEIGHT);
+	auto menuBar = buildMenuBarLayout(
+			runToken,
+			TOPBAR_HEIGHT,
+			TOPBAR_FONT_HEIGHT);
+	playtestLauncher->buildContextMenu(menuBar);
 	buildSidebarLayout(
 		runToken,
 		SIDEBAR_WIDTH,
@@ -257,7 +300,7 @@ AppStateEditor::AllowExecutionToken AppStateEditor::buildCanvasLayout(
 	return AllowExecutionToken();
 }
 
-void AppStateEditor::buildMenuBarLayout(
+tgui::MenuBar::Ptr AppStateEditor::buildMenuBarLayout(
 	AllowExecutionToken,
 	const std::string& TOPBAR_HEIGHT,
 	unsigned TOPBAR_FONT_HEIGHT)
@@ -296,6 +339,8 @@ void AppStateEditor::buildMenuBarLayout(
 	addFileMenuItem(EXIT, [this] { handleExit(*dialogConfirmExit); });
 
 	gui.add(menu, "TopMenuBar");
+
+	return menu;
 }
 
 void AppStateEditor::buildSidebarLayout(

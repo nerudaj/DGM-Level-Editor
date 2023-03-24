@@ -17,22 +17,24 @@ set ( SOURCE_FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/LogConsole.cpp"
 )
 
-glob_sources_and_headers ( COMMANDS "Commands" )
-glob_sources_and_headers ( CONFIGS "Configs" )
-glob_sources_and_headers ( DIALOGS "Dialogs" )
-glob_sources_and_headers ( EDITOR "Editor" )
+glob_sources_and_headers ( COMMANDS   "Commands" )
+glob_sources_and_headers ( CONFIGS    "Configs" )
+glob_sources_and_headers ( DIALOGS    "Dialogs" )
+glob_sources_and_headers ( EDITOR     "Editor" )
 glob_sources_and_headers ( INTERFACES "Interfaces" )
-glob_sources_and_headers ( LEVELMESH "LevelMesh" )
-glob_sources_and_headers ( SHORTCUTS "Shortcuts" )
-glob_sources_and_headers ( TOOLS "Tools" )
-glob_sources_and_headers ( TOOLPROPS "ToolProperties" )
-glob_sources_and_headers ( UTILITIES "Utilities" )
+glob_sources_and_headers ( LAUNCHER   "Launcher" )
+glob_sources_and_headers ( LEVELMESH  "LevelMesh" )
+glob_sources_and_headers ( SHORTCUTS  "Shortcuts" )
+glob_sources_and_headers ( TOOLS      "Tools" )
+glob_sources_and_headers ( TOOLPROPS  "ToolProperties" )
+glob_sources_and_headers ( UTILITIES  "Utilities" )
 
 source_group ( "Commands" FILES ${COMMANDS_HEADERS} ${COMMANDS_SOURCES} )
 source_group ( "Configs" FILES ${CONFIGS_HEADERS} ${CONFIGS_SOURCES} )
 source_group ( "Dialogs" FILES ${DIALOGS_HEADERS} ${DIALOGS_SOURCES} )
 source_group ( "Editor" FILES ${EDITOR_HEADERS} ${EDITOR_SOURCES} )
 source_group ( "Interfaces" FILES ${INTERFACES_HEADERS} ${INTERFACES_SOURCES} )
+source_group ( "Launcher" FILES ${LAUNCHER_HEADERS} ${LAUNCHER_SOURCES} )
 source_group ( "Level Mesh" FILES ${LEVELMESH_HEADERS} ${LEVELMESH_SOURCES} )
 source_group ( "Shortcuts" FILES ${SHORTCUTS_HEADERS} ${SHORTCUTS_SOURCES} )
 source_group ( "Tools" FILES ${TOOLS_HEADERS} ${TOOLS_SOURCES} )
@@ -46,6 +48,7 @@ add_library ( ${PROJECT_NAME} STATIC
 	${DIALOGS_HEADERS} ${DIALOGS_SOURCES}
 	${EDITOR_HEADERS} ${EDITOR_SOURCES}
 	${INTERFACES_HEADERS} ${INTERFACES_SOURCES}
+	${LAUNCHER_HEADERS} ${LAUNCHER_SOURCES}
 	${LEVELMESH_HEADERS} ${LEVELMESH_SOURCES}
 	${SHORTCUTS_HEADERS} ${SHORTCUTS_SOURCES}
 	${TOOLS_HEADERS} ${TOOLS_SOURCES}

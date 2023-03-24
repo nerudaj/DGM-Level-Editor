@@ -3,6 +3,7 @@
 #include "include/Interfaces/DialogInterfaces.hpp"
 #include "include/Interfaces/EditorInterface.hpp"
 #include "include/Interfaces/FileApiInterface.hpp"
+#include "include/Interfaces/PlaytestLauncherInterface.hpp"
 #include "include/Interfaces/ShortcutEngineInterface.hpp"
 
 #include <DGM/dgm.hpp>
@@ -13,7 +14,6 @@
 #include "Dialogs/NewLevelDialog.hpp"
 #include "Dialogs/UpdateConfigPathDialog.hpp"
 #include "LogConsole.hpp"
-#include "include/Editor/NullEditor.hpp"
 #include <optional>
 #include "include/Commands/CommandQueue.hpp"
 #include "include/Commands/CommandHistory.hpp"
@@ -45,10 +45,11 @@ protected:
 	tgui::Canvas::Ptr canvas;
 	GC<CommandHistory> commandHistory;
 	GC<CommandQueue> commandQueue = GC<CommandQueue>(commandHistory);
-	Box<EditorInterface> editor = Box<NullEditor>();
+	Box<EditorInterface> editor;
 	NewLevelDialog dialogNewLevel;
 	UpdateConfigPathDialog dialogUpdateConfigPath;
 	ClickPreventer clickPreventer;
+	Box<PlaytestLauncherInterface> playtestLauncher;
 
 protected:
 	void updateWindowTitle()
@@ -81,7 +82,7 @@ protected: // Build functions
 			const std::string&);
 	};
 
-	void buildMenuBarLayout(
+	tgui::MenuBar::Ptr buildMenuBarLayout(
 		AllowExecutionToken,
 		const std::string& TOPBAR_HEIGHT,
 		unsigned TOPBAR_FONT_HEIGHT);
