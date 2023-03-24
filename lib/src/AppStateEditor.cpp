@@ -103,7 +103,7 @@ void AppStateEditor::input()
 			releaseKeys.key.code = sf::Keyboard::LControl;
 			shortcutEngine->handleEvent(releaseKeys);
 
-			clickPreventer.preventClickFor(sf::seconds(0.1f));
+			clickPreventer.preventClickForNextNFrames(30);
 		}
 
 		gui.handleEvent(event);
@@ -114,7 +114,7 @@ void AppStateEditor::input()
 
 void AppStateEditor::update()
 {
-	clickPreventer.update(app.time);
+	clickPreventer.update();
 
 	if (commandQueue->isEmpty())
 		return;

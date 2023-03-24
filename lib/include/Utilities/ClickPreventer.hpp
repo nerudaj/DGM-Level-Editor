@@ -5,21 +5,22 @@
 class ClickPreventer
 {
 public:
-	void preventClickFor(const sf::Time& time)
+	void preventClickForNextNFrames(const unsigned frameCount)
 	{
-		timeLeft = time.asSeconds();
+		framesLeft = frameCount;
 	}
 
-	void update(const dgm::Time& elapsedTime)
+	void update()
 	{
-		timeLeft = std::clamp(timeLeft - elapsedTime.getDeltaTime(), 0.f, timeLeft);
+		if (framesLeft > 0)
+			--framesLeft;
 	}
 
 	bool shouldPreventEvents() const noexcept
 	{
-		return timeLeft > 0.f;
+		return framesLeft > 0.f;
 	}
 
 private:
-	float timeLeft = 0.f;
+	unsigned framesLeft = 0.f;
 };
