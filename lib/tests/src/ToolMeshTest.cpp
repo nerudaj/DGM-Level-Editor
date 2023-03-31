@@ -63,6 +63,17 @@ TEST_CASE("[ToolMesh]")
 		Mesh::TEXTURE_BOUNDS,
 		{ false, true, false, true });
 
+	SECTION("Adds extra layers if source object doesn't have the correct amount")
+	{
+		LevelD level = createMesh(20, 20, {});
+		mesh.loadFrom(level);
+
+		LevelD exported;
+		mesh.saveTo(exported);
+
+		REQUIRE(exported.mesh.layers.size() == 3u);
+	}
+
 	SECTION("getBoundingBox")
 	{
 		SECTION("returns empty box, when all tiles are empty")
@@ -112,7 +123,7 @@ TEST_CASE("[ToolMesh]")
 			mesh.saveTo(exported);
 
 			auto&& mesh = exported.mesh;
-			REQUIRE(mesh.layers.size() == 1u);
+			REQUIRE_FALSE(mesh.layers.empty());
 
 			auto&& layer = mesh.layers[0];
 			REQUIRE(layer.tiles.size() == width * height);
