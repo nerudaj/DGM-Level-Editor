@@ -1,7 +1,4 @@
-#include <fakeit.hpp>
-
-#include "include/Utilities/FileApi.hpp"
-#include "include/Utilities/GC.hpp"
+#include <include/Interfaces/FileApiInterface.hpp>
 
 /**
  * Usage:

@@ -7,8 +7,8 @@
 #include "include/Dialogs/ErrorInfoDialog.hpp"
 
 #include "Stubs/FileApiStub.hpp"
+#include "Stubs/YesNoCancelDialogStub.hpp"
 #include "TestHelpers/EditorMock.hpp"
-#include "TestHelpers/YesNoCancelDialogMock.hpp"
 
 using namespace fakeit;
 
@@ -26,9 +26,9 @@ public:
 		unsavedChanges = true;
 	}
 
-	void handleExitTest(YesNoCancelDialogInterface& dialog)
+	void handleExitTest()
 	{
-		handleExit(dialog);
+		handleExit(*dialogConfirmExit);
 	}
 
 	void injectEditorMock(Box<EditorInterface> mock)
@@ -95,12 +95,14 @@ TEST_CASE("[AppStateEditor]")
 	auto fileApiMock = GC<FileApiStub>();
 	auto fileApiSpy = Mock<FileApiInterface>(*fileApiMock);
 
+	auto yesNoDialogMock = GC<YesNoCancelDialogStub>();
+	auto yesNoDialogSpy = Mock<YesNoCancelDialogInterface>(*yesNoDialogMock);
+
 	auto shortcutEngine = GC<ShortcutEngine>();
 	EditorMockState editorMockState;
 	auto editorMock = Box<EditorMock>(&editorMockState);
 	tgui::Gui gui;
 	tgui::Theme theme;
-	GC<YesNoCancelDialogInterface> yesNoDialog = GC<YesNoCancelDialogMock>();
 	GC<ErrorInfoDialogInterface> errorInfoDialog = GC<ErrorInfoDialog>(gui, theme);
 
 	SECTION("handleExit")
@@ -112,7 +114,7 @@ TEST_CASE("[AppStateEditor]")
 			options,
 			fileApiMock,
 			shortcutEngine,
-			yesNoDialog,
+			yesNoDialogMock,
 			errorInfoDialog);
 
 		SECTION("Asks for confirmation with unsaved changes")
@@ -120,10 +122,16 @@ TEST_CASE("[AppStateEditor]")
 			app.getState().injectEditorMock(std::move(editorMock));
 			app.getState().mockUnsavedChanges();
 
-			auto dialog = YesNoCancelDialogMock();
-			dialog.userConfirmed = true;
+			When(Method(yesNoDialogSpy, open))
+				.Do([](
+					const std::string,
+					const std::string&,
+					std::function<void(UserChoice)> completedCallback)
+				{
+					completedCallback(UserChoice::Confirmed);
+				});
 
-			app.getState().handleExitTest(dialog);
+			app.getState().handleExitTest();
 
 			REQUIRE(app.exitCalled());
 			REQUIRE(editorMockState.saveToFileCallCounter == 1);
@@ -134,10 +142,16 @@ TEST_CASE("[AppStateEditor]")
 			app.getState().injectEditorMock(std::move(editorMock));
 			app.getState().mockUnsavedChanges();
 
-			auto dialog = YesNoCancelDialogMock();
-			dialog.userConfirmed = false;
+			When(Method(yesNoDialogSpy, open))
+				.Do([](
+					const std::string,
+					const std::string&,
+					std::function<void(UserChoice)> completedCallback)
+				{
+					completedCallback(UserChoice::Denied);
+				});
 
-			app.getState().handleExitTest(dialog);
+			app.getState().handleExitTest();
 
 			REQUIRE(app.exitCalled());
 			REQUIRE(editorMockState.saveToFileCallCounter == 0);
@@ -148,10 +162,16 @@ TEST_CASE("[AppStateEditor]")
 			app.getState().injectEditorMock(std::move(editorMock));
 			app.getState().mockUnsavedChanges();
 
-			auto dialog = YesNoCancelDialogMock();
-			dialog.userCancelled = true;
+			When(Method(yesNoDialogSpy, open))
+				.Do([](
+					const std::string,
+					const std::string&,
+					std::function<void(UserChoice)> completedCallback)
+				{
+					completedCallback(UserChoice::Cancelled);
+				});
 
-			app.getState().handleExitTest(dialog);
+			app.getState().handleExitTest();
 
 			REQUIRE(not app.exitCalled());
 			REQUIRE(editorMockState.saveToFileCallCounter == 0);
@@ -168,7 +188,7 @@ TEST_CASE("[AppStateEditor]")
 			options,
 			fileApiMock,
 			shortcutEngine,
-			yesNoDialog,
+			yesNoDialogMock,
 			errorInfoDialog);
 
 		SECTION("Returns nullopt on user cancel")
