@@ -43,3 +43,8 @@ target_include_directories ( ${PROJECT_NAME}
 target_link_libraries( ${PROJECT_NAME}
 	editor-lib
 )
+
+add_test (
+	NAME ${PROJECT_NAME}
+	COMMAND ${PROJECT_NAME}
+)
