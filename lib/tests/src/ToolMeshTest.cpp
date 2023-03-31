@@ -3,41 +3,9 @@
 #include "include/Shortcuts/ShortcutEngine.hpp"
 #include "include/Tools/LayerController.hpp"
 
-#include "../include/NullCallback.hpp"
-#include "../include/TestAssets.hpp"
-
-struct TestTile
-{
-	unsigned x;
-	unsigned y;
-	unsigned value;
-	bool solid;
-};
-
-static LevelD createMesh(
-	unsigned width,
-	unsigned height,
-	std::vector<TestTile> tiles)
-{
-	LevelD result;
-
-	result.mesh.layerWidth = width;
-	result.mesh.layerHeight = height;
-	result.mesh.tileWidth = 32;
-	result.mesh.tileHeight = 32;
-	result.mesh.layers.resize(1);
-	result.mesh.layers[0].tiles.resize(width * height, 0);
-	result.mesh.layers[0].blocks.resize(width * height, 0);
-
-	for (auto&& tile : tiles)
-	{
-		unsigned i = tile.y * width + tile.x;
-		result.mesh.layers[0].tiles[i] = tile.value;
-		result.mesh.layers[0].blocks[i] = tile.solid;
-	}
-
-	return result;
-}
+#include "TestHelpers/NullCallback.hpp"
+#include "TestHelpers/TestAssets.hpp"
+#include "TestHelpers/LeveldBuilder.hpp"
 
 TEST_CASE("[ToolMesh]")
 {
@@ -65,7 +33,7 @@ TEST_CASE("[ToolMesh]")
 
 	SECTION("Adds extra layers if source object doesn't have the correct amount")
 	{
-		LevelD level = createMesh(20, 20, {});
+		LevelD level = LeveldBuilder::buildWithMesh(20, 20, {});
 		mesh.loadFrom(level);
 
 		LevelD exported;
@@ -78,14 +46,14 @@ TEST_CASE("[ToolMesh]")
 	{
 		SECTION("returns empty box, when all tiles are empty")
 		{
-			LevelD level = createMesh(20, 20, {});
+			LevelD level = LeveldBuilder::buildWithMesh(20, 20, {});
 			mesh.loadFrom(level);
 			REQUIRE(!mesh.getBoundingBox().has_value());
 		}
 
 		SECTION("returns valid box, when some tiles are set")
 		{
-			LevelD level = createMesh(
+			LevelD level = LeveldBuilder::buildWithMesh(
 				20, 20,
 				{ { 5, 5, 1, 1 },
 				{ 10, 10, 2, 0 } });
@@ -106,7 +74,7 @@ TEST_CASE("[ToolMesh]")
 	{
 		SECTION("correctly downsizes map into selected rect")
 		{
-			LevelD level = createMesh(
+			LevelD level = LeveldBuilder::buildWithMesh(
 				20, 20,
 				{ { 5, 5, 1, 1 },
 				{ 10, 10, 2, 0 } });
@@ -137,7 +105,7 @@ TEST_CASE("[ToolMesh]")
 
 	SECTION("penCancel cancels drag draw")
 	{
-		LevelD level = createMesh(
+		LevelD level = LeveldBuilder::buildWithMesh(
 				20, 20,
 				{ { 5, 5, 1, 1 },
 				{ 10, 10, 2, 0 } });

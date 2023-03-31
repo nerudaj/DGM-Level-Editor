@@ -15,14 +15,14 @@ configure_file (
 )
 
 configure_file (
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/TestAssets.hpp.in"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/TestAssets.hpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/TestHelpers/TestAssets.hpp.in"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/TestHelpers/TestAssets.hpp"
 )
 
 file (
 	GLOB HEADERS
 	CONFIGURE_DEPENDS
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/**/*.hpp"
 )
 
 file (
@@ -38,6 +38,7 @@ add_executable ( ${PROJECT_NAME}
 target_include_directories ( ${PROJECT_NAME}
 	PRIVATE "${CATCH_FOLDER}"
 	PRIVATE "${FAKEIT_FOLDER}/single_header/standalone"
+	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 
 target_link_libraries( ${PROJECT_NAME}

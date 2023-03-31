@@ -1,6 +1,8 @@
 #include <catch.hpp>
-#include "../include/NullCallback.hpp"
+
 #include "include/Shortcuts/ShortcutEngine.hpp"
+
+#include "TestHelpers/NullCallback.hpp"
 
 TEST_CASE("[ShortcutEngine]")
 {
@@ -46,9 +48,9 @@ TEST_CASE("[ShortcutEngine]")
 			bool called = false;
 			engine.registerShortcut(
 				"testGroup",
-				{ true, false, sf::Keyboard::A }, 
+				{ true, false, sf::Keyboard::A },
 				[&] { called = true; });
-			
+
 			sf::Event event;
 			event.type = sf::Event::KeyPressed;
 			event.key.code = sf::Keyboard::LControl;

@@ -1,12 +1,16 @@
 #include <catch.hpp>
+#include <fakeit.hpp>
 #include <filesystem>
 
-#include "../include/FileApiMock.hpp"
-#include "../include/EditorMock.hpp"
-#include "../include/YesNoCancelDialogMock.hpp"
 #include <include/AppStateEditor.hpp>
 #include <include/Shortcuts/ShortcutEngine.hpp>
 #include "include/Dialogs/ErrorInfoDialog.hpp"
+
+#include "Stubs/FileApiStub.hpp"
+#include "TestHelpers/EditorMock.hpp"
+#include "TestHelpers/YesNoCancelDialogMock.hpp"
+
+using namespace fakeit;
 
 class AppStateEditorTestable : public AppStateEditor
 {
@@ -87,7 +91,10 @@ TEST_CASE("[AppStateEditor]")
 		.rootDir = getRootPath(),
 		.binaryDirHash = "Testing",
 	};
-	auto fileApiMock = GC<FileApiMock>();
+
+	auto fileApiMock = GC<FileApiStub>();
+	auto fileApiSpy = Mock<FileApiInterface>(*fileApiMock);
+
 	auto shortcutEngine = GC<ShortcutEngine>();
 	EditorMockState editorMockState;
 	auto editorMock = Box<EditorMock>(&editorMockState);
@@ -99,14 +106,14 @@ TEST_CASE("[AppStateEditor]")
 	SECTION("handleExit")
 	{
 		app.pushState<AppStateEditorTestable>(
-				gui,
-				theme,
-				ini,
-				options,
-				std::move(fileApiMock),
-				std::move(shortcutEngine),
-				yesNoDialog,
-				errorInfoDialog);
+			gui,
+			theme,
+			ini,
+			options,
+			fileApiMock,
+			shortcutEngine,
+			yesNoDialog,
+			errorInfoDialog);
 
 		SECTION("Asks for confirmation with unsaved changes")
 		{
@@ -159,14 +166,18 @@ TEST_CASE("[AppStateEditor]")
 			theme,
 			ini,
 			options,
-			std::move(fileApiMock),
-			std::move(shortcutEngine),
+			fileApiMock,
+			shortcutEngine,
 			yesNoDialog,
 			errorInfoDialog);
 
 		SECTION("Returns nullopt on user cancel")
 		{
-			fileApiMock->userCancelled = true;
+			When(Method(fileApiSpy, getSaveFileName))
+				.Do([] (const char*) -> std::optional<std::string>
+				{
+					return {};
+				});
 
 			REQUIRE_FALSE(
 				appStateEditor
@@ -176,7 +187,11 @@ TEST_CASE("[AppStateEditor]")
 
 		SECTION("Appends .lvd if not specified")
 		{
-			fileApiMock->mockFileName = "name";
+			When(Method(fileApiSpy, getSaveFileName))
+				.Do([] (const char*) -> std::optional<std::string>
+				{
+					return "name";
+				});
 
 			REQUIRE(
 				appStateEditor
@@ -186,7 +201,11 @@ TEST_CASE("[AppStateEditor]")
 
 		SECTION("Does nothing if .lvd is specified")
 		{
-			fileApiMock->mockFileName = "name.lvd";
+			When(Method(fileApiSpy, getSaveFileName))
+				.Do([] (const char*) -> std::optional<std::string>
+				{
+					return "name.lvd";
+				});
 
 			REQUIRE(
 				appStateEditor

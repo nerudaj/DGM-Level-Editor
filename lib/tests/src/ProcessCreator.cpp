@@ -1,6 +1,7 @@
 #include <catch.hpp>
 #include <include/Utilities/ProcessCreator.hpp>
-#include "../include/TestAssets.hpp"
+
+#include "TestHelpers/TestAssets.hpp"
 
 TEST_CASE("[ProcessCreator]")
 {
