@@ -4,6 +4,6 @@ vsbuild/*
 vsbuild-release/*
 RELEASE/*
 lib/benchmarks/googlebench/*
-lib/tests/include/MeshAssets.hpp
+lib/tests/include/TestAssets.hpp
 props/EnableUseAfterMoveAnalysis.props
 dont_commit/*

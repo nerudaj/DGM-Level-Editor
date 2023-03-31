@@ -4,7 +4,7 @@
 #include "include/Tools/LayerController.hpp"
 
 #include "../include/NullCallback.hpp"
-#include "../include/MeshAssets.hpp"
+#include "../include/TestAssets.hpp"
 
 struct TestTile
 {
@@ -57,10 +57,10 @@ TEST_CASE("[ToolMesh]")
 		commandQueue);
 
 	mesh.configure(
-		MESH_TEXTURE_PATH,
-		FRAME_SIZE,
-		FRAME_SPACING,
-		TEXTURE_BOUNDS,
+		Mesh::MESH_TEXTURE_PATH,
+		Mesh::FRAME_SIZE,
+		Mesh::FRAME_SPACING,
+		Mesh::TEXTURE_BOUNDS,
 		{ false, true, false, true });
 
 	SECTION("getBoundingBox")

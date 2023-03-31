@@ -15,8 +15,8 @@ configure_file (
 )
 
 configure_file (
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/MeshAssets.hpp.in"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/MeshAssets.hpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/TestAssets.hpp.in"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/TestAssets.hpp"
 )
 
 file (
