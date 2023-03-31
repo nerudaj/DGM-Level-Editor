@@ -21,3 +21,8 @@ namespace Process
 const std::filesystem::path PROCESS_PATH("@CMAKE_CURRENT_SOURCE_DIR@/assets/process.bat");
 
 }
+
+namespace Config
+{
+	const std::filesystem::path CONFIG_PATH("@CMAKE_CURRENT_SOURCE_DIR@/assets/config.json");
+}

@@ -21,3 +21,8 @@ namespace Process
 const std::filesystem::path PROCESS_PATH("C:/Users/doomi/Documents/GitHub/DGM-Level-Editor/lib/tests/assets/process.bat");
 
 }
+
+namespace Config
+{
+	const std::filesystem::path CONFIG_PATH("C:/Users/doomi/Documents/GitHub/DGM-Level-Editor/lib/tests/assets/config.json");
+}
