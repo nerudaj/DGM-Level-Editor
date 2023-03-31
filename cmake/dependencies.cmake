@@ -3,6 +3,7 @@ set ( SFML_VERSION    "2.5.1" )
 set ( DSH_VERSION     "1.7.2" )
 set ( TGUI_VERSION    "0.8.9" )
 set ( CATCH_VERSION   "2.10.2" )
+set ( FAKEIT_VERSION  "2.3.2" )
 set ( JSON_VERSION    "3.11.2" )
 
 set ( DGM_LIB_URL "https://github.com/nerudaj/dgm-lib/releases/download/v${DGM_LIB_VERSION}/dgm-lib-${DGM_LIB_VERSION}-windows-vc17-x64.zip" )
@@ -10,6 +11,7 @@ set ( DSH_URL   "https://github.com/nerudaj/dsh/releases/download/v${DSH_VERSION
 set ( SFML_URL    "https://github.com/SFML/SFML/releases/download/${SFML_VERSION}/SFML-${SFML_VERSION}-windows-vc15-64-bit.zip" )
 set ( TGUI_URL    "https://github.com/texus/TGUI/releases/download/v${TGUI_VERSION}/TGUI-${TGUI_VERSION}-vc16-64bit-for-SFML-2.5.1.zip" )
 set ( CATCH_URL "https://github.com/catchorg/Catch2/releases/download/v${CATCH_VERSION}/catch.hpp" )
+set ( FAKEIT_URL "https://github.com/eranpeer/FakeIt/archive/refs/tags/${FAKEIT_VERSION}.zip" )
 set ( JSON_URL  "https://github.com/nlohmann/json/releases/download/v${JSON_VERSION}/include.zip" )
 
 include ( FetchContent )
@@ -26,6 +28,7 @@ function ( fetch_dependency name url headeronly )
 	else ()
 		FetchContent_Declare ( ${name}
 			URL ${url}
+			DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 		)
 	endif ()
 	
@@ -44,6 +47,7 @@ fetch_dependency ( DSH  ${DSH_URL}     FALSE )
 fetch_dependency ( DGM  ${DGM_LIB_URL} FALSE )
 fetch_dependency ( TGUI ${TGUI_URL}    FALSE )
 fetch_dependency ( CATCH ${CATCH_URL} TRUE )
+fetch_dependency ( FAKEIT ${FAKEIT_URL} FALSE )
 fetch_dependency ( JSON  ${JSON_URL}  FALSE )
 
 # Verify folder paths
@@ -53,6 +57,7 @@ message ( "  DSH:   ${DSH_FOLDER}" )
 message ( "  SFML:  ${SFML_FOLDER}" )
 message ( "  TGUI:  ${TGUI_FOLDER}" )
 message ( "  CATCH: ${CATCH_FOLDER}" )
+message ( "  FAKEIT: ${FAKEIT_FOLDER}" ) 
 message ( "  JSON:  ${JSON_FOLDER}" )
 
 # Make libraries visible to cmake linker

@@ -9,7 +9,7 @@ include ( "${CMAKE_SOURCE_DIR}/cmake/utils.cmake" )
 
 option ( DISABLE_TESTING    "Disable unit test projects" OFF )
 option ( DISABLE_BENCHMARKS "Disable benchmarking projects" ON )
-option ( CACHE_THIRD_PARTY  "Downloaded dependencies will be stored outside of build dir" ON )
+option ( CACHE_THIRD_PARTY  "Downloaded dependencies will be stored outside of build dir" OFF )
 
 if ( ${CACHE_THIRD_PARTY} )
 	set ( FETCHCONTENT_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps" )

@@ -1,6 +1,6 @@
 #include <catch.hpp>
+#include <fakeit.hpp>
 #include "include/Tools/PhysicalPen.hpp"
-#include "../include/fakeit.hpp"
 
 TEST_CASE("[PhysicalPen]")
 {

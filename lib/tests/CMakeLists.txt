@@ -15,8 +15,8 @@ configure_file (
 )
 
 configure_file (
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/MeshAssets.hpp.in"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/MeshAssets.hpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/TestAssets.hpp.in"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/TestAssets.hpp"
 )
 
 file (
@@ -37,6 +37,7 @@ add_executable ( ${PROJECT_NAME}
 
 target_include_directories ( ${PROJECT_NAME}
 	PRIVATE "${CATCH_FOLDER}"
+	PRIVATE "${FAKEIT_FOLDER}/single_header/standalone"
 )
 
 target_link_libraries( ${PROJECT_NAME}

@@ -4,7 +4,7 @@
 #include "include/Tools/LayerController.hpp"
 
 #include "../include/NullCallback.hpp"
-#include "../include/MeshAssets.hpp"
+#include "../include/TestAssets.hpp"
 
 struct TestTile
 {
@@ -57,11 +57,22 @@ TEST_CASE("[ToolMesh]")
 		commandQueue);
 
 	mesh.configure(
-		MESH_TEXTURE_PATH,
-		FRAME_SIZE,
-		FRAME_SPACING,
-		TEXTURE_BOUNDS,
+		Mesh::MESH_TEXTURE_PATH,
+		Mesh::FRAME_SIZE,
+		Mesh::FRAME_SPACING,
+		Mesh::TEXTURE_BOUNDS,
 		{ false, true, false, true });
+
+	SECTION("Adds extra layers if source object doesn't have the correct amount")
+	{
+		LevelD level = createMesh(20, 20, {});
+		mesh.loadFrom(level);
+
+		LevelD exported;
+		mesh.saveTo(exported);
+
+		REQUIRE(exported.mesh.layers.size() == 3u);
+	}
 
 	SECTION("getBoundingBox")
 	{
@@ -112,7 +123,7 @@ TEST_CASE("[ToolMesh]")
 			mesh.saveTo(exported);
 
 			auto&& mesh = exported.mesh;
-			REQUIRE(mesh.layers.size() == 1u);
+			REQUIRE_FALSE(mesh.layers.empty());
 
 			auto&& layer = mesh.layers[0];
 			REQUIRE(layer.tiles.size() == width * height);
