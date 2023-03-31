@@ -1,5 +1,6 @@
 #include "include/Launcher/PlaytestLauncher.hpp"
 #include "include/Configs/Strings.hpp"
+#include "include/LogConsole.hpp"
 
 #include <functional>
 #include <optional>
@@ -7,10 +8,12 @@
 PlaytestLauncher::PlaytestLauncher(
 	tgui::Gui& gui,
 	GC<ShortcutEngineInterface> shortcutEngine,
-		const std::filesystem::path& binaryPath,
+	GC<ProcessCreatorInterface> processCreator,
+	const std::filesystem::path& binaryPath,
 	const std::string& launchOptions) noexcept
 	: gui(gui)
 	, shortcutEngine(shortcutEngine)
+	, processCreator(processCreator)
 	, binaryPath(binaryPath)
 	, launchOptions(launchOptions)
 {}
@@ -51,7 +54,13 @@ void PlaytestLauncher::buildContextMenu(tgui::MenuBar::Ptr menu)
 }
 
 void PlaytestLauncher::handlePlaytestExecuted()
-{}
+{
+	auto result = processCreator->Exec(binaryPath.string(), launchOptions);
+	if (!result.has_value())
+	{
+		Log::write2("Launching playtest failed with error: {}", result.error());
+	}
+}
 
 void PlaytestLauncher::handleConfigureLaunchOptions()
 {}

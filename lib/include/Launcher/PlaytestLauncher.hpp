@@ -1,6 +1,7 @@
 #pragma once
 
 #include "include/Interfaces/PlaytestLauncherInterface.hpp"
+#include "include/Interfaces/ProcessCreatorInterface.hpp"
 #include "include/Interfaces/ShortcutEngineInterface.hpp"
 #include "include/Utilities/GC.hpp"
 
@@ -10,6 +11,7 @@ public:
 	PlaytestLauncher(
 		tgui::Gui& gui,
 		GC<ShortcutEngineInterface> shortcutEngine,
+		GC<ProcessCreatorInterface> processCreator,
 		const std::filesystem::path& binaryPath,
 		const std::string& launchOptions) noexcept;
 
@@ -36,6 +38,7 @@ private:
 private:
 	tgui::Gui& gui;
 	GC<ShortcutEngineInterface> shortcutEngine;
+	GC<ProcessCreatorInterface> processCreator;
 	std::filesystem::path binaryPath;
 	std::string launchOptions;
 };

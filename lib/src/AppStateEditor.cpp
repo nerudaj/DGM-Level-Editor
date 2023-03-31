@@ -8,6 +8,7 @@
 #include "include/Editor/Editor.hpp"
 #include "include/Launcher/PlaytestLauncher.hpp"
 #include "include/Utilities/FontLoader.hpp"
+#include "include/Utilities/ProcessCreator.hpp"
 
 // Null objects
 #include "include/Editor/NullEditor.hpp"
@@ -200,9 +201,9 @@ AppStateEditor::AppStateEditor(
 	playtestLauncher = Box<PlaytestLauncher>(
 		gui,
 		shortcutEngine,
+		GC<ProcessCreator>(),
 		playtestBinaryPath,
 		playtestLaunchOptions);
-
 
 	try
 	{
