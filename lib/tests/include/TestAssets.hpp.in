@@ -15,3 +15,9 @@ const sf::IntRect TEXTURE_BOUNDS(0, 0, 64, 64);
 
 }
 
+namespace Process
+{
+
+const std::filesystem::path PROCESS_PATH("@CMAKE_CURRENT_SOURCE_DIR@/assets/process.bat");
+
+}
