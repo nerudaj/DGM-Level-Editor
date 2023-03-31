@@ -1,8 +1,8 @@
 #include <catch.hpp>
+#include <fakeit.hpp>
 #include "../include/NullCallback.hpp"
 #include <include/Editor/EditorStateManager.hpp>
 #include <include/Shortcuts/ShortcutEngine.hpp>
-#include "../include/fakeit.hpp"
 #include "include/Interfaces/ToolInterface.hpp"
 #include "include/Tools/LayerController.hpp"
 

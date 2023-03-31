@@ -37,6 +37,7 @@ add_executable ( ${PROJECT_NAME}
 
 target_include_directories ( ${PROJECT_NAME}
 	PRIVATE "${CATCH_FOLDER}"
+	PRIVATE "${FAKEIT_FOLDER}/single_header/standalone"
 )
 
 target_link_libraries( ${PROJECT_NAME}
