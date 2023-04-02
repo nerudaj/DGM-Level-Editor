@@ -381,6 +381,7 @@ void ToolMesh::configure(
 		texturePath,
 		dgm::Clip(frameSize, textureBounds, 0, frameSpacing));
 
+	maps.clear();
 	maps.resize(getLayerCount());
 	for (auto&& map : maps)
 		map = DrawableLeveldMesh(

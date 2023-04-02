@@ -130,7 +130,6 @@ private:
 private:
 	DrawMode mode = DrawMode::Pencil;
 	sf::RectangleShape rectShape;
-	DrawableLeveldMesh map;
 	std::vector<DrawableLeveldMesh> maps;
 	SidebarUserMesh sidebarUser;
 	GC<CommandQueue> commandQueue;

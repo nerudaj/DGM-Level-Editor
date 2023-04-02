@@ -3,6 +3,7 @@ DGM Level Editor v2.x.x changelog:
  * Each level now has 3 layers between which user can now cycle through (Ctrl + Arrow Up/Down)
  * Editor window can be resized
  * Fixed shadow click erasing tile after loading a level
+ * Fixed a bug where loading second level crashed the editor
 
 DGM Level Editor v2.1.0 changelog:
  * Each installation of level editor has its own local settings

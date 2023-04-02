@@ -36,8 +36,6 @@ TEST_CASE("[Editor]")
 			LevelD level2 = LeveldBuilder::buildWithMesh(40, 40, {});
 
 			editor.loadFrom(level1, Config::CONFIG_PATH);
-
-			// FIXME: Throws exception
 			editor.loadFrom(level2, Config::CONFIG_PATH);
 		}
 	}
