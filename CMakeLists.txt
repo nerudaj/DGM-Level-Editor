@@ -1,5 +1,12 @@
 cmake_minimum_required ( VERSION 3.19 )
 
+# Download some helper files
+file (
+	DOWNLOAD
+		"https://raw.githubusercontent.com/nerudaj/clang-format/main/.clang-format"
+		"${CMAKE_BINARY_DIR}/.clang-format"
+)
+
 include ( "${CMAKE_SOURCE_DIR}/cmake/settings.cmake" )
 
 project ( "${SETTINGS_PROJECT_NAME}" )

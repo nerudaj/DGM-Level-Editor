@@ -1,5 +1,10 @@
 cmake_minimum_required ( VERSION 3.19 )
 
+file (
+	COPY "${CMAKE_BINARY_DIR}/.clang-format"
+	DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}"
+)
+
 project ( editor-lib )
 
 set ( HEADER_FILES
@@ -51,7 +56,7 @@ add_library ( ${PROJECT_NAME} STATIC
 	${TOOLS_HEADERS} ${TOOLS_SOURCES}
 	${TOOLPROPS_HEADERS} ${TOOLPROPS_SOURCES}
 	${UTILITIES_HEADERS} ${UTILITIES_SOURCES}
-	"${CMAKE_CURRENT_SOURCE_DIR}/.editorconfig"
+	"${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
 )
 
 target_include_directories ( ${PROJECT_NAME}

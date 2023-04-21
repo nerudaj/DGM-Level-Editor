@@ -1,5 +1,10 @@
 cmake_minimum_required ( VERSION 3.19 )
 
+file (
+	COPY "${CMAKE_BINARY_DIR}/.clang-format"
+	DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}"
+)
+
 project ( lib-tests )
 copy_dlls_to_build_folders()
 
@@ -33,6 +38,7 @@ file (
 
 add_executable ( ${PROJECT_NAME}
 	${SOURCES} ${HEADERS}
+	"${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
 ) 
 
 target_include_directories ( ${PROJECT_NAME}
