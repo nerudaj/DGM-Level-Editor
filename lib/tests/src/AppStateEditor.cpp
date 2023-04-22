@@ -1,12 +1,16 @@
 #include <catch.hpp>
+#include <fakeit.hpp>
 #include <filesystem>
 
-#include "../include/FileApiMock.hpp"
-#include "../include/EditorMock.hpp"
-#include "../include/YesNoCancelDialogMock.hpp"
 #include <include/AppStateEditor.hpp>
 #include <include/Shortcuts/ShortcutEngine.hpp>
 #include "include/Dialogs/ErrorInfoDialog.hpp"
+
+#include "Stubs/FileApiStub.hpp"
+#include "Stubs/YesNoCancelDialogStub.hpp"
+#include "TestHelpers/EditorMock.hpp"
+
+using namespace fakeit;
 
 class AppStateEditorTestable : public AppStateEditor
 {
@@ -22,9 +26,9 @@ public:
 		unsavedChanges = true;
 	}
 
-	void handleExitTest(YesNoCancelDialogInterface& dialog)
+	void handleExitTest()
 	{
-		handleExit(dialog);
+		handleExit(*dialogConfirmExit);
 	}
 
 	void injectEditorMock(Box<EditorInterface> mock)
@@ -87,36 +91,47 @@ TEST_CASE("[AppStateEditor]")
 		.rootDir = getRootPath(),
 		.binaryDirHash = "Testing",
 	};
-	auto fileApiMock = GC<FileApiMock>();
+
+	auto fileApiMock = GC<FileApiStub>();
+	auto fileApiSpy = Mock<FileApiInterface>(*fileApiMock);
+
+	auto yesNoDialogMock = GC<YesNoCancelDialogStub>();
+	auto yesNoDialogSpy = Mock<YesNoCancelDialogInterface>(*yesNoDialogMock);
+
 	auto shortcutEngine = GC<ShortcutEngine>();
 	EditorMockState editorMockState;
 	auto editorMock = Box<EditorMock>(&editorMockState);
 	tgui::Gui gui;
 	tgui::Theme theme;
-	GC<YesNoCancelDialogInterface> yesNoDialog = GC<YesNoCancelDialogMock>();
 	GC<ErrorInfoDialogInterface> errorInfoDialog = GC<ErrorInfoDialog>(gui, theme);
 
 	SECTION("handleExit")
 	{
 		app.pushState<AppStateEditorTestable>(
-				gui,
-				theme,
-				ini,
-				options,
-				std::move(fileApiMock),
-				std::move(shortcutEngine),
-				yesNoDialog,
-				errorInfoDialog);
+			gui,
+			theme,
+			ini,
+			options,
+			fileApiMock,
+			shortcutEngine,
+			yesNoDialogMock,
+			errorInfoDialog);
 
 		SECTION("Asks for confirmation with unsaved changes")
 		{
 			app.getState().injectEditorMock(std::move(editorMock));
 			app.getState().mockUnsavedChanges();
 
-			auto dialog = YesNoCancelDialogMock();
-			dialog.userConfirmed = true;
+			When(Method(yesNoDialogSpy, open))
+				.Do([](
+					const std::string,
+					const std::string&,
+					std::function<void(UserChoice)> completedCallback)
+				{
+					completedCallback(UserChoice::Confirmed);
+				});
 
-			app.getState().handleExitTest(dialog);
+			app.getState().handleExitTest();
 
 			REQUIRE(app.exitCalled());
 			REQUIRE(editorMockState.saveToFileCallCounter == 1);
@@ -127,10 +142,16 @@ TEST_CASE("[AppStateEditor]")
 			app.getState().injectEditorMock(std::move(editorMock));
 			app.getState().mockUnsavedChanges();
 
-			auto dialog = YesNoCancelDialogMock();
-			dialog.userConfirmed = false;
+			When(Method(yesNoDialogSpy, open))
+				.Do([](
+					const std::string,
+					const std::string&,
+					std::function<void(UserChoice)> completedCallback)
+				{
+					completedCallback(UserChoice::Denied);
+				});
 
-			app.getState().handleExitTest(dialog);
+			app.getState().handleExitTest();
 
 			REQUIRE(app.exitCalled());
 			REQUIRE(editorMockState.saveToFileCallCounter == 0);
@@ -141,10 +162,16 @@ TEST_CASE("[AppStateEditor]")
 			app.getState().injectEditorMock(std::move(editorMock));
 			app.getState().mockUnsavedChanges();
 
-			auto dialog = YesNoCancelDialogMock();
-			dialog.userCancelled = true;
+			When(Method(yesNoDialogSpy, open))
+				.Do([](
+					const std::string,
+					const std::string&,
+					std::function<void(UserChoice)> completedCallback)
+				{
+					completedCallback(UserChoice::Cancelled);
+				});
 
-			app.getState().handleExitTest(dialog);
+			app.getState().handleExitTest();
 
 			REQUIRE(not app.exitCalled());
 			REQUIRE(editorMockState.saveToFileCallCounter == 0);
@@ -159,14 +186,18 @@ TEST_CASE("[AppStateEditor]")
 			theme,
 			ini,
 			options,
-			std::move(fileApiMock),
-			std::move(shortcutEngine),
-			yesNoDialog,
+			fileApiMock,
+			shortcutEngine,
+			yesNoDialogMock,
 			errorInfoDialog);
 
 		SECTION("Returns nullopt on user cancel")
 		{
-			fileApiMock->userCancelled = true;
+			When(Method(fileApiSpy, getSaveFileName))
+				.Do([] (const char*) -> std::optional<std::string>
+				{
+					return {};
+				});
 
 			REQUIRE_FALSE(
 				appStateEditor
@@ -176,7 +207,11 @@ TEST_CASE("[AppStateEditor]")
 
 		SECTION("Appends .lvd if not specified")
 		{
-			fileApiMock->mockFileName = "name";
+			When(Method(fileApiSpy, getSaveFileName))
+				.Do([] (const char*) -> std::optional<std::string>
+				{
+					return "name";
+				});
 
 			REQUIRE(
 				appStateEditor
@@ -186,7 +221,11 @@ TEST_CASE("[AppStateEditor]")
 
 		SECTION("Does nothing if .lvd is specified")
 		{
-			fileApiMock->mockFileName = "name.lvd";
+			When(Method(fileApiSpy, getSaveFileName))
+				.Do([] (const char*) -> std::optional<std::string>
+				{
+					return "name.lvd";
+				});
 
 			REQUIRE(
 				appStateEditor
