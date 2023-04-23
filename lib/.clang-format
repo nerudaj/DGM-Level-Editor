@@ -45,6 +45,8 @@ RequiresClausePosition: OwnLine
 SeparateDefinitionBlocks: Always
 PackConstructorInitializers: NextLine #NextLineOnly is better
 BreakBeforeBraces: Custom
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: BeforeComma
 BraceWrapping:
   AfterClass:      true
   AfterControlStatement: true
@@ -57,6 +59,8 @@ BraceWrapping:
   AfterExternBlock: true
   BeforeCatch:     true
   BeforeElse:      true
+  BeforeLambdaBody: true
+  BeforeWhile: false
   IndentBraces:    false
   SplitEmptyFunction: true
   SplitEmptyRecord: true
