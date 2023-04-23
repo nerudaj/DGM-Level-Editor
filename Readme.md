@@ -33,6 +33,22 @@ After first launch, click File -> New and point the New level dialog to `sample_
 
 ![](docs/images/01_new_level.png)
 
-Confirm your selection.
+Confirm your selection. This will create a default level of size 20 by 10 tiles. Click the + icon in the right sidebar to access tile selection, pick a tile and start drawing.
 
-TODO: rest
+![](docs/images/02_brush_picker.png)
+
+Click the Tool menu to access specific modes of operation for currently selected mode (there is a Mesh mode, Item mode and Triggers mode). You can swap the active mode under Editor menu. You can also resize the level or swap active layers (there are three - Bottom, Middle and Upper).
+
+![](docs/images/03_tool_switching.png)
+
+Left click usually places an object (tile/trigger/...), drag moves it around, clicking an existing object will select it (so you can drag multiple objects around). Right clicking will display properties of a given thing, so you can manually adjust its metadata (and your game can then interpret them to as need). Make sure you are using a correct mode before accessing appropriate properties (you can only right-click a tile in a Mesh mode for example).
+
+![](docs/images/04_properties.png)
+
+Assigning multiple things a same tag will link them together (so you can link a trigger to a bomb so it is detonated when player crosses the trigger).
+
+![](docs/images/05_linking.png)
+
+Edit the preferences under Play menu and you can then launch your game with the current level directly from the editor using F5.
+
+![](docs/images/06_launcher.png)
