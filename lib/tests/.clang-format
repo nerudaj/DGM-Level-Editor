@@ -57,6 +57,8 @@ BraceWrapping:
   AfterExternBlock: true
   BeforeCatch:     true
   BeforeElse:      true
+  BeforeLambdaBody: true
+  BeforeWhile: false
   IndentBraces:    false
   SplitEmptyFunction: true
   SplitEmptyRecord: true
