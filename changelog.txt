@@ -1,4 +1,5 @@
 DGM Level Editor v2.x.x changelog:
+ * Added an option to run the level in a chosen binary for playtesting purposes
  * Bumped `nlohmann::json` to v3.11.2
  * Each level now has 3 layers between which user can now cycle through (Ctrl + Arrow Up/Down)
  * Editor window can be resized
