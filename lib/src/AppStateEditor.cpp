@@ -5,7 +5,6 @@
 #include "include/Dialogs/PlaytestSettingsDialog.hpp"
 #include "include/Editor/Editor.hpp"
 #include "include/Editor/NullEditor.hpp"
-#include "include/Globals.hpp"
 #include "include/Launcher/NullPlaytestLauncher.hpp"
 #include "include/Launcher/PlaytestLauncher.hpp"
 #include "include/Utilities/FontLoader.hpp"
@@ -50,7 +49,7 @@ void AppStateEditor::setupFont()
         throw std::runtime_error("Could not load any font.");
     }
 
-    gui.setFont(resmgr.get<sf::Font>(fontLoader.getLoadedFontName()));
+    gui->gui.setFont(resmgr.get<sf::Font>(fontLoader.getLoadedFontName()));
 }
 
 std::optional<std::string> AppStateEditor::getNewSavePath()
@@ -82,7 +81,7 @@ void AppStateEditor::input()
                 0.f,
                 static_cast<float>(event.size.width),
                 static_cast<float>(event.size.height))));
-            gui.setView(app.window.getWindowContext().getView());
+            gui->gui.setView(app.window.getWindowContext().getView());
         }
         else if (event.type == sf::Event::KeyPressed)
         {
@@ -107,7 +106,7 @@ void AppStateEditor::input()
             clickPreventer.preventClickForNextNFrames(30);
         }
 
-        gui.handleEvent(event);
+        gui->gui.handleEvent(event);
         editor->handleEvent(event, mousePos);
         shortcutEngine->handleEvent(event);
     }
@@ -135,13 +134,12 @@ void AppStateEditor::draw()
     canvas->display();
 
     // Whole window
-    gui.draw();
+    gui->gui.draw();
 }
 
 AppStateEditor::AppStateEditor(
     dgm::App& app,
-    tgui::Gui& gui,
-    tgui::Theme& theme,
+    GC<Gui> gui,
     cfg::Ini& ini,
     ProgramOptions options,
     GC<FileApiInterface> fileApi,
@@ -150,7 +148,6 @@ AppStateEditor::AppStateEditor(
     GC<ErrorInfoDialogInterface> dialogErrorInfo)
     : dgm::AppState(app)
     , gui(gui)
-    , theme(theme)
     , ini(ini)
     , programOptions(options)
     , fileApi(fileApi)
@@ -158,8 +155,8 @@ AppStateEditor::AppStateEditor(
     , dialogConfirmExit(dialogConfirmExit)
     , dialogErrorInfo(dialogErrorInfo)
     , editor(Box<NullEditor>())
-    , dialogNewLevel(gui, theme, fileApi, configPath)
-    , dialogUpdateConfigPath(gui, theme, fileApi)
+    , dialogNewLevel(gui, fileApi, configPath)
+    , dialogUpdateConfigPath(gui, fileApi)
     , playtestLauncher(Box<NullPlaytestLauncher>())
 {
     std::string playtestBinaryPathRaw = "";
@@ -196,11 +193,10 @@ AppStateEditor::AppStateEditor(
     }
 
     playtestLauncher = Box<PlaytestLauncher>(
-        gui,
         shortcutEngine,
         GC<ProcessCreator>(),
         GC<PlaytestSettingsDialog>(
-            gui, theme, fileApi, playtestBinaryPath, playtestLaunchOptions),
+            gui, fileApi, playtestBinaryPath, playtestLaunchOptions),
         [&] { return savePath; },
         playtestBinaryPath,
         playtestLaunchOptions);
@@ -209,8 +205,9 @@ AppStateEditor::AppStateEditor(
     {
         // NOTE: if editor crashes under debugger, set binary parameter to
         // ../../.. because behaviour of root dir had changed
-        theme.load((programOptions.rootDir / "resources/TransparentGrey.txt")
-                       .string());
+        gui->theme.load(
+            (programOptions.rootDir / "resources/TransparentGrey.txt")
+                .string());
         setupFont();
     }
     catch (std::exception& e)
@@ -220,7 +217,7 @@ AppStateEditor::AppStateEditor(
     }
 
     // Setup resources
-    gui.setTarget(app.window.getWindowContext());
+    gui->gui.setTarget(app.window.getWindowContext());
 
     buildLayout();
 
@@ -231,7 +228,7 @@ AppStateEditor::AppStateEditor(
     };
 
     editor = Box<Editor>(
-        gui, theme, canvas, onStateChanged, commandQueue, this->shortcutEngine);
+        gui, canvas, onStateChanged, commandQueue, this->shortcutEngine);
 
     updateWindowTitle();
 }
@@ -272,7 +269,7 @@ void AppStateEditor::buildLayout()
 
     auto layerLabel = tgui::Label::create();
     layerLabel->setPosition("1%", "100% - 2 * " + TOPBAR_HEIGHT);
-    gui.add(layerLabel, "LayerLabel");
+    gui->gui.add(layerLabel, "LayerLabel");
 }
 
 AppStateEditor::AllowExecutionToken AppStateEditor::buildCanvasLayout(
@@ -283,7 +280,7 @@ AppStateEditor::AllowExecutionToken AppStateEditor::buildCanvasLayout(
     canvas = tgui::Canvas::create();
     canvas->setSize("100% - " + SIDEBAR_WIDTH, SIDEBAR_HEIGHT);
     canvas->setPosition(0.f, TOPBAR_HEIGHT);
-    gui.add(canvas, "TilesetCanvas");
+    gui->gui.add(canvas, "TilesetCanvas");
     return AllowExecutionToken();
 }
 
@@ -294,7 +291,7 @@ tgui::MenuBar::Ptr AppStateEditor::buildMenuBarLayout(
 {
     auto menu = tgui::MenuBar::create();
     menu->setTextSize(TOPBAR_FONT_HEIGHT);
-    menu->setRenderer(theme.getRenderer("MenuBar"));
+    menu->setRenderer(gui->theme.getRenderer("MenuBar"));
     menu->setSize("100%", TOPBAR_HEIGHT);
     menu->addMenu(Strings::AppState::CTX_MENU_NAME);
 
@@ -329,7 +326,7 @@ tgui::MenuBar::Ptr AppStateEditor::buildMenuBarLayout(
         REDO, [this] { handleRedo(); }, sf::Keyboard::Y);
     addFileMenuItem(EXIT, [this] { handleExit(*dialogConfirmExit); });
 
-    gui.add(menu, "TopMenuBar");
+    gui->gui.add(menu, "TopMenuBar");
 
     return menu;
 }
@@ -344,7 +341,7 @@ void AppStateEditor::buildSidebarLayout(
     auto sidebar = tgui::Group::create();
     sidebar->setSize(SIDEBAR_WIDTH, SIDEBAR_HEIGHT);
     sidebar->setPosition("100% - " + SIDEBAR_WIDTH, TOPBAR_HEIGHT);
-    gui.add(sidebar, "Sidebar");
+    gui->gui.add(sidebar, "Sidebar");
 }
 
 tgui::ChatBox::Ptr AppStateEditor::buildLoggerLayout(
@@ -353,14 +350,14 @@ tgui::ChatBox::Ptr AppStateEditor::buildLoggerLayout(
     unsigned TOPBAR_FONT_HEIGHT)
 {
     auto logger = tgui::ChatBox::create();
-    logger->setRenderer(theme.getRenderer("ChatBox"));
+    logger->setRenderer(gui->theme.getRenderer("ChatBox"));
     logger->setSize("100%", TOPBAR_HEIGHT);
     logger->setPosition("0%", "100% - " + TOPBAR_HEIGHT);
     logger->setTextSize(Sizers::GetMenuBarTextHeight());
     logger->setLinesStartFromTop();
     logger->setLineLimit(1);
     logger->addLine("This is a log console");
-    gui.add(logger, "LoggerBox");
+    gui->gui.add(logger, "LoggerBox");
     return logger;
 }
 

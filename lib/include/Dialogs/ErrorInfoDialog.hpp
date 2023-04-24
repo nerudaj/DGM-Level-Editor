@@ -1,24 +1,18 @@
 #pragma once
 
+#include "include/Gui.hpp"
 #include "include/Interfaces/DialogInterfaces.hpp"
-
-#include <TGUI/TGUI.hpp>
+#include "include/Utilities/GC.hpp"
 
 class ErrorInfoDialog final : public ErrorInfoDialogInterface
 {
 public:
-	ErrorInfoDialog(
-		tgui::Gui& gui,
-		tgui::Theme& theme) noexcept
-		: gui(gui)
-		, theme(theme)
-	{}
+    ErrorInfoDialog(GC<Gui> gui) noexcept : gui(gui) {}
 
 public:
-	virtual void open(const std::string& text) override;
+    virtual void open(const std::string& text) override;
 
 private:
-	tgui::Gui& gui;
-	tgui::Theme& theme;
-	constexpr static inline const char* DIALOG_ID = "ErrorInfoDialog";
+    GC<Gui> gui;
+    constexpr static inline const char* DIALOG_ID = "ErrorInfoDialog";
 };

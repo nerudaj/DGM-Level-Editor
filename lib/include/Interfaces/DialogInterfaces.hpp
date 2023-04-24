@@ -36,12 +36,11 @@ class PlaytestSettingsDialogInterface : public DialogInterface
 {
 public:
     PlaytestSettingsDialogInterface(
-        tgui::Gui& gui,
-        tgui::Theme& theme,
+        GC<Gui> gui,
         const std::string& id,
         const std::string& title,
         const std::vector<OptionLine>& options)
-        : DialogInterface(gui, theme, id, title, options)
+        : DialogInterface(gui, id, title, options)
     {
     }
 

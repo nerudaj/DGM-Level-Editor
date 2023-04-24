@@ -1,3 +1,6 @@
+DGM Level Editor v2.x.x changelog:
+ * Fixed shortcuts triggering when modals were opened
+
 DGM Level Editor v2.1.1 changelog:
  * Added an option to run the level in a chosen binary for playtesting purposes
  * Bumped `nlohmann::json` to v3.11.2

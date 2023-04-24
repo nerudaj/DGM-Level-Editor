@@ -10,10 +10,9 @@ std::string UpdateConfigPathDialog::getConfigPath() const
 void UpdateConfigPathDialog::customOpenCode() {}
 
 UpdateConfigPathDialog::UpdateConfigPathDialog(
-    tgui::Gui& gui, tgui::Theme& theme, GC<FileApiInterface> fileApi)
+    GC<Gui> gui, GC<FileApiInterface> fileApi)
     : DialogInterface(
         gui,
-        theme,
         "ModalUpdateConfigPath",
         "Update path to config",
         std::vector<OptionLine> { OptionInputWithButton {
@@ -22,7 +21,7 @@ UpdateConfigPathDialog::UpdateConfigPathDialog(
             "Pick a config file",
             [&, fileApi]
             {
-                auto box = gui.get<tgui::EditBox>(INPUT_UPDATED_CONFIG_ID);
+                auto box = gui->get<tgui::EditBox>(INPUT_UPDATED_CONFIG_ID);
                 auto filename = fileApi->getOpenFileName(JSON_FILTER);
                 box->setText(filename.value_or(""));
             } } })

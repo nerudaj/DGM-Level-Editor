@@ -8,6 +8,7 @@
 #include "include/Dialogs/YesNoCancelDialog.hpp"
 #include "include/Dialogs/ErrorInfoDialog.hpp"
 #include "include/ProgramOptions.hpp"
+#include "include/Gui.hpp"
 
 #include <string>
 #include <functional>
@@ -72,18 +73,16 @@ int main(int argc, char* argv[])
 
 	dgm::App app(window);
 
-	tgui::Gui gui;
-	tgui::Theme theme;
+	GC<Gui> gui;
 
 	app.pushState<AppStateEditor>(
 		gui,
-		theme,
 		ini,
 		programOptions,
 		fileApi,
-		GC<ShortcutEngine>(),
-		GC<YesNoCancelDialog>(gui, theme),
-		GC<ErrorInfoDialog>(gui, theme));
+		GC<ShortcutEngine>([&gui] { return gui->isAnyModalOpened(); }),
+		GC<YesNoCancelDialog>(gui),
+		GC<ErrorInfoDialog>(gui));
 	app.run();
 
 	windowSettings = window.close();

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <TGUI/TGUI.hpp>
+#include "include/Gui.hpp"
+#include "include/Utilities/GC.hpp"
 #include <functional>
 #include <variant>
 #include <vector>
@@ -29,8 +30,7 @@ using OptionLine = std::variant<OptionInput, OptionInputWithButton, OptionText>;
 class DialogInterface
 {
 protected:
-    tgui::Gui& gui;
-    tgui::Theme& theme;
+    GC<Gui> gui;
     const std::string DIALOG_ID;
     const std::string DIALOG_TITLE;
     const std::vector<OptionLine> OPTIONS;
@@ -40,7 +40,7 @@ protected:
 
     [[nodiscard]] std::string getEditboxValue(const std::string& boxId) const
     {
-        return gui.get<tgui::EditBox>(boxId)->getText().toAnsiString();
+        return gui->get<tgui::EditBox>(boxId)->getText().toAnsiString();
     }
 
 public:
@@ -48,18 +48,16 @@ public:
 
     void close()
     {
-        auto modal = gui.get<tgui::ChildWindow>(DIALOG_ID);
-        gui.remove(modal);
+        gui->closeModal(DIALOG_ID);
     }
 
     [[nodiscard]] bool isOpen() const
     {
-        return gui.get<tgui::ChildWindow>(DIALOG_ID) != nullptr;
+        return gui->get<tgui::ChildWindow>(DIALOG_ID) != nullptr;
     }
 
     DialogInterface(
-        tgui::Gui& gui,
-        tgui::Theme& theme,
+        GC<Gui> gui,
         const std::string& dialogId,
         const std::string& dialogTitle,
         const std::vector<OptionLine>& options);

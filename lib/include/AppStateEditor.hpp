@@ -6,6 +6,7 @@
 #include "LogConsole.hpp"
 #include "include/Commands/CommandHistory.hpp"
 #include "include/Commands/CommandQueue.hpp"
+#include "include/Gui.hpp"
 #include "include/Interfaces/DialogInterfaces.hpp"
 #include "include/Interfaces/EditorInterface.hpp"
 #include "include/Interfaces/FileApiInterface.hpp"
@@ -25,8 +26,7 @@ class AppStateEditor : public dgm::AppState
 protected:
     // Dependencies
     cfg::Ini& ini;
-    tgui::Gui& gui;
-    tgui::Theme& theme;
+    GC<Gui> gui;
     GC<ShortcutEngineInterface> shortcutEngine;
     GC<FileApiInterface> fileApi;
     GC<YesNoCancelDialogInterface> dialogConfirmExit;
@@ -118,8 +118,7 @@ public:
 
     AppStateEditor(
         dgm::App& app,
-        tgui::Gui& gui,
-        tgui::Theme& theme,
+        GC<Gui> gui,
         cfg::Ini& ini,
         ProgramOptions options,
         GC<FileApiInterface> fileApi,

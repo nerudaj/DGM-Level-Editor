@@ -23,7 +23,7 @@ void Editor::populateMenuBar()
 {
     constexpr const char* MENU_NAME = "Editor";
 
-    auto menu = gui.get<tgui::MenuBar>("TopMenuBar");
+    auto menu = gui->gui.get<tgui::MenuBar>("TopMenuBar");
 
     // Cleanup previously built data
     menu->removeMenu(MENU_NAME);
@@ -32,7 +32,8 @@ void Editor::populateMenuBar()
     auto addEditorMenuItem = [&](const std::string& label,
                                  std::function<void(void)> callback,
                                  sf::Keyboard::Key shortcut,
-                                 bool ctrlRequired = false) {
+                                 bool ctrlRequired = false)
+    {
         menu->addMenuItem(label);
         menu->connectMenuItem(MENU_NAME, label, callback);
 
@@ -71,19 +72,31 @@ void Editor::populateMenuBar()
 
     // Scrolling
     shortcutEngine->registerShortcut(
-        MENU_NAME, { false, false, sf::Keyboard::Up }, [&] {
+        MENU_NAME,
+        { false, false, sf::Keyboard::Up },
+        [&]
+        {
             if (canScroll()) camera.move(UP_VEC);
         });
     shortcutEngine->registerShortcut(
-        MENU_NAME, { false, false, sf::Keyboard::Left }, [&] {
+        MENU_NAME,
+        { false, false, sf::Keyboard::Left },
+        [&]
+        {
             if (canScroll()) camera.move(LEFT_VEC);
         });
     shortcutEngine->registerShortcut(
-        MENU_NAME, { false, false, sf::Keyboard::Down }, [&] {
+        MENU_NAME,
+        { false, false, sf::Keyboard::Down },
+        [&]
+        {
             if (canScroll()) camera.move(DOWN_VEC);
         });
     shortcutEngine->registerShortcut(
-        MENU_NAME, { false, false, sf::Keyboard::Right }, [&] {
+        MENU_NAME,
+        { false, false, sf::Keyboard::Right },
+        [&]
+        {
             if (canScroll()) camera.move(RIGHT_VEC);
         });
 }
@@ -105,7 +118,8 @@ void Editor::drawTagHighlight()
     if (!object.has_value() || object->tag == 0) return;
 
     std::vector<sf::Vertex> positions;
-    auto computeLinesToDraw = [&object, &positions](ToolInterface& t) {
+    auto computeLinesToDraw = [&object, &positions](ToolInterface& t)
+    {
         const auto vec = t.getPositionsOfObjectsWithTag(object->tag);
         for (auto&& pos : vec)
         {
@@ -148,11 +162,11 @@ void Editor::draw()
     if (!isInitialized()) return;
 
     // Primary render
-    stateMgr.forallStates([this](ToolInterface& tool, bool active) {
-        tool.drawTo(canvas, active ? 255 : 128);
-    });
+    stateMgr.forallStates([this](ToolInterface& tool, bool active)
+                          { tool.drawTo(canvas, active ? 255 : 128); });
 
-    gui.get<tgui::Label>("LayerLabel")->setText(layerController->toString());
+    gui->gui.get<tgui::Label>("LayerLabel")
+        ->setText(layerController->toString());
 
     drawTagHighlight();
 
@@ -167,12 +181,11 @@ void Editor::init(
     auto config = JsonHelper::loadFromFile(configPath.string());
     config["configFolder"] = configPath.parent_path().string();
 
-    stateMgr.forallStates(
-        [&config](ToolInterface& tool) { tool.configure(config); });
+    stateMgr.forallStates([&config](ToolInterface& tool)
+                          { tool.configure(config); });
 
-    stateMgr.forallStates([levelWidth, levelHeight](ToolInterface& tool) {
-        tool.resize(levelWidth, levelHeight);
-    });
+    stateMgr.forallStates([levelWidth, levelHeight](ToolInterface& tool)
+                          { tool.resize(levelWidth, levelHeight); });
 
     // Configure camera
     camera.init();
@@ -197,7 +210,7 @@ void Editor::switchTool(EditorState state)
     stateMgr.changeState(state);
     stateMgr.getActiveTool().buildSidebar();
 
-    auto menu = gui.get<tgui::MenuBar>("TopMenuBar");
+    auto menu = gui->gui.get<tgui::MenuBar>("TopMenuBar");
     stateMgr.getActiveTool().buildCtxMenu(menu);
 }
 
@@ -205,8 +218,8 @@ LevelD Editor::save() const
 {
     LevelD result;
 
-    stateMgr.forallStates(
-        [&result](const ToolInterface& tool) { tool.saveTo(result); });
+    stateMgr.forallStates([&result](const ToolInterface& tool)
+                          { tool.saveTo(result); });
 
     return result;
 }
@@ -225,46 +238,47 @@ void Editor::loadFrom(
 
 void Editor::resizeDialog()
 {
-    dialog.open([this] {
-        commandQueue->push<ResizeCommand>(
-            *this, dialog.getLevelWidth(), dialog.getLevelHeight());
-    });
+    dialog.open(
+        [this]
+        {
+            commandQueue->push<ResizeCommand>(
+                *this, dialog.getLevelWidth(), dialog.getLevelHeight());
+        });
 }
 
 void Editor::resize(unsigned width, unsigned height)
 {
-    stateMgr.forallStates(
-        [width, height](ToolInterface& t) { t.resize(width, height); });
+    stateMgr.forallStates([width, height](ToolInterface& t)
+                          { t.resize(width, height); });
 }
 
 void Editor::shrinkToFit()
 {
     std::optional<TileRect> boundingBox;
-    stateMgr.forallStates([&boundingBox](const ToolInterface& t) {
-        boundingBox = Utilities::unifyRects(boundingBox, t.getBoundingBox());
-    });
+    stateMgr.forallStates(
+        [&boundingBox](const ToolInterface& t) {
+            boundingBox =
+                Utilities::unifyRects(boundingBox, t.getBoundingBox());
+        });
 
     if (boundingBox.has_value())
     {
-        stateMgr.forallStates([&boundingBox](ToolInterface& t) {
-            t.shrinkTo(boundingBox.value());
-        });
+        stateMgr.forallStates([&boundingBox](ToolInterface& t)
+                              { t.shrinkTo(boundingBox.value()); });
     }
 }
 
 Editor::Editor(
-    tgui::Gui& guiRef,
-    tgui::Theme& themeRef,
+    GC<Gui> gui,
     tgui::Canvas::Ptr& canvas,
     std::function<void(void)> onStateChanged,
     GC<CommandQueue> commandQueueRef,
     GC<ShortcutEngineInterface> shortcutEngineRef)
-    : gui(guiRef),
-      theme(themeRef),
-      canvas(canvas),
-      commandQueue(commandQueueRef),
-      shortcutEngine(shortcutEngineRef),
-      physicalPen(
+    : gui(gui)
+    , canvas(canvas)
+    , commandQueue(commandQueueRef)
+    , shortcutEngine(shortcutEngineRef)
+    , physicalPen(
           [this]() -> PenUserInterface& { return stateMgr.getActiveTool(); })
 {
     stateMgr.addState<ToolMesh>(
@@ -273,7 +287,6 @@ Editor::Editor(
         shortcutEngine,
         layerController,
         gui,
-        theme,
         commandQueue);
 
     stateMgr.addState<ToolItem>(
@@ -282,7 +295,6 @@ Editor::Editor(
         shortcutEngine,
         layerController,
         gui,
-        theme,
         commandQueue);
 
     stateMgr.addState<ToolTrigger>(
@@ -291,7 +303,6 @@ Editor::Editor(
         shortcutEngine,
         layerController,
         gui,
-        theme,
         commandQueue,
         [this]() -> sf::Vector2i { return physicalPen.getCurrentPenPos(); });
 

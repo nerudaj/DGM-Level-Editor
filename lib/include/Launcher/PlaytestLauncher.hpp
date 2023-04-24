@@ -10,7 +10,6 @@ class PlaytestLauncher final : public PlaytestLauncherInterface
 {
 public:
     PlaytestLauncher(
-        tgui::Gui& gui,
         GC<ShortcutEngineInterface> shortcutEngine,
         GC<ProcessCreatorInterface> processCreator,
         GC<PlaytestSettingsDialogInterface> dialogPlaytestSettings,
@@ -38,7 +37,6 @@ private:
     void handleConfigureLaunchOptions();
 
 private:
-    tgui::Gui& gui;
     GC<ShortcutEngineInterface> shortcutEngine;
     GC<ProcessCreatorInterface> processCreator;
     GC<PlaytestSettingsDialogInterface> dialogPlaytestSettings;

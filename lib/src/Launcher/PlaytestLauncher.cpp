@@ -5,15 +5,13 @@
 #include <optional>
 
 PlaytestLauncher::PlaytestLauncher(
-    tgui::Gui& gui,
     GC<ShortcutEngineInterface> shortcutEngine,
     GC<ProcessCreatorInterface> processCreator,
     GC<PlaytestSettingsDialogInterface> dialogPlaytestSettings,
     std::function<std::string()> getCurrentLevelPathCallback,
     const std::filesystem::path& binaryPath,
     const std::string& launchOptions) noexcept
-    : gui(gui)
-    , shortcutEngine(shortcutEngine)
+    : shortcutEngine(shortcutEngine)
     , processCreator(processCreator)
     , dialogPlaytestSettings(dialogPlaytestSettings)
     , getCurrentLevelPathCallback(std::move(getCurrentLevelPathCallback))

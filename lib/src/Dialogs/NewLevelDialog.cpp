@@ -10,7 +10,7 @@ void NewLevelDialog::customOpenCode()
 {
     if (!configPath.has_value()) return;
 
-    auto box = gui.get<tgui::EditBox>(INPUT_LEVEL_CONFIG_ID);
+    auto box = gui->get<tgui::EditBox>(INPUT_LEVEL_CONFIG_ID);
     box->setText(configPath.value());
 }
 
@@ -30,13 +30,11 @@ std::string NewLevelDialog::getConfigPath() const
 }
 
 NewLevelDialog::NewLevelDialog(
-    tgui::Gui& gui,
-    tgui::Theme& theme,
+    GC<Gui> gui,
     GC<FileApiInterface> fileApi,
     const std::optional<std::string>& configPath)
     : DialogInterface(
         gui,
-        theme,
         "ModalNewLevel",
         "New level",
         std::vector<OptionLine> {
@@ -48,10 +46,10 @@ NewLevelDialog::NewLevelDialog(
                   "Pick a config file",
                   [&, fileApi]
                   {
-                      auto box = gui.get<tgui::EditBox>(INPUT_LEVEL_CONFIG_ID);
+                      auto box = gui->get<tgui::EditBox>(INPUT_LEVEL_CONFIG_ID);
                       auto fileName = fileApi->getOpenFileName(JSON_FILTER);
                       box->setText(fileName.value_or(""));
-                  } } } }),
-      configPath(configPath)
+                  } } } })
+    , configPath(configPath)
 {
 }

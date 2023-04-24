@@ -6,6 +6,7 @@
 #include "include/Dialogs/ResizeLevelDialog.hpp"
 #include "include/Editor/EditorState.hpp"
 #include "include/Editor/EditorStateManager.hpp"
+#include "include/Globals.hpp"
 #include "include/Interfaces/EditorInterface.hpp"
 #include "include/Shortcuts/ShortcutEngine.hpp"
 #include "include/Tools/LayerController.hpp"
@@ -20,8 +21,7 @@ class Editor final : public EditorInterface
 {
 public:
     [[nodiscard]] Editor(
-        tgui::Gui& gui,
-        tgui::Theme& theme,
+        GC<Gui> gui,
         tgui::Canvas::Ptr& canvas,
         std::function<void(void)> onStateChanged,
         GC<CommandQueue> commandQueue,
@@ -30,11 +30,10 @@ public:
     Editor(const Editor&) = delete;
 
 private:
-    tgui::Gui& gui;
-    tgui::Theme& theme;
+    GC<Gui> gui;
     tgui::Canvas::Ptr& canvas;
-    ResizeDialog dialog = ResizeDialog(gui, theme);
-    EditPropertyDialog editPropertyDialog = EditPropertyDialog(gui, theme);
+    ResizeDialog dialog = ResizeDialog(gui);
+    EditPropertyDialog editPropertyDialog = EditPropertyDialog(gui);
     Camera camera = Camera(canvas);
     EditorStateManager stateMgr;
     sf::CircleShape mouseIndicator;
@@ -53,9 +52,7 @@ private:
 
     [[nodiscard]] bool canScroll() const
     {
-        // If property window is opened, prevent scrolling
-        return gui.get<tgui::ChildWindow>(EditPropertyDialog::DIALOG_ID)
-               == nullptr;
+        return !gui->isAnyModalOpened();
     }
 
     [[nodiscard]] bool canOpenPropertyDialog() const

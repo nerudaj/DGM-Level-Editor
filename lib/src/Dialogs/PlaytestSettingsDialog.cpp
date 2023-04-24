@@ -4,14 +4,12 @@ constexpr const char* INPUT_BINARY_PATH = "InputBinaryPath";
 constexpr const char* INPUT_LAUNCH_OPTIONS = "InputLaunchOptions";
 
 PlaytestSettingsDialog::PlaytestSettingsDialog(
-    tgui::Gui& gui,
-    tgui::Theme& theme,
+    GC<Gui> gui,
     GC<FileApiInterface> fileApi,
     const std::filesystem::path& binaryPath,
     const std::string& launchOptions)
     : PlaytestSettingsDialogInterface(
         gui,
-        theme,
         "PlaytestSettingsDialog",
         "Playtest Settings",
         std::vector<OptionLine> {
@@ -21,7 +19,7 @@ PlaytestSettingsDialog::PlaytestSettingsDialog(
                 binaryPath.string(),
                 [&, fileApi]
                 {
-                    auto box = gui.get<tgui::EditBox>(INPUT_BINARY_PATH);
+                    auto box = gui->gui.get<tgui::EditBox>(INPUT_BINARY_PATH);
                     auto fileName = fileApi->getOpenFileName(EXES_FILTER);
                     box->setText(fileName.value_or(""));
                 } },

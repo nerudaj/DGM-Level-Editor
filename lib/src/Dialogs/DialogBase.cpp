@@ -11,14 +11,14 @@ struct overloaded : Ts...
 
 void DialogInterface::open(std::function<void()> confirmCallback)
 {
-    if (isOpen()) return;
+    if (gui->isAnyModalOpened()) return;
 
-    auto modal = createNewChildWindow(theme, DIALOG_TITLE);
+    auto modal = gui->createNewChildWindow(DIALOG_TITLE);
     modal->setSize("30%", "50%");
     modal->setPosition("35%", "25%");
-    modal->connect("EscapeKeyPressed", [this]() { close(); });
-    modal->connect("Closed", [this]() { close(); });
-    gui.add(modal, DIALOG_ID);
+    modal->connect("EscapeKeyPressed", [this] { close(); });
+    modal->connect("Closed", [this] { close(); });
+    gui->addModal(modal, DIALOG_ID);
 
     constexpr auto ROW_HEIGHT = 6_upercent;
     constexpr auto ROW_HEIGHT_STR = "6%";
@@ -123,15 +123,10 @@ void DialogInterface::open(std::function<void()> confirmCallback)
 }
 
 DialogInterface::DialogInterface(
-    tgui::Gui& gui,
-    tgui::Theme& theme,
+    GC<Gui> gui,
     const std::string& dialogId,
     const std::string& dialogTitle,
     const std::vector<OptionLine>& options)
-    : gui(gui)
-    , theme(theme)
-    , DIALOG_ID(dialogId)
-    , DIALOG_TITLE(dialogTitle)
-    , OPTIONS(options)
+    : gui(gui), DIALOG_ID(dialogId), DIALOG_TITLE(dialogTitle), OPTIONS(options)
 {
 }

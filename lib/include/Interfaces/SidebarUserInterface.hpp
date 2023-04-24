@@ -1,25 +1,21 @@
 #pragma once
 
-#include <TGUI/TGUI.hpp>
+#include "include/Gui.hpp"
+#include "include/Utilities/GC.hpp"
 
 class SidebarUserInterface
 {
 public:
-	SidebarUserInterface(
-		tgui::Gui& gui,
-		tgui::Theme& theme) noexcept
-		: gui(gui)
-		, theme(theme)
-	{}
-	virtual ~SidebarUserInterface() = default;
+    SidebarUserInterface(GC<Gui> gui) noexcept : gui(gui) {}
+
+    virtual ~SidebarUserInterface() = default;
 
 public:
-	void buildSidebar();
+    void buildSidebar();
 
 protected:
-	virtual void buildSidebarInternal(tgui::Group::Ptr& sidebar) = 0;
+    virtual void buildSidebarInternal(tgui::Group::Ptr& sidebar) = 0;
 
 protected:
-	tgui::Gui& gui;
-	tgui::Theme& theme;
+    GC<Gui> gui;
 };

@@ -7,15 +7,11 @@
 class UpdateConfigPathDialog final : public DialogInterface
 {
 public:
-	UpdateConfigPathDialog(
-		tgui::Gui& gui,
-		tgui::Theme& theme,
-		GC<FileApiInterface> fileApi);
+    UpdateConfigPathDialog(GC<Gui> gui, GC<FileApiInterface> fileApi);
 
 public:
-	[[nodiscard]]
-	std::string getConfigPath() const;
+    [[nodiscard]] std::string getConfigPath() const;
 
 private:
-	virtual void customOpenCode() override;
+    virtual void customOpenCode() override;
 };

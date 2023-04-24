@@ -1,10 +1,9 @@
 #pragma once
 
-#include <DGM/dgm.hpp>
 #include "DialogBase.hpp"
-#include "include/Utilities/GC.hpp"
 #include "include/Interfaces/FileApiInterface.hpp"
-
+#include "include/Utilities/GC.hpp"
+#include <DGM/dgm.hpp>
 #include <optional>
 
 /**
@@ -20,26 +19,21 @@
 class NewLevelDialog final : public DialogInterface
 {
 public:
-	NewLevelDialog(
-		tgui::Gui& gui,
-		tgui::Theme& theme,
-		GC<FileApiInterface> fileApi,
-		std::optional<std::string> const& configPath);
+    NewLevelDialog(
+        GC<Gui> gui,
+        GC<FileApiInterface> fileApi,
+        const std::optional<std::string>& configPath);
 
 public:
-	[[nodiscard]]
-	unsigned getLevelWidth() const;
+    [[nodiscard]] unsigned getLevelWidth() const;
 
-	[[nodiscard]]
-	unsigned getLevelHeight() const;
+    [[nodiscard]] unsigned getLevelHeight() const;
 
-	[[nodiscard]]
-	std::string getConfigPath() const;
+    [[nodiscard]] std::string getConfigPath() const;
 
 private:
-	std::optional<std::string> const& configPath;
+    const std::optional<std::string>& configPath;
 
 private:
-	virtual void customOpenCode() override;
+    virtual void customOpenCode() override;
 };
-

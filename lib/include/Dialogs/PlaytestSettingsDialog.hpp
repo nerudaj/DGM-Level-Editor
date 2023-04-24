@@ -1,5 +1,6 @@
 #pragma once
 
+#include "include/Gui.hpp"
 #include "include/Interfaces/DialogInterfaces.hpp"
 #include "include/Interfaces/FileApiInterface.hpp"
 #include "include/Utilities/GC.hpp"
@@ -8,8 +9,7 @@ class PlaytestSettingsDialog final : public PlaytestSettingsDialogInterface
 {
 public:
     PlaytestSettingsDialog(
-        tgui::Gui& gui,
-        tgui::Theme& theme,
+        GC<Gui> gui,
         GC<FileApiInterface> fileApi,
         const std::filesystem::path& binaryPath,
         const std::string& launchOptions);
