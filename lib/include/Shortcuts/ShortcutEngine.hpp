@@ -12,7 +12,7 @@ public:
     {
     }
 
-protected:
+public:
     void evaluateShortcut(sf::Keyboard::Key key);
 
     void handleEvent(sf::Event& event) override;

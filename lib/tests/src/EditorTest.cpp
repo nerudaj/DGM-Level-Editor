@@ -6,20 +6,18 @@
 
 TEST_CASE("[Editor]")
 {
-    tgui::Gui gui;
-    gui.add(tgui::MenuBar::create(), "TopMenuBar");
-    gui.add(tgui::Group::create(), "Sidebar");
+    GC<Gui> gui;
+    gui->gui.add(tgui::MenuBar::create(), "TopMenuBar");
+    gui->gui.add(tgui::Group::create(), "Sidebar");
 
-    tgui::Theme theme;
     sf::View view;
     tgui::Canvas::Ptr canvas = tgui::Canvas::create();
     canvas->setView(view);
     CommandHistory commandHistory;
     GC<CommandQueue> commandQueue(commandHistory);
-    GC<ShortcutEngine> shortcutEngine;
+    auto&& shortcutEngine = GC<ShortcutEngine> { [] { return false; } };
 
-    Editor editor(
-        gui, theme, canvas, Null::Callback, commandQueue, shortcutEngine);
+    Editor editor(gui, canvas, Null::Callback, commandQueue, shortcutEngine);
 
     SECTION("loadFrom")
     {
