@@ -6,15 +6,18 @@
 class FileApiInterface
 {
 public:
-    virtual std::string resolveAppdata() const = 0;
+    [[nodiscard]] virtual std::string resolveAppdata() const = 0;
 
-    virtual std::optional<std::string>
+    [[nodiscard]] virtual std::optional<std::string>
     getSaveFileName(const char* filter) const = 0;
 
-    virtual std::optional<std::string>
+    [[nodiscard]] virtual std::optional<std::string>
     getOpenFileName(const char* filter) const = 0;
 
-    FileApiInterface() = default;
+    [[nodiscard]] virtual std::optional<std::filesystem::path>
+    selectFolder() const = 0;
+
+    [[nodiscard]] FileApiInterface() = default;
     FileApiInterface(const FileApiInterface&) = delete;
     virtual ~FileApiInterface() = default;
 };

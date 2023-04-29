@@ -5,7 +5,8 @@
 class ProcessCreator final : public ProcessCreatorInterface
 {
 public:
-	std::expected<ReturnFlag, ErrorMessage> Exec(
-			std::string pathToBinary,
-			std::string params) const noexcept override;
+    [[nodiscard]] std::expected<ReturnFlag, ErrorMessage> Exec(
+        const std::filesystem::path& pathToBinary,
+        const std::string& params,
+        const std::filesystem::path& workingDirectory) const noexcept override;
 };

@@ -44,7 +44,7 @@ NewLevelDialog::NewLevelDialog(
                   "Config file:",
                   INPUT_LEVEL_CONFIG_ID,
                   "Pick a config file",
-                  [&, fileApi]
+                  [&, gui, fileApi]
                   {
                       auto box = gui->get<tgui::EditBox>(INPUT_LEVEL_CONFIG_ID);
                       auto fileName = fileApi->getOpenFileName(JSON_FILTER);

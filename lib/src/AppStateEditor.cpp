@@ -192,14 +192,15 @@ AppStateEditor::AppStateEditor(
         std::cerr << "error:AppStateMainMenu: " << e.what() << std::endl;
     }
 
+    auto&& launcherOptions =
+        GC<PlaytestLauncherOptions>(PlaytestLauncherOptions {
+            playtestBinaryPath, playtestLaunchOptions, {} });
     playtestLauncher = Box<PlaytestLauncher>(
+        launcherOptions,
         shortcutEngine,
         GC<ProcessCreator>(),
-        GC<PlaytestSettingsDialog>(
-            gui, fileApi, playtestBinaryPath, playtestLaunchOptions),
-        [&] { return savePath; },
-        playtestBinaryPath,
-        playtestLaunchOptions);
+        GC<PlaytestSettingsDialog>(launcherOptions, gui, fileApi),
+        [&] { return savePath; });
 
     try
     {
@@ -243,7 +244,7 @@ AppStateEditor::~AppStateEditor()
     ini[programOptions.binaryDirHash]["playtestBinaryPath"] =
         playtestLauncher->getBinaryPath().string();
     ini[programOptions.binaryDirHash]["playtestLaunchOptions"] =
-        playtestLauncher->getLaunchOptions();
+        playtestLauncher->getLaunchParameters();
 }
 
 void AppStateEditor::buildLayout()

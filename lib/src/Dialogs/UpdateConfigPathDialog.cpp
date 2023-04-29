@@ -19,7 +19,7 @@ UpdateConfigPathDialog::UpdateConfigPathDialog(
             "Config file:",
             INPUT_UPDATED_CONFIG_ID,
             "Pick a config file",
-            [&, fileApi]
+            [&, gui, fileApi]
             {
                 auto box = gui->get<tgui::EditBox>(INPUT_UPDATED_CONFIG_ID);
                 auto filename = fileApi->getOpenFileName(JSON_FILTER);

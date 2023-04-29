@@ -5,18 +5,16 @@
 #include <optional>
 
 PlaytestLauncher::PlaytestLauncher(
+    GC<PlaytestLauncherOptions> options,
     GC<ShortcutEngineInterface> shortcutEngine,
     GC<ProcessCreatorInterface> processCreator,
     GC<PlaytestSettingsDialogInterface> dialogPlaytestSettings,
-    std::function<std::string()> getCurrentLevelPathCallback,
-    const std::filesystem::path& binaryPath,
-    const std::string& launchOptions) noexcept
-    : shortcutEngine(shortcutEngine)
+    std::function<std::string()> getCurrentLevelPathCallback) noexcept
+    : options(options)
+    , shortcutEngine(shortcutEngine)
     , processCreator(processCreator)
     , dialogPlaytestSettings(dialogPlaytestSettings)
     , getCurrentLevelPathCallback(std::move(getCurrentLevelPathCallback))
-    , binaryPath(binaryPath)
-    , launchOptions(launchOptions)
 {
 }
 
@@ -63,9 +61,10 @@ replaceString(std::string str, T&& from, const std::string& to)
 void PlaytestLauncher::handlePlaytestExecuted()
 {
     auto result = processCreator->Exec(
-        binaryPath.string(),
+        options->pathToBinary,
         replaceString(
-            launchOptions, "$(LevelPath)", getCurrentLevelPathCallback()));
+            options->parameters, "$(LevelPath)", getCurrentLevelPathCallback()),
+        options->workingDirectory);
     if (!result.has_value())
     {
         Log::write2("Launching playtest failed with error: {}", result.error());
@@ -77,7 +76,9 @@ void PlaytestLauncher::handleConfigureLaunchOptions()
     dialogPlaytestSettings->open(
         [&]
         {
-            binaryPath = dialogPlaytestSettings->getBinaryPath();
-            launchOptions = dialogPlaytestSettings->getLaunchOptions();
+            options->pathToBinary = dialogPlaytestSettings->getBinaryPath();
+            options->parameters = dialogPlaytestSettings->getLaunchParameters();
+            options->workingDirectory =
+                dialogPlaytestSettings->getWorkingDirPath();
         });
 }

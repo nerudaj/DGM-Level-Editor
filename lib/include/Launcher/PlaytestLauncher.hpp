@@ -4,18 +4,18 @@
 #include "include/Interfaces/PlaytestLauncherInterface.hpp"
 #include "include/Interfaces/ProcessCreatorInterface.hpp"
 #include "include/Interfaces/ShortcutEngineInterface.hpp"
+#include "include/Launcher/PlaytestLauncherOptions.hpp"
 #include "include/Utilities/GC.hpp"
 
 class PlaytestLauncher final : public PlaytestLauncherInterface
 {
 public:
     PlaytestLauncher(
+        GC<PlaytestLauncherOptions> options,
         GC<ShortcutEngineInterface> shortcutEngine,
         GC<ProcessCreatorInterface> processCreator,
         GC<PlaytestSettingsDialogInterface> dialogPlaytestSettings,
-        std::function<std::string()> getCurrentLevelPathCallback,
-        const std::filesystem::path& binaryPath,
-        const std::string& launchOptions) noexcept;
+        std::function<std::string()> getCurrentLevelPathCallback) noexcept;
 
 public:
     void buildContextMenu(tgui::MenuBar::Ptr menu) override;
@@ -23,12 +23,19 @@ public:
     [[nodiscard]] const std::filesystem::path&
     getBinaryPath() const noexcept override
     {
-        return binaryPath;
+        return options->pathToBinary;
     }
 
-    [[nodiscard]] const std::string& getLaunchOptions() const noexcept override
+    [[nodiscard]] const std::string&
+    getLaunchParameters() const noexcept override
     {
-        return launchOptions;
+        return options->parameters;
+    }
+
+    [[nodiscard]] const std::filesystem::path&
+    getWorkingDirPath() const noexcept override
+    {
+        return options->workingDirectory;
     }
 
 private:
@@ -37,10 +44,9 @@ private:
     void handleConfigureLaunchOptions();
 
 private:
+    GC<PlaytestLauncherOptions> options;
     GC<ShortcutEngineInterface> shortcutEngine;
     GC<ProcessCreatorInterface> processCreator;
     GC<PlaytestSettingsDialogInterface> dialogPlaytestSettings;
     std::function<std::string()> getCurrentLevelPathCallback;
-    std::filesystem::path binaryPath;
-    std::string launchOptions;
 };

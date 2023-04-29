@@ -49,5 +49,7 @@ public:
 public:
     [[nodiscard]] virtual std::filesystem::path getBinaryPath() const = 0;
 
-    [[nodiscard]] virtual std::string getLaunchOptions() const = 0;
+    [[nodiscard]] virtual std::string getLaunchParameters() const = 0;
+
+    [[nodiscard]] virtual std::filesystem::path getWorkingDirPath() const = 0;
 };
