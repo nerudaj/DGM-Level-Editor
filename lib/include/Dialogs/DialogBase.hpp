@@ -13,9 +13,22 @@ struct OptionInput
     std::string value;
 };
 
+struct OptionDeferredInput
+{
+    std::string label;
+    std::string id;
+    std::function<std::string()> value;
+};
+
 struct OptionInputWithButton
 {
     OptionInput base;
+    std::function<void(void)> buttonCallback = [] {};
+};
+
+struct OptionDeferredInputWithButton
+{
+    OptionDeferredInput base;
     std::function<void(void)> buttonCallback = [] {};
 };
 
@@ -25,7 +38,12 @@ struct OptionText
     unsigned rowsToAllocate;
 };
 
-using OptionLine = std::variant<OptionInput, OptionInputWithButton, OptionText>;
+using OptionLine = std::variant<
+    OptionInput,
+    OptionDeferredInput,
+    OptionInputWithButton,
+    OptionDeferredInputWithButton,
+    OptionText>;
 
 class DialogInterface
 {

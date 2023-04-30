@@ -13,10 +13,10 @@ PlaytestSettingsDialog::PlaytestSettingsDialog(
         "PlaytestSettingsDialog",
         "Playtest Settings",
         std::vector<OptionLine> {
-            OptionInputWithButton {
+            OptionDeferredInputWithButton {
                 "Binary to launch:",
                 INPUT_BINARY_PATH,
-                options->pathToBinary.string(),
+                [options] { return options->pathToBinary.string(); },
                 [&, gui, fileApi]
                 {
                     auto box = gui->gui.get<tgui::EditBox>(INPUT_BINARY_PATH);
@@ -24,10 +24,10 @@ PlaytestSettingsDialog::PlaytestSettingsDialog(
                     box->setText(fileName.value_or(""));
                 } },
             // clang-format off
-            OptionInputWithButton {
+            OptionDeferredInputWithButton {
                 "Working directory:",
                 INPUT_WORKING_DIR,
-                options->workingDirectory.string(),
+                [options] { return options->workingDirectory.string(); },
                 [&, gui, fileApi]
                 {
                     auto box = gui->get<tgui::EditBox>(INPUT_WORKING_DIR);
@@ -39,9 +39,9 @@ PlaytestSettingsDialog::PlaytestSettingsDialog(
             OptionText { "Use variable $(LevelPath) to pass currently "
                          "edited level in command-line parameters",
                          2 },
-            OptionInput { "Cmd parameters:",
-                          INPUT_LAUNCH_OPTIONS,
-                          options->parameters } })
+            OptionDeferredInput { "Cmd parameters:",
+                                  INPUT_LAUNCH_OPTIONS,
+                                  [options] { return options->parameters; } } })
 {
 }
 

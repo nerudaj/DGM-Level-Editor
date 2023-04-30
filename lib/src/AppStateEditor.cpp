@@ -159,42 +159,39 @@ AppStateEditor::AppStateEditor(
     , dialogUpdateConfigPath(gui, fileApi)
     , playtestLauncher(Box<NullPlaytestLauncher>())
 {
-    std::string playtestBinaryPathRaw = "";
-    std::string playtestLaunchOptions = "";
-    std::filesystem::path playtestBinaryPath;
-
-    if (ini.hasSection(programOptions.binaryDirHash))
+    auto&& getIniStringValue =
+        [&ini, &options](const std::string& key) -> std::optional<std::string>
     {
-        auto&& instanceIni = ini[programOptions.binaryDirHash];
+        if (!ini.hasSection(options.binaryDirHash)
+            && ini[options.binaryDirHash].hasKey(key))
+            return {};
+        return ini[options.binaryDirHash][key].asString();
+    };
 
-        if (instanceIni.hasKey("configPath"))
-            configPath = instanceIni["configPath"].asString();
-
-        if (instanceIni.hasKey("playtestBinaryPath"))
+    auto&& makePath = [](const std::optional<std::string>& path) noexcept
+        -> std::filesystem::path
+    {
+        try
         {
-            playtestBinaryPathRaw =
-                instanceIni["playtestBinaryPath"].asString();
+            return std::filesystem::path(path.value_or(""));
         }
-
-        if (instanceIni.hasKey("playtestLaunchOptions"))
+        catch (std::exception& e)
         {
-            playtestLaunchOptions =
-                instanceIni["playtestLaunchOptions"].asString();
+            std::cerr << "error:AppStateMainMenu: " << e.what() << std::endl;
+            return {};
         }
-    }
+    };
 
-    try
-    {
-        playtestBinaryPath = std::filesystem::path(playtestBinaryPathRaw);
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "error:AppStateMainMenu: " << e.what() << std::endl;
-    }
+    configPath = getIniStringValue("configPath").value_or("");
+    const auto&& playtestBinaryPath =
+        makePath(getIniStringValue("playtestBinaryPath"));
+    const auto&& playtestLaunchOptions =
+        getIniStringValue("playtestLaunchOptions").value_or("");
+    const auto&& playtestWorkDirPath =
+        makePath(getIniStringValue("playtestWorkingDirPath"));
 
-    auto&& launcherOptions =
-        GC<PlaytestLauncherOptions>(PlaytestLauncherOptions {
-            playtestBinaryPath, playtestLaunchOptions, {} });
+    auto&& launcherOptions = GC<PlaytestLauncherOptions>(
+        { playtestBinaryPath, playtestLaunchOptions, playtestWorkDirPath });
     playtestLauncher = Box<PlaytestLauncher>(
         launcherOptions,
         shortcutEngine,
@@ -245,6 +242,8 @@ AppStateEditor::~AppStateEditor()
         playtestLauncher->getBinaryPath().string();
     ini[programOptions.binaryDirHash]["playtestLaunchOptions"] =
         playtestLauncher->getLaunchParameters();
+    ini[programOptions.binaryDirHash]["playtestWorkingDirPath"] =
+        playtestLauncher->getWorkingDirPath().string();
 }
 
 void AppStateEditor::buildLayout()

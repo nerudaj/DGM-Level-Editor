@@ -1,6 +1,7 @@
 DGM Level Editor v2.x.x changelog:
- * Fixed shortcuts triggering when modals were opened
  * Added option for selecting working directory of playtest binary
+ * Fixed shortcuts triggering when modals were opened
+ * Fixed "Configure launch options" seemingly not remembering user preferences
 
 DGM Level Editor v2.1.1 changelog:
  * Added an option to run the level in a chosen binary for playtesting purposes
