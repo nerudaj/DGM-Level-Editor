@@ -3,13 +3,11 @@
 
 void ResizeCommand::exec()
 {
-	levelSnapshot = editor.save();
-	editor.resize(width, height);
+    levelSnapshot = editor.save();
+    editor.resize(width, height, isTranslationDisabled);
 }
 
 Box<CommandInterface> ResizeCommand::getInverse() const
 {
-	return Box<RestoreFromSnapshotCommand>(
-		editor,
-		levelSnapshot);
+    return Box<RestoreFromSnapshotCommand>(editor, levelSnapshot);
 }

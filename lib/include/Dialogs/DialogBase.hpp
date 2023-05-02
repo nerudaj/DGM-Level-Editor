@@ -32,6 +32,13 @@ struct OptionDeferredInputWithButton
     std::function<void(void)> buttonCallback = [] {};
 };
 
+struct OptionCheckbox
+{
+    std::string label;
+    std::string id;
+    bool defaultValue = false;
+};
+
 struct OptionText
 {
     std::string text;
@@ -43,6 +50,7 @@ using OptionLine = std::variant<
     OptionDeferredInput,
     OptionInputWithButton,
     OptionDeferredInputWithButton,
+    OptionCheckbox,
     OptionText>;
 
 class DialogInterface

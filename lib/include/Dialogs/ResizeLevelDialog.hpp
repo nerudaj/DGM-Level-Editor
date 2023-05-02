@@ -14,6 +14,8 @@ public:
 
     [[nodiscard]] unsigned getLevelHeight() const;
 
+    [[nodiscard]] bool isTranslationDisabled() const;
+
     ResizeDialog(GC<Gui> gui);
     ResizeDialog(const ResizeDialog&) = delete;
     ResizeDialog(ResizeDialog&&) = delete;

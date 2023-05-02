@@ -100,7 +100,8 @@ public:
 
     virtual void resizeDialog() override;
 
-    virtual void resize(unsigned width, unsigned height) override;
+    virtual void resize(
+        unsigned width, unsigned height, bool isTranslationDisabled) override;
 
     virtual void shrinkToFit() override;
 };

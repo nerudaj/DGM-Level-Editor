@@ -46,7 +46,10 @@ public:
 
     virtual void configure(nlohmann::json& config) override {}
 
-    virtual void resize(unsigned width, unsigned height) override {}
+    virtual void
+    resize(unsigned width, unsigned height, bool isTranslationDisable) override
+    {
+    }
 
     virtual void shrinkTo(const TileRect& r) override {}
 

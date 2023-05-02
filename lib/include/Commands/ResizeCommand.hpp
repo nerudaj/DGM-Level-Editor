@@ -1,27 +1,33 @@
 #pragma once
 
-#include "include/Interfaces/UndoableCommandInterface.hpp"
 #include "include/Interfaces/EditorInterface.hpp"
-
+#include "include/Interfaces/UndoableCommandInterface.hpp"
 #include <LevelD.hpp>
 
 class ResizeCommand final : public UndoableCommandInterface
 {
 protected:
-	unsigned width;
-	unsigned height;
-	EditorInterface& editor;
-	LevelD levelSnapshot;
+    EditorInterface& editor;
+    unsigned width;
+    unsigned height;
+    bool isTranslationDisabled;
+    LevelD levelSnapshot;
 
 public:
-	[[nodiscard]]
-	ResizeCommand(EditorInterface& editor, unsigned width, unsigned height) noexcept
-		: editor(editor), width(width), height(height)
-	{}
+    [[nodiscard]] ResizeCommand(
+        EditorInterface& editor,
+        unsigned width,
+        unsigned height,
+        bool isTranslationDisabled) noexcept
+        : editor(editor)
+        , width(width)
+        , height(height)
+        , isTranslationDisabled(isTranslationDisabled)
+    {
+    }
 
 public:
-	void exec() override;
+    void exec() override;
 
-	[[nodiscard]]
-	Box<CommandInterface> getInverse() const override;
+    [[nodiscard]] Box<CommandInterface> getInverse() const override;
 };

@@ -4,6 +4,7 @@
 #include "include/Configs/Strings.hpp"
 #include "include/JsonHelper.hpp"
 #include "include/LogConsole.hpp"
+#include "include/Utilities/Literals.hpp"
 #include "include/Utilities/Utilities.hpp"
 #include <filesystem>
 #include <fstream>
@@ -184,8 +185,10 @@ void Editor::init(
     stateMgr.forallStates([&config](ToolInterface& tool)
                           { tool.configure(config); });
 
-    stateMgr.forallStates([levelWidth, levelHeight](ToolInterface& tool)
-                          { tool.resize(levelWidth, levelHeight); });
+    stateMgr.forallStates(
+        [levelWidth, levelHeight](ToolInterface& tool) {
+            tool.resize(levelWidth, levelHeight, "isTranslationDisabled"_false);
+        });
 
     // Configure camera
     camera.init();
@@ -242,14 +245,18 @@ void Editor::resizeDialog()
         [this]
         {
             commandQueue->push<ResizeCommand>(
-                *this, dialog.getLevelWidth(), dialog.getLevelHeight());
+                *this,
+                dialog.getLevelWidth(),
+                dialog.getLevelHeight(),
+                dialog.isTranslationDisabled());
         });
 }
 
-void Editor::resize(unsigned width, unsigned height)
+void Editor::resize(unsigned width, unsigned height, bool isTranslationDisabled)
 {
-    stateMgr.forallStates([width, height](ToolInterface& t)
-                          { t.resize(width, height); });
+    stateMgr.forallStates(
+        [width, height, isTranslationDisabled](ToolInterface& t)
+        { t.resize(width, height, isTranslationDisabled); });
 }
 
 void Editor::shrinkToFit()

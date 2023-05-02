@@ -32,9 +32,9 @@ public:
         std::function<void(void)> onStateChanged,
         GC<ShortcutEngineInterface> shortcutEngine,
         GC<LayerObserverInterface> layerObserver) noexcept
-        : onStateChangedCallback(onStateChanged),
-          shortcutEngine(shortcutEngine),
-          layerObserver(layerObserver)
+        : onStateChangedCallback(onStateChanged)
+        , shortcutEngine(shortcutEngine)
+        , layerObserver(layerObserver)
     {
     }
 
@@ -49,7 +49,8 @@ public: // Public virtual interface
 
     virtual void configure(nlohmann::json& config) = 0;
 
-    virtual void resize(unsigned width, unsigned height) = 0;
+    virtual void
+    resize(unsigned width, unsigned height, bool isTranslationDisabled) = 0;
 
     virtual void shrinkTo(const TileRect& boundingBox) = 0;
 

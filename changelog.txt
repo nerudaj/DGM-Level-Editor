@@ -1,5 +1,6 @@
 DGM Level Editor v2.x.x changelog:
  * Added option for selecting working directory of playtest binary
+ * Added option to resize level without moving existing objects
  * Fixed shortcuts triggering when modals were opened
  * Fixed "Configure launch options" seemingly not remembering user preferences
 

@@ -123,7 +123,8 @@ void ToolMesh::copySourceRectToTarget(
     }
 }
 
-void ToolMesh::resize(unsigned width, unsigned height)
+void ToolMesh::resize(
+    unsigned width, unsigned height, bool isTranslationDisabled)
 {
     const bool upscalingX = width > getMap().getMapDimensions().x;
     const bool upscalingY = height > getMap().getMapDimensions().y;
@@ -145,7 +146,8 @@ void ToolMesh::resize(unsigned width, unsigned height)
             map,
             { 0u, 0u },
             end,
-            sf::Vector2i(offsetX, offsetY),
+            isTranslationDisabled ? sf::Vector2i { 0, 0 }
+                                  : sf::Vector2i(offsetX, offsetY),
             tileValues,
             solidValues,
             width);
@@ -316,23 +318,23 @@ std::optional<TileRect> ToolMesh::getBoundingBox() const noexcept
     bool nonZeroTileDetected = false;
     TileRect result;
 
-    auto updateBox =
-        [&](unsigned x, unsigned y, const DrawableLeveldMesh& map) {
-            if (map.getTileValue({ x, y }) == 0) return;
+    auto updateBox = [&](unsigned x, unsigned y, const DrawableLeveldMesh& map)
+    {
+        if (map.getTileValue({ x, y }) == 0) return;
 
-            [[likely]] if (nonZeroTileDetected)
-            {
-                result.left = std::min(result.left, x);
-                result.top = std::min(result.top, y);
-                result.right = std::max(result.right, x);
-                result.bottom = std::max(result.bottom, y);
-            }
-            else
-            {
-                nonZeroTileDetected = true;
-                result = { .left = x, .top = y, .right = x, .bottom = y };
-            }
-        };
+        [[likely]] if (nonZeroTileDetected)
+        {
+            result.left = std::min(result.left, x);
+            result.top = std::min(result.top, y);
+            result.right = std::max(result.right, x);
+            result.bottom = std::max(result.bottom, y);
+        }
+        else
+        {
+            nonZeroTileDetected = true;
+            result = { .left = x, .top = y, .right = x, .bottom = y };
+        }
+    };
 
     for (auto&& map : maps)
     {

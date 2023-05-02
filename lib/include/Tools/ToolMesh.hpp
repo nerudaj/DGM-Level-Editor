@@ -53,7 +53,8 @@ public: // ToolInterface
 
     void configure(nlohmann::json& config) override;
 
-    void resize(unsigned width, unsigned height) override;
+    void resize(
+        unsigned width, unsigned height, bool isTranslationDisabled) override;
 
     void shrinkTo(const TileRect& boundingBox) override;
 

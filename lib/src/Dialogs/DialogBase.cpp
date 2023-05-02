@@ -56,6 +56,14 @@ void DialogInterface::open(std::function<void()> confirmCallback)
         modal->add(box, id);
     };
 
+    auto addCheckbox =
+        [&](const bool value, const std::string& id, unsigned row)
+    {
+        auto check = tgui::CheckBox::create();
+        check->setPosition("32%", computeYposFromRow(row));
+        modal->add(check, id);
+    };
+
     auto addHelperButton = [&](std::function<void(void)> callback, unsigned row)
     {
         auto btn = tgui::Button::create("...");
@@ -104,11 +112,18 @@ void DialogInterface::open(std::function<void()> confirmCallback)
                         input.base.value(), input.base.id, row, "narrow"_true);
                     addHelperButton(input.buttonCallback, row);
                 },
+                [&](const OptionCheckbox& input)
+                {
+                    addLabel(input.label, row);
+                    addCheckbox(input.defaultValue, input.id, row);
+                },
                 [&](const OptionText& input)
                 {
                     addText(input.text, input.rowsToAllocate, row);
                     row += input.rowsToAllocate - 1;
-                } },
+                } }
+
+            ,
             std::forward<const OptionLine>(option));
         row++;
     }
