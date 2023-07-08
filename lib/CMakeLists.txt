@@ -105,11 +105,6 @@ target_precompile_headers ( ${PROJECT_NAME}
 		<json.hpp>
 )
 
-set_property(
-	TARGET ${PROJECT_NAME}
-	PROPERTY VS_USER_PROPS "${CMAKE_CURRENT_SOURCE_DIR}/../props/EnableUseAfterMoveAnalysis.props"
-)
-
 if ( NOT ${DISABLE_BENCHMARKS} )
 	add_subdirectory ( benchmarks )
 endif()

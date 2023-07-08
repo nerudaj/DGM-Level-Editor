@@ -1,4 +1,5 @@
 deps/*
+_build/*
 build/*
 vsbuild/*
 vsbuild-release/*

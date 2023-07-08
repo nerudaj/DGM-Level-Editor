@@ -28,11 +28,6 @@ endif()
 
 include ( "${CMAKE_SOURCE_DIR}/cmake/dependencies.cmake" )
 
-configure_file(
-	"${CMAKE_SOURCE_DIR}/props/EnableUseAfterMoveAnalysis.props.in"
-	"${CMAKE_SOURCE_DIR}/props/EnableUseAfterMoveAnalysis.props"
-)
-
 add_subdirectory ( lib )
 add_subdirectory ( bin )
 
