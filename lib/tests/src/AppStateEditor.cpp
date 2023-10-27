@@ -99,7 +99,6 @@ TEST_CASE("[AppStateEditor]")
 
     auto shortcutEngine = GC<ShortcutEngine>([] { return false; });
     EditorMockState editorMockState;
-    auto editorMock = Box<EditorMock>(&editorMockState);
     auto&& gui = GC<Gui>();
     GC<ErrorInfoDialogInterface> errorInfoDialog = GC<ErrorInfoDialog>(gui);
 
@@ -116,7 +115,7 @@ TEST_CASE("[AppStateEditor]")
 
         SECTION("Asks for confirmation with unsaved changes")
         {
-            app.getState().injectEditorMock(std::move(editorMock));
+            app.getState().injectEditorMock(Box<EditorMock>(&editorMockState));
             app.getState().mockUnsavedChanges();
 
             When(Method(yesNoDialogSpy, open))
@@ -133,7 +132,7 @@ TEST_CASE("[AppStateEditor]")
 
         SECTION("Does not save if user rejects")
         {
-            app.getState().injectEditorMock(std::move(editorMock));
+            app.getState().injectEditorMock(Box<EditorMock>(&editorMockState));
             app.getState().mockUnsavedChanges();
 
             When(Method(yesNoDialogSpy, open))
@@ -150,7 +149,7 @@ TEST_CASE("[AppStateEditor]")
 
         SECTION("Does not exit if user cancels")
         {
-            app.getState().injectEditorMock(std::move(editorMock));
+            app.getState().injectEditorMock(Box<EditorMock>(&editorMockState));
             app.getState().mockUnsavedChanges();
 
             When(Method(yesNoDialogSpy, open))

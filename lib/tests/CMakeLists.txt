@@ -51,6 +51,31 @@ target_link_libraries( ${PROJECT_NAME}
 	editor-lib
 )
 
+target_compile_options ( ${PROJECT_NAME}
+	PRIVATE /MP /analyze:external- /external:I "${JSON_FOLDER}/single_include/nlohmann"
+)
+
+target_precompile_headers ( ${PROJECT_NAME}
+	PRIVATE
+		<vector>
+		<format>
+		<map>
+		<unordered_map>
+		<array>
+		<optional>
+		<expected>
+		<fstream>
+		<filesystem>
+		<functional>
+		<concepts>
+		<memory>
+		<string>
+		<cstdint>
+		<DGM/dgm.hpp>
+		<TGUI/tgui.hpp>
+		<json.hpp>
+)
+
 add_test (
 	NAME ${PROJECT_NAME}
 	COMMAND ${PROJECT_NAME}
